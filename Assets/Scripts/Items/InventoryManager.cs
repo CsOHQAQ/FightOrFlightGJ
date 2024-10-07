@@ -8,7 +8,7 @@ public class InventoryManager : MonoBehaviour
     //Array of items
     //0 - head, 1 - chest, 2 - arms, 3 - legs, 4 - weapon
     [SerializeField]
-    private Item_ScriptableObject[] equippedItems;
+    private Equipment_ScriptableObject[] equippedItems;
 
     //List of Item SOs that the player currently has but are not equipped
     [SerializeField]
@@ -24,7 +24,7 @@ public class InventoryManager : MonoBehaviour
     /// </summary>
     /// <param name="item"> The item that is attempting to be equipped</param>
     /// <returns></returns>
-    public bool TryEquipItem(Item_ScriptableObject item)
+    public bool TryEquipItem(Equipment_ScriptableObject item)
     {
         if (bagItems.Contains(item))
         {
@@ -60,11 +60,28 @@ public class InventoryManager : MonoBehaviour
     /// </summary>
     /// <param name="itemToEquip">The item that should be taking the new slot</param>
     /// <param name="slot">The slot that the item is being put into. 0-Head, 1-Chest, 2-Arms, 3-Legs, 4-Weapon</param>
-    private void EquipItem(Item_ScriptableObject itemToEquip, int slot)
+    private void EquipItem(Equipment_ScriptableObject itemToEquip, int slot)
     {
         bagItems.Add(equippedItems[slot]);
         bagItems.Remove(itemToEquip);
         equippedItems[slot] = itemToEquip;
+    }
+
+    /// <summary>
+    /// Function called to add an item to the bag. Returns true if it was able to, false otherwise
+    /// </summary>
+    /// <param name="item">The item being added to the list</param>
+    /// <returns></returns>
+    public bool AddItemToBag(Item_ScriptableObject item)
+    {
+        if(item)
+        {
+            bagItems.Add(item);
+
+            return true;
+        }
+
+        return false;
     }
 
 }
