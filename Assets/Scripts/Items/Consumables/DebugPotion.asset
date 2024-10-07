@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: DebugPotion
   m_EditorClassIdentifier: 
   itemName: Debug Potion
+  itemSprite: {fileID: 21300000, guid: 79313167ea9d6f3468d5e854e9655f21, type: 3}
   itemDescription: It's a potion of debugging. Absolutely useless.
   itemValue: 0
   consumableBehaviorHolder: {fileID: 7751480584973509199, guid: 12094749e31caea4f81985e6c6f4f6f5,

@@ -112,4 +112,16 @@ public class InventoryManager : MonoBehaviour
         item.RunBehavior();
     }
 
+    /// <summary>
+    /// Function to get a list of the bag items
+    /// </summary>
+    /// <returns></returns>
+    public List<Item_ScriptableObject> GetBagItems() { return bagItems; }
+
+    /// <summary>
+    /// Function to get the array of equipped items
+    /// </summary>
+    /// <returns></returns>
+    public Equipment_ScriptableObject[] GetEquipment() { return equippedItems; }
+
 }

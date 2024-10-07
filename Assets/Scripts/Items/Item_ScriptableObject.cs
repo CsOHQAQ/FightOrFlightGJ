@@ -12,6 +12,9 @@ public class Item_ScriptableObject : ScriptableObject
     public string itemName;
 
     [SerializeField]
+    public Sprite itemSprite;
+
+    [SerializeField]
     [TextArea(2,3)]
     public string itemDescription;
 
