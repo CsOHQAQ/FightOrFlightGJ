@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using UnityEditor.UIElements;
 using UnityEngine;
 
 public class InventoryManager : MonoBehaviour
@@ -82,6 +83,33 @@ public class InventoryManager : MonoBehaviour
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// Function that should be called externally when trying to use a consumable item
+    /// </summary>
+    /// <param name="item"> The item attempting to be used</param>
+    /// <returns></returns>
+    public bool TryUseItem(ConsumableItem_ScriptableObject item)
+    {
+        if(bagItems.Contains(item))
+        {
+            UseItem(item);
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Function that should ONLY be called from TryUseItem after making sure it's valid.
+    /// Removes the item from the BagItems list and then does the functionality
+    /// </summary>
+    /// <param name="item">The item  to be used and removed from the list</param>
+    private void UseItem(ConsumableItem_ScriptableObject item)
+    {
+        bagItems.Remove(item);
+
+        item.RunBehavior();
     }
 
 }
