@@ -166,8 +166,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a06c64d4e86ac94bb8e1a61b0ea3373, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  equippedItems: []
-  bagItems: []
+  equippedItems:
+  - {fileID: 11400000, guid: 9753d1d2accdc0949aff22a0e672af2b, type: 2}
+  - {fileID: 11400000, guid: 400df49ed21236448abc485fb0d61d30, type: 2}
+  - {fileID: 11400000, guid: f3406950471bfc945af9f5d09bb62e5f, type: 2}
+  - {fileID: 11400000, guid: dde0dafb533d9e84a8015e10504e709b, type: 2}
+  - {fileID: 11400000, guid: b92efa50401ce064399f35cf5659aaba, type: 2}
+  bagItems:
+  - {fileID: 11400000, guid: a620fb90e1b8b9242999d212ba021095, type: 2}
+  testObject: {fileID: 11400000, guid: a620fb90e1b8b9242999d212ba021095, type: 2}
 --- !u!1 &840514552
 GameObject:
   m_ObjectHideFlags: 0

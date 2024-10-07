@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public enum ITEM_SLOT
-{   HEAD,
+{   
+    HEAD,
     CHEST,
     ARMS,
     LEGS,
-    WEAPON}
+    WEAPON
+}
 
 public enum ITEM_CONDITION
 {
@@ -20,8 +22,16 @@ public enum ITEM_CONDITION
 [CreateAssetMenu(fileName = "Item")]
 public class Item_ScriptableObject : ScriptableObject
 {
+    [Header("Description")]
+
     [SerializeField]
     public string itemName;
+
+    [SerializeField]
+    [TextArea(2, 4)]
+    public string itemDescription;
+
+    [Header("Attributes")]
 
     [SerializeField]
     public ITEM_SLOT itemSlot;
@@ -38,8 +48,6 @@ public class Item_ScriptableObject : ScriptableObject
     [SerializeField]
     public int defenceValue;
 
-    [SerializeField]
-    [TextArea(2,4)]
-    public string itemDescription;
+
 
 }
