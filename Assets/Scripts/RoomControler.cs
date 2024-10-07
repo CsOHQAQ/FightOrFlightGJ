@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Rendering.Universal;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
@@ -15,25 +16,35 @@ public class RoomControler : MonoBehaviour
         monsters=new List<MonsterStats>();
         InitMonsters();
         doors=new List<DoubleDoor>();
-
+        InitDoors();
 
     }
     private void Update()
     {
-        
+        if (isRefreshing)
+        {
+
+
+            foreach (MonsterStats monster in monsters)
+            {
+
+            }
+        }
     }
-
-
 
     void InitMonsters()
     {
-        //TODO: Get the monstersData
+        foreach(MonsterStats monster in GetComponentsInChildren<MonsterStats>())
+        {
+            //TODO: Other Monster Init
+            monsters.Add(monster);
+        }
     }
     void InitDoors()
     {
-        foreach (var door in GameObject.FindGameObjectsWithTag("Door"))
+        foreach (var door in GetComponentsInChildren<DoubleDoor>())
         {
-            door.GetComponent<DoubleDoor>().Init(this);
+            door.Init(this);
             doors.Add(door.GetComponent<DoubleDoor>());            
         }
     }

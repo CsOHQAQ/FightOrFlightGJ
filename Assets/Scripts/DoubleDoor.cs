@@ -6,7 +6,6 @@ using UnityEngine;
 public class DoubleDoor : MonoBehaviour
 {
     public GameObject LeftPart,RightPart;
-    public float EnterBattleTime;
     public float OpenTime;
     public bool isOpen;
     public bool CanOpen=true;
