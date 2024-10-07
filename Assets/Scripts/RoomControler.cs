@@ -11,24 +11,38 @@ public class RoomControler : MonoBehaviour
 
     public List<MonsterStats> monsters;
     public List<DoubleDoor> doors;
+
+
     private void Start()
     {
         monsters=new List<MonsterStats>();
         InitMonsters();
         doors=new List<DoubleDoor>();
         InitDoors();
-
     }
     private void Update()
     {
         if (isRefreshing)
         {
-
+            bool isViewedByPlayer=false;
+            foreach (var door in doors)
+            {
+                if (door.isOpen)
+                {
+                    isViewedByPlayer = true;
+                }
+            }
 
             foreach (MonsterStats monster in monsters)
             {
+                monster.RefreshAwareness(isViewedByPlayer);
+                if (monster.isAwared)
+                {
 
+                    EngageCombat();
+                }
             }
+
         }
     }
 
@@ -47,5 +61,10 @@ public class RoomControler : MonoBehaviour
             door.Init(this);
             doors.Add(door.GetComponent<DoubleDoor>());            
         }
+    }
+
+    void EngageCombat()
+    {
+
     }
 }
