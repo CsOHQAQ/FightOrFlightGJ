@@ -6,6 +6,8 @@ using UnityEngine;
 
 public class InventoryManager : MonoBehaviour
 {
+    public static InventoryManager Instance;
+
     //Array of items
     //0 - head, 1 - chest, 2 - arms, 3 - legs, 4 - weapon
     [SerializeField]
@@ -15,9 +17,17 @@ public class InventoryManager : MonoBehaviour
     [SerializeField]
     private List<Item_ScriptableObject> bagItems;
 
-    public void Start()
+    private void Awake()
     {
-
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject); // Makes the InventoryManager persist between scenes
+        }
+        else
+        {
+            Destroy(gameObject); // Destroy any duplicate instances
+        }
     }
 
     /// <summary>
