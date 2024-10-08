@@ -5,17 +5,19 @@ using Sirenix.OdinInspector;
 [System.Serializable]
 public class Combatant
 {
-    
     [SerializeField]
-    private float health;
+    private string name;
     [SerializeField]
     private float maxHealth;
+    [SerializeField]
+    private float health;
     [SerializeField]
     private float attack;
     [SerializeField]
     private float defense;
 
     
+    public string Name { get {  return name; } }
     public float Health { get { return health; } }
     public float MaxHealth { get { return maxHealth; } }
     public float Attack { get { return attack; } }

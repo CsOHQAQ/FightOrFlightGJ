@@ -55,16 +55,17 @@ public class CombatManager : MonoBehaviour
 
     void TakeTurn()
     {
+        
         Debug.Log("Starting a new turn...");
-
-        // Calculate and log damage to the player
-        float damageToPlayer = Mathf.Max(0f, enemyCombatants[currentEnemyIndex].Attack - playerCombatant.Defense);
+        
+        // Calculate and log damage to the player. You deal at least 1 damage each turn. 
+        float damageToPlayer = Mathf.Max(1f, enemyCombatants[currentEnemyIndex].Attack - playerCombatant.Defense);
         Debug.Log($"Enemy {currentEnemyIndex} attacks Player: Damage = {damageToPlayer}");
         playerCombatant.TakeDamage(damageToPlayer);
         Debug.Log($"Player health after taking damage: {playerCombatant.Health}");
 
         // Calculate and log damage to the enemy
-        float damageToEnemy = Mathf.Max(0f, playerCombatant.Attack - enemyCombatants[currentEnemyIndex].Defense);
+        float damageToEnemy = Mathf.Max(1f, playerCombatant.Attack - enemyCombatants[currentEnemyIndex].Defense);
         Debug.Log($"Player attacks Enemy {currentEnemyIndex}: Damage = {damageToEnemy}");
         enemyCombatants[currentEnemyIndex].TakeDamage(damageToEnemy);
         Debug.Log($"Enemy {currentEnemyIndex} health after taking damage: {enemyCombatants[currentEnemyIndex].Health}");
