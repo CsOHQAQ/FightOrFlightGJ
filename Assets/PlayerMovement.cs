@@ -9,8 +9,8 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 moveBackward = Vector3.zero;
     private Vector3 moveLeft = Vector3.zero;
     private Vector3 moveRight = Vector3.zero;
-
-    private float moveForwardDistance;
+    [SerializeField]
+    private float moveForwardDistance=1f;
     private float moveBackwardDistance;
 
     private float moveRotationLeft;
@@ -35,7 +35,7 @@ public class PlayerMovement : MonoBehaviour
         moveRight = new Vector3(1, 0, 0);
 
         moveForwardDistance = 1.0f;
-        moveBackwardDistance = -1.0f;
+        moveBackwardDistance = -moveForwardDistance;
         moveRotationLeft = -90;
         moveRotationRight = 90;
 
