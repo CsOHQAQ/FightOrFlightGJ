@@ -7,6 +7,8 @@ using UnityEngine.EventSystems;
 public class GridInteract : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     private InventoryController inventoryController;
+
+    [SerializeField]
     InventoryGrid inventoryGrid;
 
     public void OnPointerEnter(PointerEventData eventData)

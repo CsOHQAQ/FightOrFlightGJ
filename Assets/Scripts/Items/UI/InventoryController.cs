@@ -22,7 +22,7 @@ public class InventoryController : MonoBehaviour
         {
             //Debug.Log(inventoryManager.GetBagItems()[(int)(selectedInventoryGrid.GetTileGridPosition(Input.mousePosition).magnitude)].itemName);
             //Debug.Log(selectedInventoryGrid.GetTileIndex(Input.mousePosition));
-            inventoryManagerUI.SetNewActiveItem(selectedInventoryGrid.GetTileIndex(Input.mousePosition));
+            inventoryManagerUI.SetNewActiveItem(selectedInventoryGrid.GetTileIndex(Input.mousePosition), selectedInventoryGrid.isEquip);
         }
     }
 

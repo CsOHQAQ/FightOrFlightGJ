@@ -15,6 +15,8 @@ public class InventoryGrid : MonoBehaviour
     Vector2 positionOntheGrid = new Vector2();
     Vector2Int tileGridPosition = new Vector2Int();
 
+    public bool isEquip;
+
     public void Start()
     {
         rectTransform = GetComponent<RectTransform>();

@@ -50,6 +50,10 @@ public class UI_InventoryManager : MonoBehaviour
     [SerializeField]
     private TextMeshProUGUI interactButtonText;
 
+    [Header("Display Attributes")]
+    [SerializeField]
+    private Sprite emptySprite;
+
     public void Start()
     {
         currentGridItems = new List<GameObject>();
@@ -61,6 +65,9 @@ public class UI_InventoryManager : MonoBehaviour
     public void ShowInventoryCanvas()
     {
         inventoryCanvas.gameObject.SetActive(true);
+        itemNameText.text = string.Empty;
+        itemDescriptionText.text = string.Empty;
+        itemSpriteImage.sprite = emptySprite;
     }
 
     private void PopulateCanvas()
@@ -83,7 +90,7 @@ public class UI_InventoryManager : MonoBehaviour
         currentEquipmentItems.Clear();
         itemDescriptionText.text = string.Empty;
         itemNameText.text = string.Empty;
-        itemSpriteImage.sprite= null;
+        itemSpriteImage.sprite = emptySprite;
     }
 
     private void PopulateInventoryGrid()
@@ -144,33 +151,57 @@ public class UI_InventoryManager : MonoBehaviour
 
 
     }
-
-    public void SetNewActiveItem(int index)
+    /// <summary>
+    /// Function to set the new active item, should only be called from the InventoryController
+    /// </summary>
+    /// <param name="index">Index of the item being passed, should be handled by code over in IC</param>
+    /// <param name="isEquipment">false if bag grid, true if the equip grid</param>
+    public void SetNewActiveItem(int index, bool isEquipment)
     {
         if (currentSelectedItem != null)
         {
             currentSelectedItem.SetInactive();
         }
-        currentSelectedItem = currentGridItems[index].GetComponent<UI_GridItem>();
-
-        currentSelectedItem.SetActive();
 
         InventoryManager bags = FindObjectOfType<InventoryManager>();
-        itemNameText.text = bags.GetBagItems()[currentSelectedItem.GetListIndex()].itemName;
-        itemDescriptionText.text = bags.GetBagItems()[currentSelectedItem.GetListIndex()].itemDescription;
 
-        switch (bags.GetBagItems()[currentSelectedItem.GetListIndex()].itemType)
+        if (isEquipment)
         {
-            case ITEM_TYPE.EQUIPMENT:
-                interactButtonText.SetText("Equip");
-                break;
-            case ITEM_TYPE.CONSUMEABLE:
-                interactButtonText.SetText("Use");
-                break;
-            default:
-                interactButtonText.SetText("");
-                break;
+            if (index >= currentEquipmentItems.Count) { return; }
+            currentSelectedItem = currentEquipmentItems[index].GetComponent<UI_GridItem>();
+
+            itemNameText.text = bags.GetEquipment()[currentSelectedItem.GetListIndex()].itemName;
+            itemDescriptionText.text = bags.GetEquipment()[currentSelectedItem.GetListIndex()].itemDescription;
+            itemSpriteImage.sprite = bags.GetEquipment()[currentSelectedItem.GetListIndex()].itemSprite;
+
+            interactButton.gameObject.SetActive(false);
         }
+        else
+        {
+            if (index >= currentGridItems.Count) { return; }
+            currentSelectedItem = currentGridItems[index].GetComponent<UI_GridItem>();
+
+            itemNameText.text = bags.GetBagItems()[currentSelectedItem.GetListIndex()].itemName;
+            itemDescriptionText.text = bags.GetBagItems()[currentSelectedItem.GetListIndex()].itemDescription;
+            itemSpriteImage.sprite = bags.GetBagItems()[currentSelectedItem.GetListIndex()].itemSprite;
+
+            interactButton.gameObject.SetActive(true);
+
+            switch (bags.GetBagItems()[currentSelectedItem.GetListIndex()].itemType)
+            {
+                case ITEM_TYPE.EQUIPMENT:
+                    interactButtonText.SetText("Equip");
+                    break;
+                case ITEM_TYPE.CONSUMEABLE:
+                    interactButtonText.SetText("Use");
+                    break;
+                default:
+                    interactButtonText.SetText("");
+                    break;
+            }
+        }
+        currentSelectedItem.SetActive();
+
     }
 
     public void InteractButtonClicked()
