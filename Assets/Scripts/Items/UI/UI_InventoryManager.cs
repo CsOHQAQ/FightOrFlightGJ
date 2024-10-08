@@ -64,6 +64,8 @@ public class UI_InventoryManager : MonoBehaviour
 
     private bool isActive;
 
+    private bool atStore;
+
     public void Awake()
     {
         if (Instance == null)
@@ -84,6 +86,8 @@ public class UI_InventoryManager : MonoBehaviour
         isActive = false;
         //ShowInventoryCanvas();
         //PopulateCanvas();
+
+        atStore = true;
 
         ToggleCanvas();
     }
@@ -130,7 +134,7 @@ public class UI_InventoryManager : MonoBehaviour
             Destroy(item);
         }
         currentGridItems.Clear();
-        foreach(GameObject item in currentEquipmentItems)
+        foreach (GameObject item in currentEquipmentItems)
         {
             Destroy(item);
         }
@@ -139,7 +143,7 @@ public class UI_InventoryManager : MonoBehaviour
         itemNameText.text = string.Empty;
         itemSpriteImage.sprite = emptySprite;
         itemDurabilityText.text = string.Empty;
-        itemValueText.text = string.Empty; 
+        itemValueText.text = string.Empty;
     }
 
     private void PopulateInventoryGrid()
@@ -241,17 +245,24 @@ public class UI_InventoryManager : MonoBehaviour
 
             interactButton.gameObject.SetActive(true);
 
-            switch (bags.GetBagItems()[currentSelectedItem.GetListIndex()].itemType)
+            if (!atStore)
             {
-                case ITEM_TYPE.EQUIPMENT:
-                    interactButtonText.SetText("Equip");
-                    break;
-                case ITEM_TYPE.CONSUMEABLE:
-                    interactButtonText.SetText("Use");
-                    break;
-                default:
-                    interactButtonText.SetText("");
-                    break;
+                switch (bags.GetBagItems()[currentSelectedItem.GetListIndex()].itemType)
+                {
+                    case ITEM_TYPE.EQUIPMENT:
+                        interactButtonText.SetText("Equip");
+                        break;
+                    case ITEM_TYPE.CONSUMEABLE:
+                        interactButtonText.SetText("Use");
+                        break;
+                    default:
+                        interactButtonText.SetText("");
+                        break;
+                }
+            }
+            else if (atStore)
+            {
+                interactButtonText.SetText("Sell");
             }
         }
         currentSelectedItem.SetActive();
@@ -260,22 +271,35 @@ public class UI_InventoryManager : MonoBehaviour
 
     public void InteractButtonClicked()
     {
-       if(currentSelectedItem != null)
+        if (currentSelectedItem != null)
         {
-            InventoryManager man = FindObjectOfType<InventoryManager>();
-            if(man.TryInteractItem(man.GetBagItems()[currentSelectedItem.GetListIndex()]))
+            if (!atStore)
             {
-                Debug.Log("Made it here");
-                currentSelectedItem = null;
-                ClearCanvas();
-                PopulateCanvas();
+                InventoryManager man = FindObjectOfType<InventoryManager>();
+                if (man.TryInteractItem(man.GetBagItems()[currentSelectedItem.GetListIndex()]))
+                {
+                    //Debug.Log("Made it here");
+                    currentSelectedItem = null;
+                    ClearCanvas();
+                    PopulateCanvas();
+                }
+            }
+            else
+            {
+                if (InventoryManager.Instance.GetBagItems()[currentSelectedItem.GetListIndex()])
+                {
+                    InventoryManager.Instance.SellItem(InventoryManager.Instance.GetBagItems()[currentSelectedItem.GetListIndex()]);
+                    currentSelectedItem = null;
+                    ClearCanvas();
+                    PopulateCanvas();
+                }
             }
         }
     }
-/// <summary>
-/// Function to be called internally whenever the active item display changes
-/// </summary>
-/// <param name="item">Item being passed through</param>
+    /// <summary>
+    /// Function to be called internally whenever the active item display changes
+    /// </summary>
+    /// <param name="item">Item being passed through</param>
     private void UpdateActiveItemDisplay(Item_ScriptableObject item)
     {
         itemNameText.text = item.itemName;
@@ -290,7 +314,10 @@ public class UI_InventoryManager : MonoBehaviour
         {
             itemDurabilityText.text = string.Empty;
         }
-        
+
         itemValueText.text = ("$" + item.itemValue);
     }
+
+    public void EnterStore() { atStore = true; }
+    public void ExitStore() { atStore = false; }
 }
