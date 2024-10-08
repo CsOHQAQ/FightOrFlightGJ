@@ -416,6 +416,11 @@ MonoBehaviour:
     maxHealth: 2
     attack: 1
     defense: 0
+  - health: 2
+    maxHealth: 2
+    attack: 1
+    defense: 0
+  turnDuration: 1
 --- !u!4 &1226380306
 Transform:
   m_ObjectHideFlags: 0
