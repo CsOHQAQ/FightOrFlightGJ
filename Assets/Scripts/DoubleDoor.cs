@@ -15,6 +15,7 @@ public class DoubleDoor : MonoBehaviour
     float openTimer;
     public void Open()
     {
+        //TODO: Maybe add opening from clockwise or anticlockwise
         isOpen = true;
         openTimes++;
     }
@@ -46,8 +47,8 @@ public class DoubleDoor : MonoBehaviour
 
         if (isOpen)
         {
-            LeftPart.transform.rotation = Quaternion.Euler(0, Mathf.MoveTowardsAngle(LeftPart.transform.rotation.eulerAngles.y, -90, 90*Time.deltaTime / OpenTime), 0);
-            RightPart.transform.rotation = Quaternion.Euler(0, Mathf.MoveTowardsAngle(RightPart.transform.rotation.eulerAngles.y, 90, 90 * Time.deltaTime / OpenTime), 0);
+            RightPart.transform.localEulerAngles = new Vector3(0, Mathf.MoveTowardsAngle(RightPart.transform.localEulerAngles.y, 90, 90 * Time.deltaTime / OpenTime), 0);
+            LeftPart.transform.localEulerAngles = new Vector3(0, Mathf.MoveTowardsAngle(LeftPart.transform.localEulerAngles.y, -90, 90 * Time.deltaTime / OpenTime), 0);
             openTimer += Time.deltaTime;
             if (openTimer > OpenTime) 
             {
@@ -57,8 +58,8 @@ public class DoubleDoor : MonoBehaviour
         else
         {
             openTimer = 0f;
-            LeftPart.transform.rotation = Quaternion.Euler(0, Mathf.MoveTowardsAngle(LeftPart.transform.rotation.eulerAngles.y, 0, 90 * Time.deltaTime / OpenTime), 0);
-            RightPart.transform.rotation = Quaternion.Euler(0, Mathf.MoveTowardsAngle(RightPart.transform.rotation.eulerAngles.y, 0, 90 * Time.deltaTime / OpenTime), 0);
+            RightPart.transform.localEulerAngles = new Vector3(0, Mathf.MoveTowardsAngle(RightPart.transform.localEulerAngles.y, 0, 90 * Time.deltaTime / OpenTime), 0);
+            LeftPart.transform.localEulerAngles = new Vector3(0, Mathf.MoveTowardsAngle(LeftPart.transform.localEulerAngles.y, 0, 90 * Time.deltaTime / OpenTime), 0);
         }
     }
 
