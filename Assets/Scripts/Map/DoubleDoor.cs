@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
-public class DoubleDoor : MonoBehaviour
+public class DoubleDoor : InteractableObject
 {
     public GameObject LeftPart,RightPart;
     public float OpenTime;
@@ -13,6 +13,15 @@ public class DoubleDoor : MonoBehaviour
     RoomControler room;
     int openTimes;
     float openTimer;
+
+    public override void Interact(object args = null)
+    {
+        base.Interact(args); 
+        if (!isOpen)
+            Open();
+        else
+            Close();
+    }
     public void Open()
     {
         //TODO: Maybe add opening from clockwise or anticlockwise
@@ -34,7 +43,7 @@ public class DoubleDoor : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        /*
         //Just for testing
         if (Input.GetKeyDown(KeyCode.Space))
         {
@@ -43,7 +52,7 @@ public class DoubleDoor : MonoBehaviour
             else
                 Close();
         }
-
+        */
 
         if (isOpen)
         {
