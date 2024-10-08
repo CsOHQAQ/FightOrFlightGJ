@@ -84,6 +84,8 @@ public class UI_InventoryManager : MonoBehaviour
         isActive = false;
         //ShowInventoryCanvas();
         //PopulateCanvas();
+
+        ToggleCanvas();
     }
 
     public void Update()
@@ -93,7 +95,7 @@ public class UI_InventoryManager : MonoBehaviour
 
     public void ToggleCanvas()
     {
-        if (isActive) { ShowInventoryCanvas(); }
+        if (!isActive) { ShowInventoryCanvas(); }
         else { HideCanvas(); }
         isActive = !isActive;
     }
@@ -106,6 +108,7 @@ public class UI_InventoryManager : MonoBehaviour
         itemSpriteImage.sprite = emptySprite;
         itemValueText.text = string.Empty;
         itemDurabilityText.text = string.Empty;
+        PopulateCanvas();
     }
 
     private void HideCanvas()
@@ -190,7 +193,14 @@ public class UI_InventoryManager : MonoBehaviour
         {
             GameObject temp = Instantiate(itemSpritePrefab, equipmentGrid.transform, false);
             temp.transform.localPosition = new Vector3(c * width, 0, 0);
-            temp.GetComponent<UI_GridItem>().SetupGrid(equipment[c].itemSprite, c);
+            if (equipment[c] != null)
+            {
+                temp.GetComponent<UI_GridItem>().SetupGrid(equipment[c].itemSprite, c);
+            }
+            else
+            {
+                temp.GetComponent<UI_GridItem>().SetupGrid(emptySprite, c);
+            }
             c++;
             currentEquipmentItems.Add(temp);
         }
@@ -211,7 +221,7 @@ public class UI_InventoryManager : MonoBehaviour
 
         InventoryManager bags = FindObjectOfType<InventoryManager>();
 
-        if (isEquipment)
+        if (isEquipment && InventoryManager.Instance.GetEquipment()[index] != null)
         {
             if (index >= currentEquipmentItems.Count) { return; }
             currentSelectedItem = currentEquipmentItems[index].GetComponent<UI_GridItem>();

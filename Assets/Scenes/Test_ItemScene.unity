@@ -707,6 +707,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5683350504235828252, guid: 0c15642d854138a49aca2693f7cd7773,
+        type: 3}
+      propertyPath: m_BlockingMask.m_Bits
+      value: 127
+      objectReference: {fileID: 0}
     - target: {fileID: 6109024105978267804, guid: 0c15642d854138a49aca2693f7cd7773,
         type: 3}
       propertyPath: m_Name
@@ -835,6 +840,11 @@ PrefabInstance:
       propertyPath: itemDescriptionText
       value: 
       objectReference: {fileID: 613741305}
+    - target: {fileID: 8851681666411930278, guid: f1e968a568ec2a84f8c4ff2100337dd1,
+        type: 3}
+      propertyPath: equippedItems.Array.data[0]
+      value: 
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
