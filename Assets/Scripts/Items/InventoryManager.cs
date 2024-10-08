@@ -146,4 +146,27 @@ public class InventoryManager : MonoBehaviour
     /// <returns></returns>
     public Equipment_ScriptableObject[] GetEquipment() { return equippedItems; }
 
+    /// <summary>
+    /// Function called externally that returns the lump sum of the player's bonus attack and defense value from equipment
+    /// </summary>
+    /// <returns>An array, 0 = attack, 1 = defense</returns>
+    public int[] GetEquippedItemStats()
+    {
+        int[] stats = new int[2];
+
+        int attack = 0;
+        int defense = 0;
+
+        foreach (Equipment_ScriptableObject equippedItem in equippedItems)
+        {
+            attack += equippedItem.attackValue;
+            defense += equippedItem.defenceValue;
+        }
+
+        stats[0] = attack;
+        stats[1] = defense;
+
+        return stats;
+    }
+
 }
