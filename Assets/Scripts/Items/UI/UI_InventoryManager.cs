@@ -74,6 +74,8 @@ public class UI_InventoryManager : MonoBehaviour
         itemNameText.text = string.Empty;
         itemDescriptionText.text = string.Empty;
         itemSpriteImage.sprite = emptySprite;
+        itemValueText.text = string.Empty;
+        itemDurabilityText.text = string.Empty;
     }
 
     private void PopulateCanvas()
@@ -178,10 +180,6 @@ public class UI_InventoryManager : MonoBehaviour
             if (index >= currentEquipmentItems.Count) { return; }
             currentSelectedItem = currentEquipmentItems[index].GetComponent<UI_GridItem>();
 
-            //itemNameText.text = bags.GetEquipment()[currentSelectedItem.GetListIndex()].itemName;
-            //itemDescriptionText.text = bags.GetEquipment()[currentSelectedItem.GetListIndex()].itemDescription;
-            //itemSpriteImage.sprite = bags.GetEquipment()[currentSelectedItem.GetListIndex()].itemSprite;
-
             Item_ScriptableObject item = bags.GetEquipment()[currentSelectedItem.GetListIndex()];
 
             UpdateActiveItemDisplay(bags.GetEquipment()[currentSelectedItem.GetListIndex()]);
@@ -193,11 +191,6 @@ public class UI_InventoryManager : MonoBehaviour
             if (index >= currentGridItems.Count) { return; }
             currentSelectedItem = currentGridItems[index].GetComponent<UI_GridItem>();
 
-            //itemNameText.text = bags.GetBagItems()[currentSelectedItem.GetListIndex()].itemName;
-            //itemDescriptionText.text = bags.GetBagItems()[currentSelectedItem.GetListIndex()].itemDescription;
-            //itemSpriteImage.sprite = bags.GetBagItems()[currentSelectedItem.GetListIndex()].itemSprite;
-
-            //Item_ScriptableObject item = bags.GetBagItems()[currentSelectedItem.GetListIndex()];
             UpdateActiveItemDisplay(bags.GetBagItems()[currentSelectedItem.GetListIndex()]);
 
             interactButton.gameObject.SetActive(true);
