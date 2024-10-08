@@ -14,7 +14,7 @@ public class GameControl : MonoBehaviour
             if (_gameControl is null)
             {
                 //_gameControl = new GameControl();
-                GameObject.Find("GameControl");//Really Ugly 
+                _gameControl= GameObject.Find("GameControl").GetComponent<GameControl>();//Really Ugly 
                 _gameControl.Init();
             }
             return _gameControl;
