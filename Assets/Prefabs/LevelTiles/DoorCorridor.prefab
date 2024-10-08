@@ -722,6 +722,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: DoubleDoor
       objectReference: {fileID: 0}
+    - target: {fileID: 5220801939160412779, guid: df42a3305886c9e4d9b7d029a634e2ca,
+        type: 3}
+      propertyPath: maxDoorAngle
+      value: 100
+      objectReference: {fileID: 0}
     - target: {fileID: 7537123132871187920, guid: df42a3305886c9e4d9b7d029a634e2ca,
         type: 3}
       propertyPath: m_Size.x

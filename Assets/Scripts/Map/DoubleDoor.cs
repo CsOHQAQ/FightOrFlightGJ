@@ -13,6 +13,9 @@ public class DoubleDoor : InteractableObject
     RoomControler room;
     int openTimes;
     float openTimer;
+    float doorOpeness = 0;
+    [SerializeField]
+    float maxDoorAngle = 120;
 
     public override void Interact(object args = null)
     {
@@ -56,8 +59,8 @@ public class DoubleDoor : InteractableObject
 
         if (isOpen)
         {
-            RightPart.transform.localEulerAngles = new Vector3(0, Mathf.MoveTowardsAngle(RightPart.transform.localEulerAngles.y, 90, 90 * Time.deltaTime / OpenTime), 0);
-            LeftPart.transform.localEulerAngles = new Vector3(0, Mathf.MoveTowardsAngle(LeftPart.transform.localEulerAngles.y, -90, 90 * Time.deltaTime / OpenTime), 0);
+            RightPart.transform.localEulerAngles = new Vector3(0, Mathf.MoveTowardsAngle(RightPart.transform.localEulerAngles.y, maxDoorAngle, maxDoorAngle * Time.deltaTime / OpenTime), 0);
+            LeftPart.transform.localEulerAngles = new Vector3(0, Mathf.MoveTowardsAngle(LeftPart.transform.localEulerAngles.y, -maxDoorAngle, maxDoorAngle * Time.deltaTime / OpenTime), 0);
             if (!room.isClear)
                 openTimer += Time.deltaTime;
             else
@@ -70,8 +73,8 @@ public class DoubleDoor : InteractableObject
         else
         {
             openTimer = 0f;
-            RightPart.transform.localEulerAngles = new Vector3(0, Mathf.MoveTowardsAngle(RightPart.transform.localEulerAngles.y, 0, 90 * Time.deltaTime / OpenTime), 0);
-            LeftPart.transform.localEulerAngles = new Vector3(0, Mathf.MoveTowardsAngle(LeftPart.transform.localEulerAngles.y, 0, 90 * Time.deltaTime / OpenTime), 0);
+            RightPart.transform.localEulerAngles = new Vector3(0, Mathf.MoveTowardsAngle(RightPart.transform.localEulerAngles.y, 0, maxDoorAngle * Time.deltaTime / OpenTime), 0);
+            LeftPart.transform.localEulerAngles = new Vector3(0, Mathf.MoveTowardsAngle(LeftPart.transform.localEulerAngles.y, 0, maxDoorAngle * Time.deltaTime / OpenTime), 0);
         }
     }
 
