@@ -26,7 +26,11 @@ public class DayManager : MonoBehaviour
     [Header("User Interface")]
 
     [SerializeField]
-    private DayCanvasManager dayCanvasManager;
+    private GameObject dayCanvasManager;
+
+    private DayCanvasManager canvasManager;
+
+
 
     private void Awake()
     {
@@ -46,6 +50,8 @@ public class DayManager : MonoBehaviour
         currentDay = startingDay;
 
         earnedMoney = 0;
+
+        CreateDayCanvas();
     }
 
     public int GetCurrentDay() { return currentDay; }
@@ -59,5 +65,18 @@ public class DayManager : MonoBehaviour
     public int GetDaysRemaining()
     {
         return endingDay - currentDay;
+    }
+
+    public void CreateDayCanvas()
+    {
+        GameObject temp = Instantiate(dayCanvasManager);
+        canvasManager = temp.GetComponent<DayCanvasManager>();
+
+        canvasManager.StartDayVisuals();
+    }
+
+    public void ClearCanvas()
+    {
+        canvasManager = null;
     }
 }

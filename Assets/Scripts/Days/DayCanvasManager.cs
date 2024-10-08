@@ -40,13 +40,18 @@ public class DayCanvasManager : MonoBehaviour
         numMoney.text = string.Empty;
         adventureButton.gameObject.SetActive(false);
 
-        StartCoroutine(RevealDay(dayDelay));
+        //StartCoroutine(RevealDay(dayDelay));
     }
 
     // Update is called once per frame
     void Update()
     {
 
+    }
+
+    public void StartDayVisuals()
+    {
+        StartCoroutine(RevealDay(dayDelay));
     }
 
     private IEnumerator RevealDay(float delay)
@@ -104,5 +109,13 @@ public class DayCanvasManager : MonoBehaviour
         yield return new WaitForSeconds(dayDelay);
 
         adventureButton.gameObject.SetActive(true);
+    }
+
+    public void AdventureButtonBehavior()
+    {
+
+        DayManager.Instance.ClearCanvas();
+
+        Destroy(gameObject);
     }
 }
