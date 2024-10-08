@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18f408447bf0c36488433f780e245186, type: 3}
+  m_Name: DebugPotion
+  m_EditorClassIdentifier: 
+  itemName: Debug Potion
+  itemSprite: {fileID: 21300000, guid: 7488a4836616c494eb280926dde672c9, type: 3}
+  itemDescription: It's a potion of debugging. Absolutely useless.
+  itemValue: 0
+  itemType: 1
+  consumableBehaviorHolder: {fileID: 7751480584973509199, guid: 12094749e31caea4f81985e6c6f4f6f5,
+    type: 3}
