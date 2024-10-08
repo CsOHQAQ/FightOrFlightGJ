@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -36,9 +37,23 @@ public class UI_InventoryManager : MonoBehaviour
 
     private List<GameObject> currentGridItems;
 
+    [Header("Equipment Item Attributes")]
+    [SerializeField]
+    private InventoryGrid equipmentGrid;
+
+    private List<GameObject> currentEquipmentItems;
+
+    [Header("Button Attributes")]
+    [SerializeField]
+    private Button interactButton;
+
+    [SerializeField]
+    private TextMeshProUGUI interactButtonText;
+
     public void Start()
     {
         currentGridItems = new List<GameObject>();
+        currentEquipmentItems = new List<GameObject>();
         ShowInventoryCanvas();
         PopulateCanvas();
     }
@@ -49,6 +64,29 @@ public class UI_InventoryManager : MonoBehaviour
     }
 
     private void PopulateCanvas()
+    {
+        PopulateInventoryGrid();
+        PopulateEquipmentGrid();
+    }
+
+    private void ClearCanvas()
+    {
+        foreach (GameObject item in currentGridItems)
+        {
+            Destroy(item);
+        }
+        currentGridItems.Clear();
+        foreach(GameObject item in currentEquipmentItems)
+        {
+            Destroy(item);
+        }
+        currentEquipmentItems.Clear();
+        itemDescriptionText.text = string.Empty;
+        itemNameText.text = string.Empty;
+        itemSpriteImage.sprite= null;
+    }
+
+    private void PopulateInventoryGrid()
     {
 
         currentGridItems.Clear();
@@ -70,7 +108,7 @@ public class UI_InventoryManager : MonoBehaviour
             GameObject temp = Instantiate(itemSpritePrefab, inventoryGrid.transform, false);
             temp.transform.localPosition = new Vector3(c * width, -r * height, 0);
             c++;
-            if(c > columns)
+            if (c > columns)
             {
                 c = 0;
                 r++;
@@ -82,6 +120,29 @@ public class UI_InventoryManager : MonoBehaviour
             currentGridItems.Add(temp);
 
         }
+    }
+
+    private void PopulateEquipmentGrid()
+    {
+        Equipment_ScriptableObject[] equipment = FindObjectOfType<InventoryManager>().GetEquipment();
+
+        float width = equipmentGrid.tileSizeWidth;
+        float height = equipmentGrid.tileSizeHeight;
+
+        int columns = (int)(equipmentGrid.rectTransform.position.x / width);
+
+        int c = 0;
+
+        foreach (Item_ScriptableObject item in equipment)
+        {
+            GameObject temp = Instantiate(itemSpritePrefab, equipmentGrid.transform, false);
+            temp.transform.localPosition = new Vector3(c * width, 0, 0);
+            temp.GetComponent<UI_GridItem>().SetupGrid(equipment[c].itemSprite, c);
+            c++;
+            currentEquipmentItems.Add(temp);
+        }
+
+
     }
 
     public void SetNewActiveItem(int index)
@@ -97,5 +158,33 @@ public class UI_InventoryManager : MonoBehaviour
         InventoryManager bags = FindObjectOfType<InventoryManager>();
         itemNameText.text = bags.GetBagItems()[currentSelectedItem.GetListIndex()].itemName;
         itemDescriptionText.text = bags.GetBagItems()[currentSelectedItem.GetListIndex()].itemDescription;
+
+        switch (bags.GetBagItems()[currentSelectedItem.GetListIndex()].itemType)
+        {
+            case ITEM_TYPE.EQUIPMENT:
+                interactButtonText.SetText("Equip");
+                break;
+            case ITEM_TYPE.CONSUMEABLE:
+                interactButtonText.SetText("Use");
+                break;
+            default:
+                interactButtonText.SetText("");
+                break;
+        }
+    }
+
+    public void InteractButtonClicked()
+    {
+       if(currentSelectedItem != null)
+        {
+            InventoryManager man = FindObjectOfType<InventoryManager>();
+            if(man.TryInteractItem(man.GetBagItems()[currentSelectedItem.GetListIndex()]))
+            {
+                Debug.Log("Made it here");
+                currentSelectedItem = null;
+                ClearCanvas();
+                PopulateCanvas();
+            }
+        }
     }
 }

@@ -170,8 +170,6 @@ MonoBehaviour:
   equippedItems:
   - {fileID: 11400000, guid: 9753d1d2accdc0949aff22a0e672af2b, type: 2}
   - {fileID: 11400000, guid: 400df49ed21236448abc485fb0d61d30, type: 2}
-  - {fileID: 11400000, guid: f3406950471bfc945af9f5d09bb62e5f, type: 2}
-  - {fileID: 11400000, guid: dde0dafb533d9e84a8015e10504e709b, type: 2}
   - {fileID: 11400000, guid: b92efa50401ce064399f35cf5659aaba, type: 2}
   bagItems:
   - {fileID: 11400000, guid: a620fb90e1b8b9242999d212ba021095, type: 2}
@@ -209,6 +207,9 @@ MonoBehaviour:
   itemNameText: {fileID: 1421260776}
   itemDescriptionText: {fileID: 613741305}
   itemSpriteImage: {fileID: 1723857446}
+  equipmentGrid: {fileID: 795936183}
+  interactButton: {fileID: 303761926}
+  interactButtonText: {fileID: 1140979591}
 --- !u!1 &303761924
 GameObject:
   m_ObjectHideFlags: 0
@@ -291,7 +292,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 303761927}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 106113658}
+        m_TargetAssemblyTypeName: UI_InventoryManager, Assembly-CSharp
+        m_MethodName: InteractButtonClicked
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &303761927
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -475,6 +488,7 @@ GameObject:
   - component: {fileID: 795936180}
   - component: {fileID: 795936182}
   - component: {fileID: 795936181}
+  - component: {fileID: 795936183}
   m_Layer: 5
   m_Name: EquipmentGrid
   m_TagString: Untagged
@@ -539,6 +553,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 795936179}
   m_CullTransparentMesh: 1
+--- !u!114 &795936183
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 795936179}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4cccfeb1487e12a439b522aeffca7350, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tileSizeWidth: 128
+  tileSizeHeight: 128
+  rectTransform: {fileID: 795936180}
 --- !u!1 &840514552
 GameObject:
   m_ObjectHideFlags: 0

@@ -44,7 +44,7 @@ public class InventoryManager : MonoBehaviour
                     EquipItem(item, 3);
                     break;
                 case ITEM_SLOT.WEAPON:
-                    EquipItem(item, 4);
+                    EquipItem(item, 2);
                     break;
                 default:
                     return false;
@@ -60,7 +60,7 @@ public class InventoryManager : MonoBehaviour
     /// Then puts the new item in the array in the correct slot
     /// </summary>
     /// <param name="itemToEquip">The item that should be taking the new slot</param>
-    /// <param name="slot">The slot that the item is being put into. 0-Head, 1-Chest, 2-Arms, 3-Legs, 4-Weapon</param>
+    /// <param name="slot">The slot that the item is being put into. 0-Head, 1-Chest, 2-Weapon</param>
     private void EquipItem(Equipment_ScriptableObject itemToEquip, int slot)
     {
         bagItems.Add(equippedItems[slot]);
@@ -98,6 +98,28 @@ public class InventoryManager : MonoBehaviour
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// Function called by the UI_Inventory manager when the interact button is pressed.
+    /// </summary>
+    /// <param name="item">The item being passed through the manager</param>
+    /// <returns></returns>
+    public bool TryInteractItem(Item_ScriptableObject item)
+    {
+        switch (item.itemType)
+        {
+            case ITEM_TYPE.EQUIPMENT:
+                TryEquipItem((Equipment_ScriptableObject)(item));
+                return true;
+            case ITEM_TYPE.CONSUMEABLE:
+                TryUseItem((ConsumableItem_ScriptableObject)(item));
+                return true;
+            default:
+                break;
+        }
+        return false;
+
     }
 
     /// <summary>
