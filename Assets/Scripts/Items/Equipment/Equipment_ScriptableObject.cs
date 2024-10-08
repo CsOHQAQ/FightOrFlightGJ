@@ -36,6 +36,9 @@ public class Equipment_ScriptableObject : Item_ScriptableObject
     [SerializeField]
     public int defenceValue;
 
+    [SerializeField]
+    public Trait_Behavior itemBehavior;
+
 
 
 }
