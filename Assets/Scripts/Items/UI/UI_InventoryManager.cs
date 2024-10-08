@@ -11,6 +11,8 @@ using UnityEngine.UI;
 public class UI_InventoryManager : MonoBehaviour
 {
 
+    public static UI_InventoryManager Instance;
+
     [Header("Grid Attributes")]
 
     [SerializeField]
@@ -60,12 +62,40 @@ public class UI_InventoryManager : MonoBehaviour
     [SerializeField]
     private Sprite emptySprite;
 
+    private bool isActive;
+
+    public void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject); // Makes the UIInventoryManager persist between scenes
+        }
+        else
+        {
+            Destroy(gameObject); // Destroy any duplicate instances
+        }
+    }
+
     public void Start()
     {
         currentGridItems = new List<GameObject>();
         currentEquipmentItems = new List<GameObject>();
-        ShowInventoryCanvas();
-        PopulateCanvas();
+        isActive = false;
+        //ShowInventoryCanvas();
+        //PopulateCanvas();
+    }
+
+    public void Update()
+    {
+
+    }
+
+    public void ToggleCanvas()
+    {
+        if (isActive) { ShowInventoryCanvas(); }
+        else { HideCanvas(); }
+        isActive = !isActive;
     }
 
     public void ShowInventoryCanvas()
@@ -76,6 +106,12 @@ public class UI_InventoryManager : MonoBehaviour
         itemSpriteImage.sprite = emptySprite;
         itemValueText.text = string.Empty;
         itemDurabilityText.text = string.Empty;
+    }
+
+    private void HideCanvas()
+    {
+        ClearCanvas();
+        inventoryCanvas.gameObject.SetActive(false);
     }
 
     private void PopulateCanvas()
