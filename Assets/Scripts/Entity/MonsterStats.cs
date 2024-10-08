@@ -44,10 +44,14 @@ public class MonsterStats : MonoBehaviour
 
     public void RefreshAwareness(bool canSeePlayer)
     {
-        if (canSeePlayer)            
-            CurAwareness += Mathf.MoveTowards(CurAwareness, 3, Awareness * Time.deltaTime / Vector2.Distance(transform.position, GameControl.Game.Player.transform.position));
+        
+        if (canSeePlayer)
+        {
+            CurAwareness = Mathf.MoveTowards(CurAwareness, 3, Awareness * Time.deltaTime / Mathf.Log(Vector3.Distance(transform.position, GameControl.Game.Player.transform.position)+1));
+            Debug.Log($"{transform.name}'s awareness: {CurAwareness}");
+        }            
         else
-            CurAwareness = Mathf.MoveTowards(CurAwareness,0,Time.deltaTime/Awareness);
+            CurAwareness = Mathf.MoveTowards(CurAwareness,0,Time.deltaTime/10f*Awareness);
     }
 
     public enum AwareLevel

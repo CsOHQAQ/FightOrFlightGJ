@@ -38,7 +38,6 @@ public class RoomControler : MonoBehaviour
                 }
             }
 
-
             //Remove Dead Monster
             List<MonsterStats> removeList = new List<MonsterStats>();
             foreach (var monster in monsters)

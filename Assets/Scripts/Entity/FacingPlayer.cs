@@ -8,7 +8,7 @@ public class FacingPlayer : MonoBehaviour
 
     private void Update()
     {
-        if (GameControl.Game.Player != null)
+        if (GameControl.Game.Player != null&&CanFacing)
         {
             Vector3 direction = GameControl.Game.Player.transform.position - transform.position;
             float angle =-1* (Vector2.SignedAngle(Vector2.right, new Vector2(direction.x, direction.z)) + 90);
