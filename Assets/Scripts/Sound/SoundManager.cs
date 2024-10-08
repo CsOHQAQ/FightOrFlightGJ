@@ -51,4 +51,26 @@ public class SoundManager : MonoBehaviour
             Debug.LogWarning($"Sound: {name} not found");
         }
     }
+
+    public void PlayBackgroundMusic(string name)
+    {
+        if (soundDictionary.TryGetValue(name, out var clip))
+        {
+            audioSource.clip = clip;
+            audioSource.loop = true;
+            audioSource.Play();
+        }
+        else
+        {
+            Debug.LogWarning($"Background Music: {name} not found");
+        }
+    }
+
+    public void StopBackgroundMusic()
+    {
+        if (audioSource.isPlaying)
+        {
+            audioSource.Stop();
+        }
+    }
 }
