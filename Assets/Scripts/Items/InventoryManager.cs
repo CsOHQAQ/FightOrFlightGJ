@@ -17,7 +17,7 @@ public class InventoryManager : MonoBehaviour
 
     public void Start()
     {
-
+        GetEquippedItemStats();
     }
 
     /// <summary>

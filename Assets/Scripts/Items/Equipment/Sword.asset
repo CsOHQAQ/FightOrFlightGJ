@@ -21,4 +21,3 @@ MonoBehaviour:
   itemDurability: 100
   attackValue: 0
   defenceValue: 0
-  itemBehavior: {fileID: 0}
