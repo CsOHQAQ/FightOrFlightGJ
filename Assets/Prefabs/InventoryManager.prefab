@@ -1,0 +1,77 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3095012345784830111
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5160177663680777317}
+  - component: {fileID: 8851681666411930278}
+  - component: {fileID: 7925741749224482782}
+  m_Layer: 0
+  m_Name: InventoryManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5160177663680777317
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3095012345784830111}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8851681666411930278
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3095012345784830111}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a06c64d4e86ac94bb8e1a61b0ea3373, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  equippedItems:
+  - {fileID: 11400000, guid: 9753d1d2accdc0949aff22a0e672af2b, type: 2}
+  - {fileID: 11400000, guid: 400df49ed21236448abc485fb0d61d30, type: 2}
+  - {fileID: 11400000, guid: b92efa50401ce064399f35cf5659aaba, type: 2}
+  bagItems: []
+--- !u!114 &7925741749224482782
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3095012345784830111}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc38613d86885a248a9442c4c75cb134, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inventoryCanvas: {fileID: 0}
+  inventoryGrid: {fileID: 0}
+  itemSpritePrefab: {fileID: 8380679540434264940, guid: 89af0323aab89d44a89e8308726176ee,
+    type: 3}
+  itemNameText: {fileID: 0}
+  itemDescriptionText: {fileID: 0}
+  itemSpriteImage: {fileID: 0}
+  itemDurabilityText: {fileID: 0}
+  itemValueText: {fileID: 0}
+  equipmentGrid: {fileID: 0}
+  interactButton: {fileID: 0}
+  interactButtonText: {fileID: 0}
+  emptySprite: {fileID: 21300000, guid: 1c9500a03204c994c8e02f5597606fbf, type: 3}
