@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Sirenix.OdinInspector; // Add this to use Odin attributes
 
-public class CombatManager : MonoBehaviour
+public class CombatManager
 {
     [SerializeField]
     private Combatant playerCombatant;
@@ -18,7 +18,7 @@ public class CombatManager : MonoBehaviour
     private int currentEnemyIndex = 0;
     private bool inCombat = true;
 
-    void Start()
+    public void StartBattle(PlayerStats player, List<MonsterStats> monsters)
     {
         if (playerCombatant == null)
         {

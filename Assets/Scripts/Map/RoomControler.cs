@@ -12,6 +12,8 @@ public class RoomControler : MonoBehaviour
     public List<MonsterStats> monsters;
     public List<DoubleDoor> doors;
 
+    private CombatManager combatManager;
+
 
     private void Start()
     {
