@@ -18,7 +18,7 @@ public class CombatManager : MonoBehaviour
     private int currentEnemyIndex = 0;
     private bool inCombat = true;
 
-    void Start()
+    public void StartBattle(PlayerStats player, List<MonsterStats> monsters)
     {
         if (playerCombatant == null)
         {
