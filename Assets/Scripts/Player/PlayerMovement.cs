@@ -10,9 +10,7 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 moveLeft = Vector3.zero;
     private Vector3 moveRight = Vector3.zero;
 
-    private float moveForwardDistance;
-    private float moveBackwardDistance;
-
+    [SerializeField] private float gridSize = 1.0f;
     private float moveRotationLeft;
     private float moveRotationRight;
 
@@ -24,7 +22,8 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float timeToMove = 0.2f;
 
     private bool isMoving;
-    private bool isRotating;
+    [SerializeField] private LayerMask obstacleLayer;
+    [SerializeField] private float detectionDistance = 1.1f;
 
 
     private void Awake()
@@ -34,8 +33,6 @@ public class PlayerMovement : MonoBehaviour
         moveLeft = new Vector3(-1, 0, 0);
         moveRight = new Vector3(1, 0, 0);
 
-        moveForwardDistance = 1.0f;
-        moveBackwardDistance = -1.0f;
         moveRotationLeft = -90;
         moveRotationRight = 90;
 
@@ -75,12 +72,27 @@ public class PlayerMovement : MonoBehaviour
 
         if (move == moveForward && !isMoving)
         {
-            StartCoroutine(MovePlayer(moveForwardDistance));
+            if (IsObstacleInDirection(transform.forward))
+            {
+                StartCoroutine(CollisionEffect(transform.forward));
+            }
+            else
+            {
+                StartCoroutine(MovePlayer(gridSize));
+            }
         }
 
         if (move == moveBackward && !isMoving)
         {
-            StartCoroutine(MovePlayer(moveBackwardDistance));
+            if (IsObstacleInDirection(-transform.forward))
+            {
+                StartCoroutine(CollisionEffect(-transform.forward));
+            }
+            else
+            {
+                StartCoroutine(MovePlayer(-gridSize));
+            }
+            
         }
 
         if (move == moveLeft && !isMoving)
@@ -143,8 +155,52 @@ public class PlayerMovement : MonoBehaviour
         }
 
         transform.position = targetPosition;
-
+        SnapToGrid();
         isMoving = false;
+    }
+
+    private bool IsObstacleInDirection(Vector3 direction)
+    {
+        Vector3 rayOrigin = transform.position + Vector3.up * 0.5f;
+        return Physics.Raycast(rayOrigin, direction, out RaycastHit hit, detectionDistance, obstacleLayer);
+    }
+
+    private IEnumerator CollisionEffect(Vector3 direction)
+    {
+        isMoving = true;
+
+        float elapsedTime = 0;
+        originalPosition = transform.position;
+        targetPosition = originalPosition + direction  * 1.0f;
+
+        while (elapsedTime < timeToMove / 2)
+        {
+            transform.position = Vector3.Lerp(originalPosition, targetPosition, (elapsedTime / (timeToMove / 2)));
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        elapsedTime = 0;
+        Vector3 bounceBackPosition = originalPosition;
+
+        while (elapsedTime < timeToMove / 2)
+        {
+            transform.position = Vector3.Lerp(targetPosition, bounceBackPosition, (elapsedTime / (timeToMove / 2)));
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        transform.position = bounceBackPosition;
+        SnapToGrid();
+        isMoving = false;
+    }
+
+    private void SnapToGrid()
+    {
+        float snappedX = Mathf.Round(transform.position.x / gridSize) * gridSize;
+        float snappedZ = Mathf.Round(transform.position.z / gridSize) * gridSize;
+
+        transform.position = new Vector3(snappedX, transform.position.y, snappedZ);
     }
 
 
