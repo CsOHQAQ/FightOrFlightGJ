@@ -87,9 +87,9 @@ public class UI_InventoryManager : MonoBehaviour
         //ShowInventoryCanvas();
         //PopulateCanvas();
 
-        atStore = true;
+        atStore = false;
 
-        ToggleCanvas();
+        //ToggleCanvas();
     }
 
     public void Update()
