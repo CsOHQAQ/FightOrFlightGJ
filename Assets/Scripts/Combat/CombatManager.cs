@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Sirenix.OdinInspector; // Add this to use Odin attributes
 
-public class CombatManager
+public class CombatManager:MonoBehaviour
 {
     [SerializeField]
     private Combatant playerCombatant;

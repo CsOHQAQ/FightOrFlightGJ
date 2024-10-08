@@ -21,6 +21,8 @@ public class RoomControler : MonoBehaviour
         InitMonsters();
         doors=new List<DoubleDoor>();
         InitDoors();
+        combatManager=GetComponent<CombatManager>();
+
     }
     private void Update()
     {
