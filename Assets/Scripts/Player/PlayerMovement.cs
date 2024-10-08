@@ -10,6 +10,7 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 moveLeft = Vector3.zero;
     private Vector3 moveRight = Vector3.zero;
 
+    [SerializeField] private float gridMovement = 1.0f;
     [SerializeField] private float gridSize = 1.0f;
     private float moveRotationLeft;
     private float moveRotationRight;
@@ -78,7 +79,7 @@ public class PlayerMovement : MonoBehaviour
             }
             else
             {
-                StartCoroutine(MovePlayer(gridSize));
+                StartCoroutine(MovePlayer(gridMovement));
             }
         }
 
@@ -90,7 +91,7 @@ public class PlayerMovement : MonoBehaviour
             }
             else
             {
-                StartCoroutine(MovePlayer(-gridSize));
+                StartCoroutine(MovePlayer(-gridMovement));
             }
             
         }
@@ -155,7 +156,7 @@ public class PlayerMovement : MonoBehaviour
         }
 
         transform.position = targetPosition;
-        SnapToGrid();
+        // SnapToGrid();
         isMoving = false;
     }
 
@@ -171,7 +172,7 @@ public class PlayerMovement : MonoBehaviour
 
         float elapsedTime = 0;
         originalPosition = transform.position;
-        targetPosition = originalPosition + direction  * 1.0f;
+        targetPosition = originalPosition + direction  * 0.3f;
 
         while (elapsedTime < timeToMove / 2)
         {

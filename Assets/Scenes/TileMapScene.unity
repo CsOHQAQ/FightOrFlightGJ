@@ -944,10 +944,65 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1189213051545737451, guid: 2403851d1c5770345b63bd648736b95b,
+        type: 3}
+      propertyPath: gridSize
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1189213051545737451, guid: 2403851d1c5770345b63bd648736b95b,
+        type: 3}
+      propertyPath: gridMovement
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1189213051545737451, guid: 2403851d1c5770345b63bd648736b95b,
+        type: 3}
+      propertyPath: detectionDistance
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1189213051545737451, guid: 2403851d1c5770345b63bd648736b95b,
+        type: 3}
+      propertyPath: obstacleLayer.m_Bits
+      value: 128
+      objectReference: {fileID: 0}
     - target: {fileID: 3534061927974856957, guid: 2403851d1c5770345b63bd648736b95b,
         type: 3}
       propertyPath: m_Name
       value: PlayerPrefab
+      objectReference: {fileID: 0}
+    - target: {fileID: 5650029680193910003, guid: 2403851d1c5770345b63bd648736b95b,
+        type: 3}
+      propertyPath: m_BackGroundColor.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5650029680193910003, guid: 2403851d1c5770345b63bd648736b95b,
+        type: 3}
+      propertyPath: m_BackGroundColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5650029680193910003, guid: 2403851d1c5770345b63bd648736b95b,
+        type: 3}
+      propertyPath: m_BackGroundColor.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5650029680193910003, guid: 2403851d1c5770345b63bd648736b95b,
+        type: 3}
+      propertyPath: m_BackGroundColor.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7402001681787637120, guid: 2403851d1c5770345b63bd648736b95b,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7402001681787637120, guid: 2403851d1c5770345b63bd648736b95b,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7402001681787637120, guid: 2403851d1c5770345b63bd648736b95b,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 7402001681787637120, guid: 2403851d1c5770345b63bd648736b95b,
         type: 3}

@@ -382,7 +382,8 @@ GameObject:
   m_Component:
   - component: {fileID: 8142595615860943826}
   - component: {fileID: 6347245230025982146}
-  m_Layer: 0
+  - component: {fileID: 3217485658780483977}
+  m_Layer: 7
   m_Name: Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -456,6 +457,27 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!65 &3217485658780483977
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7111013449573758823}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 2.0000005, y: 2, z: 0.20000005}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &7641734271260601709
 GameObject:
   m_ObjectHideFlags: 0
@@ -550,7 +572,8 @@ GameObject:
   m_Component:
   - component: {fileID: 5779476433595472863}
   - component: {fileID: 1613175182559840737}
-  m_Layer: 0
+  - component: {fileID: 6256818707785474937}
+  m_Layer: 7
   m_Name: HollowWall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -624,6 +647,27 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!65 &6256818707785474937
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9132613872213278925}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 2.0000005, y: 2, z: 0.20000005}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &2770392378823791575
 PrefabInstance:
   m_ObjectHideFlags: 0
