@@ -40,6 +40,11 @@ public class SoundManager : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        PlayBackgroundMusic("sonic");
+    }
+
     public void PlaySound(string name)
     {
         if (soundDictionary.TryGetValue(name, out var clip))
