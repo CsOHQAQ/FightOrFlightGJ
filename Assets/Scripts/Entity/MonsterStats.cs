@@ -12,32 +12,55 @@ public class MonsterStats : MonoBehaviour
     public int Defense;
     public int Awareness;
     public float CurAwareness;
-    public bool isAwared;
+    public AwareLevel awareLevel;
 
     // Start is called before the first frame update
     void Start()
-    {        
+    {
+        awareLevel = AwareLevel.NotAwared;
     }
+
 
     // Update is called once per frame
     void Update()
     {
-        if (CurAwareness > 1f)
+        if (CurAwareness < 1f)
         {
-            isAwared = true;
+            awareLevel = AwareLevel.NotAwared;
+            GetComponent<FacingPlayer>().CanFacing=false;
+        }
+        else if (CurAwareness > 1f&&CurAwareness<2f)
+        {
+            awareLevel = AwareLevel.Searching;
+            GetComponent<FacingPlayer>().CanFacing = true;
         }
         else
         {
-            isAwared= false;
+            awareLevel=AwareLevel.Awared;
         }
         
+
     }
 
     public void RefreshAwareness(bool canSeePlayer)
     {
-        if (canSeePlayer)
-            CurAwareness += Awareness * Time.deltaTime / Vector2.Distance(transform.position, GameControl.Game.Player.transform.position);
+        if (canSeePlayer)            
+            CurAwareness += Mathf.MoveTowards(CurAwareness, 3, Awareness * Time.deltaTime / Vector2.Distance(transform.position, GameControl.Game.Player.transform.position));
         else
-            CurAwareness -= Time.deltaTime / Awareness;
+            CurAwareness = Mathf.MoveTowards(CurAwareness,0,Time.deltaTime/Awareness);
+    }
+
+    public enum AwareLevel
+    {
+        Empty,
+        NotAwared, //Awareness 0-1
+        Searching, //Awareness 1-2
+        Awared, //Awareness 2-3
+    }
+
+    public void TakeDamage(int damage)
+    {
+        CurHealth -= damage;
+        CurHealth = Mathf.Max(CurHealth, 0);
     }
 }

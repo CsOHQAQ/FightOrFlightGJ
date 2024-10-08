@@ -6,31 +6,29 @@ using Sirenix.OdinInspector; // Add this to use Odin attributes
 public class CombatManager:MonoBehaviour
 {
     [SerializeField]
-    private Combatant playerCombatant;
+    private PlayerStats playerCombatant;
 
     [SerializeField]
-    private List<Combatant> enemyCombatants = new List<Combatant>();
+    private List<MonsterStats> enemyCombatants = new List<MonsterStats>();
 
     [SerializeField]
     private float turnDuration = 2.0f; // Duration of each turn in seconds
 
     private float turnTimer = 0f; // Timer to track time between turns
     private int currentEnemyIndex = 0;
-    private bool inCombat = true;
+    public bool inCombat = true;
 
     public void StartBattle(PlayerStats player, List<MonsterStats> monsters)
     {
-        if (playerCombatant == null)
+        if (player == null || monsters == null)
         {
-            playerCombatant = new Combatant(10, 10, 2, 0);
+            Debug.LogError("Combatant null!!");
         }
-
-        for (int i = 0; i < enemyCombatants.Count; i++)
+        playerCombatant = player;
+        enemyCombatants.Clear();
+        for (int i = 0; i < monsters.Count; i++)
         {
-            if (enemyCombatants[i] == null)
-            {
-                enemyCombatants[i] = new Combatant(2, 2, 1, 0);
-            }
+            enemyCombatants.Add(monsters[i]);
         }
 
         inCombat = true;
@@ -59,19 +57,19 @@ public class CombatManager:MonoBehaviour
         Debug.Log("Starting a new turn...");
         
         // Calculate and log damage to the player. You deal at least 1 damage each turn. 
-        float damageToPlayer = Mathf.Max(1f, enemyCombatants[currentEnemyIndex].Attack - playerCombatant.Defense);
+        int damageToPlayer = Mathf.Max(1, enemyCombatants[currentEnemyIndex].Attack - playerCombatant.Defense);
         Debug.Log($"Enemy {currentEnemyIndex} attacks Player: Damage = {damageToPlayer}");
         playerCombatant.TakeDamage(damageToPlayer);
-        Debug.Log($"Player health after taking damage: {playerCombatant.Health}");
+        Debug.Log($"Player health after taking damage: {playerCombatant.CurHealth}");
 
         // Calculate and log damage to the enemy
-        float damageToEnemy = Mathf.Max(1f, playerCombatant.Attack - enemyCombatants[currentEnemyIndex].Defense);
+        int damageToEnemy = Mathf.Max(1, playerCombatant.Attack - enemyCombatants[currentEnemyIndex].Defense);
         Debug.Log($"Player attacks Enemy {currentEnemyIndex}: Damage = {damageToEnemy}");
         enemyCombatants[currentEnemyIndex].TakeDamage(damageToEnemy);
-        Debug.Log($"Enemy {currentEnemyIndex} health after taking damage: {enemyCombatants[currentEnemyIndex].Health}");
+        Debug.Log($"Enemy {currentEnemyIndex} health after taking damage: {enemyCombatants[currentEnemyIndex].CurHealth}");
 
         // Check if the player is dead and log it
-        if (playerCombatant.Health <= 0f)
+        if (playerCombatant.CurHealth <= 0f)
         {
             Debug.Log("Player has died.");
             CombatOutcome(false);
@@ -79,7 +77,7 @@ public class CombatManager:MonoBehaviour
         }
 
         // Check if the current enemy is dead and log it
-        if (enemyCombatants[currentEnemyIndex].Health <= 0f)
+        if (enemyCombatants[currentEnemyIndex].CurHealth <= 0)
         {
             Debug.Log($"Enemy {currentEnemyIndex} has died.");
             currentEnemyIndex++;
@@ -104,7 +102,7 @@ public class CombatManager:MonoBehaviour
     {
         if (combatWon)
         {
-            Debug.Log($"Combat Won! All enemies have been defeated. Player's remaining health: {playerCombatant.Health}");
+            Debug.Log($"Combat Won! All enemies have been defeated. Player's remaining health: {playerCombatant.CurHealth}");
         }
         else
         {

@@ -41,6 +41,7 @@ public class PlayerStats : MonoBehaviour
             int equipValue=0;
             foreach (var equip in inventory.GetEquipment()) 
             {
+                if(equip!=null)
                 if (equip.itemDurability > 0)
                 {
                     equipValue += equip.attackValue;
@@ -58,7 +59,8 @@ public class PlayerStats : MonoBehaviour
             int equipValue = 0;
             foreach (var equip in inventory.GetEquipment())
             {
-                if (equip.itemDurability > 0)
+                if (equip != null)
+                    if (equip.itemDurability > 0)
                 {
                     equipValue += equip.defenceValue;
                 }
@@ -72,8 +74,12 @@ public class PlayerStats : MonoBehaviour
 
     private void Start()
     {
-        inventory= GetComponent<InventoryManager>();
+        inventory=InventoryManager.Instance;
     }
-
+    public void TakeDamage(int damage)
+    {
+        _curHealth -= damage;
+        _curHealth = Mathf.Max(_curHealth, 0);
+    }
 
 }

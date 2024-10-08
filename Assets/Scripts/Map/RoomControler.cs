@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Rendering;
 using UnityEditor.Rendering.Universal;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
@@ -37,13 +38,37 @@ public class RoomControler : MonoBehaviour
                 }
             }
 
-            foreach (MonsterStats monster in monsters)
-            {
-                monster.RefreshAwareness(isViewedByPlayer);
-                if (monster.isAwared)
-                {
 
-                    EngageCombat();
+            //Remove Dead Monster
+            List<MonsterStats> removeList = new List<MonsterStats>();
+            foreach (var monster in monsters)
+            {
+                if (monster.CurHealth <= 0)
+                {
+                    removeList.Add(monster);
+                }
+            }
+            foreach (var remove in removeList)
+            {
+                monsters.Remove(remove);
+                Destroy(remove.gameObject);
+            }
+            if (monsters.Count <= 0)
+            {
+                isClear = true;
+            }
+
+
+            if (!combatManager.inCombat)
+            {
+                foreach (MonsterStats monster in monsters)
+                {
+                    monster.RefreshAwareness(isViewedByPlayer);
+                    if (monster.awareLevel == MonsterStats.AwareLevel.Awared)
+                    {
+                        EngageCombat();
+                        return;
+                    }
                 }
             }
 
@@ -70,5 +95,12 @@ public class RoomControler : MonoBehaviour
     void EngageCombat()
     {
         //TODO
+        Debug.LogWarning("EnterBattle!");
+        combatManager.StartBattle(GameControl.Game.Player.GetComponent<PlayerStats>(),monsters);
+        foreach (var door in doors)
+        {
+            door.Close();
+        }
+
     }
 }

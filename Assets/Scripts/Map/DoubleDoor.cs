@@ -58,7 +58,10 @@ public class DoubleDoor : InteractableObject
         {
             RightPart.transform.localEulerAngles = new Vector3(0, Mathf.MoveTowardsAngle(RightPart.transform.localEulerAngles.y, 90, 90 * Time.deltaTime / OpenTime), 0);
             LeftPart.transform.localEulerAngles = new Vector3(0, Mathf.MoveTowardsAngle(LeftPart.transform.localEulerAngles.y, -90, 90 * Time.deltaTime / OpenTime), 0);
-            openTimer += Time.deltaTime;
+            if (!room.isClear)
+                openTimer += Time.deltaTime;
+            else
+                openTimer = 0f;
             if (openTimer > OpenTime) 
             {
                 EnterBattle();
@@ -76,6 +79,7 @@ public class DoubleDoor : InteractableObject
     {
         Debug.Log("Enter Battle");
         CanOpen = false;
+        
     }
 
 }
