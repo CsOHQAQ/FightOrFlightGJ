@@ -592,7 +592,8 @@ MonoBehaviour:
   - Not turning over loot to a collection officer is punishable by up to 40 years
     in the ore mines.
   - It only gets worse.
-  - 'While no one knows what happened to the fourth princess, rumors still propogate. '
+  - While no one knows what happened to the fourth princess, rumors still propogate.
+    The leading theory is a wizard did it.
 --- !u!1 &1662341759
 GameObject:
   m_ObjectHideFlags: 0
