@@ -49,7 +49,7 @@ public class EndOfGame_Behavior : MonoBehaviour
     [SerializeField]
     private bool debugSuccess;
 
-    
+
 
     void Start()
     {
@@ -62,6 +62,10 @@ public class EndOfGame_Behavior : MonoBehaviour
         if (shouldDebug)
         {
             StartCoroutine(TypewriterText(debugSuccess));
+        }
+        else
+        {
+            StartCoroutine(TypewriterText(FindObjectOfType<DayManager>().GetSuccess()));
         }
     }
 
@@ -81,7 +85,7 @@ public class EndOfGame_Behavior : MonoBehaviour
 
         foreach (char c in msg)
         {
-            if(c != ' ')
+            if (c != ' ')
             {
                 yield return new WaitForSeconds(charDelay);
                 outcome.text += c;
@@ -95,7 +99,7 @@ public class EndOfGame_Behavior : MonoBehaviour
         yield return new WaitForSeconds(textMeshDelay);
 
         string msg1;
-        if(b)
+        if (b)
         {
             msg1 = "You were able to pay your tithe";
         }
@@ -103,9 +107,9 @@ public class EndOfGame_Behavior : MonoBehaviour
         {
             msg1 = "You were " + (DayManager.Instance.GetQuota() - DayManager.Instance.GetMoney()).ToString() + " gold short of the tithe";
         }
-        foreach(char c in msg1)
+        foreach (char c in msg1)
         {
-            if(c != ' ')
+            if (c != ' ')
             {
                 yield return new WaitForSeconds(charDelay);
                 message.text += c;
@@ -119,7 +123,7 @@ public class EndOfGame_Behavior : MonoBehaviour
         yield return new WaitForSeconds(textMeshDelay);
 
         string msg2;
-        if(b)
+        if (b)
         {
             msg2 = "See you next week...";
         }
@@ -127,9 +131,9 @@ public class EndOfGame_Behavior : MonoBehaviour
         {
             msg2 = "Report to the stockades immediately.";
         }
-        foreach(char c in msg2)
+        foreach (char c in msg2)
         {
-            if(c != ' ')
+            if (c != ' ')
             {
                 yield return new WaitForSeconds(charDelay);
                 progress.text += c;

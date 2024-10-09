@@ -204,10 +204,12 @@ public class PlayerMovement : MonoBehaviour
 
         if (Physics.Raycast(rayOrigin, direction, out RaycastHit hit, detectionDistance, obstacleLayer))
         {
+            /*
             if (hit.transform.TryGetComponent<OpenChest>(out OpenChest openChest))
             {
                 openChest.Interact();
             }
+            */
 
             return true;
         }
