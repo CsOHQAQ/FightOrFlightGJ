@@ -13,9 +13,12 @@ MonoBehaviour:
   m_Name: LegArmor
   m_EditorClassIdentifier: 
   itemName: Leg Armor
+  itemSprite: {fileID: 0}
+  itemDescription: It's leg armor
+  itemValue: 1
+  itemType: 0
   itemSlot: 3
   itemDurability: 100
-  itemValue: 0
   attackValue: 0
   defenceValue: 0
-  itemDescription: It's leg armor
+  traitType: {fileID: 0}

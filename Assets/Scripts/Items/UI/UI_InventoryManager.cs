@@ -64,7 +64,12 @@ public class UI_InventoryManager : MonoBehaviour
 
     private bool isActive;
 
+    [SerializeField]
     private bool atStore;
+
+    [Header("DEBUG")]
+    [SerializeField]
+    private bool autoStart = false;
 
     public void Awake()
     {
@@ -87,9 +92,12 @@ public class UI_InventoryManager : MonoBehaviour
         //ShowInventoryCanvas();
         //PopulateCanvas();
 
-        atStore = false;
+        //atStore = false;
 
-        //ToggleCanvas();
+        if (autoStart)
+        {
+            ToggleCanvas();
+        }
     }
 
     public void Update()

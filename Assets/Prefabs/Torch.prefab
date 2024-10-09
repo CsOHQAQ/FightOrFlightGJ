@@ -731,6 +731,16 @@ PrefabInstance:
       propertyPath: m_Name
       value: Fire
       objectReference: {fileID: 0}
+    - target: {fileID: 1287049642274037418, guid: 69493719d2f1c884d91b55adaeb6d963,
+        type: 3}
+      propertyPath: m_Shadows.m_Type
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1287049642274037418, guid: 69493719d2f1c884d91b55adaeb6d963,
+        type: 3}
+      propertyPath: m_BounceIntensity
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3456657345365783609, guid: 69493719d2f1c884d91b55adaeb6d963,
         type: 3}
       propertyPath: m_IsActive
