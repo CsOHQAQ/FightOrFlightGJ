@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using Unity.Properties;
 using UnityEditor.UIElements;
 using UnityEngine;
 
@@ -177,6 +178,18 @@ public class InventoryManager : MonoBehaviour
         stats[1] = defense;
 
         return stats;
+    }
+
+    public bool SellItem(Item_ScriptableObject item)
+    {
+
+        if (item == null) {  return false; }
+
+        DayManager.Instance.AddMoney(item.itemValue);
+
+        bagItems.Remove(item);
+
+        return true;
     }
 
 }
