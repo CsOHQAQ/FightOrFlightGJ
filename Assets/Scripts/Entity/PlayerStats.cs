@@ -17,6 +17,9 @@ public class PlayerStats : MonoBehaviour
     private int _attack;
     [SerializeField]
     private int _defense;
+    [SerializeField]
+    private List<TRAIT_TARGET> traits;
+
 
 
     public string Name;
@@ -60,7 +63,7 @@ public class PlayerStats : MonoBehaviour
     public void TakeDamage(int damage)
     {
         _curHealth -= damage;
-        _curHealth = Mathf.Max(_curHealth, 0);
+        _curHealth = Mathf.Clamp(_curHealth, 0, MaxHealth);
     }
 
 }

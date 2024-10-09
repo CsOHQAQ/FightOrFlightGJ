@@ -66,12 +66,9 @@ public class CombatManager:MonoBehaviour
     {
         
         //Debug.Log("Starting a new turn...");
-
         combatUI.Attack();
-        // Calculate and log damage to the player. You deal at least 1 damage each turn. 
-        int damageToPlayer = Mathf.Max(1, enemyCombatants[currentEnemyIndex].Attack - playerCombatant.Defense);
-        
-        //Reduce durabiity, randomly selects an armor and reduces its durability
+
+        Equipment_ScriptableObject weapon = null;
         List<Equipment_ScriptableObject> armors = new List<Equipment_ScriptableObject>();
         foreach (var equip in InventoryManager.Instance.GetEquipment())
         {
@@ -81,8 +78,53 @@ public class CombatManager:MonoBehaviour
                 {
                     armors.Add(equip);
                 }
+                else
+                {
+                    weapon = equip;
+                }
             }
         }
+        if (weapon != null)
+        {
+            armors.Insert(0, weapon);
+        }
+
+        bool pHaveBloodSuck=false, pHaveAllAttack=false, pHaveSpiky=false, eHaveSpiky=false, eHaveBloodSuck=false;
+        float AttackIndex = 1,DefendIndex=1;
+        foreach (var item in armors)
+        {
+            if(item.traitType.Type==TRAIT_TARGET.BLOODSUCKING)
+                pHaveBloodSuck = true;
+            if (item.traitType.Type == TRAIT_TARGET.ATTACKALL)
+                pHaveAllAttack= true;
+            if (item.traitType.Type == TRAIT_TARGET.SPIKY)
+                pHaveSpiky = true;
+
+            foreach (var trait in enemyCombatants[currentEnemyIndex].traits)
+            {
+                if (trait.Type==TRAIT_TARGET.BLOODSUCKING)
+                {
+                    eHaveBloodSuck = true;
+                }
+                if (trait.Type == TRAIT_TARGET.SPIKY)
+                {
+                    eHaveSpiky= true;
+                }
+                AttackIndex *= Trait_Dictionary.instance.CompareTraitTypes(item.traitType, trait.Type);
+                DefendIndex *= Trait_Dictionary.instance.CompareTraitTypes(trait, item.traitType.Type);
+            }            
+        }
+        
+
+        // Calculate and log damage to the player. You deal at least 1 damage each turn. 
+        int damageToPlayer = Mathf.Max(1,
+            (int)Mathf.Round((enemyCombatants[currentEnemyIndex].Attack - playerCombatant.Defense)* DefendIndex)
+            );
+        if (pHaveSpiky)
+            enemyCombatants[currentEnemyIndex].TakeDamage(1);
+        if (eHaveBloodSuck)
+            enemyCombatants[currentEnemyIndex].TakeDamage(-damageToPlayer);
+        //Reduce durabiity, randomly selects an armor and reduces its durability
         if (armors.Count > 0)
         {
             Randomer rnd = new Randomer();
@@ -95,28 +137,41 @@ public class CombatManager:MonoBehaviour
         //Debug.Log($"Player health after taking damage: {playerCombatant.CurHealth}");
 
         // Calculate and log damage to the enemy
-        int damageToEnemy = Mathf.Max(1, playerCombatant.Attack - enemyCombatants[currentEnemyIndex].Defense);
+        int damageToEnemy = Mathf.Max(1, 
+           (int)Mathf.Round((playerCombatant.Attack - enemyCombatants[currentEnemyIndex].Defense)*AttackIndex)
+            );
         //Debug.Log($"Player attacks Enemy {currentEnemyIndex}: Damage = {damageToEnemy}");
+        if (eHaveSpiky && weapon == null)
+            playerCombatant.TakeDamage(1);
+        if(pHaveBloodSuck)
+            playerCombatant.TakeDamage(-damageToEnemy);
+        enemyCombatants[currentEnemyIndex].TakeDamage(damageToEnemy);
         
-        //Reduce weapon durability
-        Equipment_ScriptableObject weapon = null;
-        foreach (var equip in InventoryManager.Instance.GetEquipment())
+        if (pHaveAllAttack)
         {
-            if (equip != null)
+            for(int i = currentEnemyIndex + 1; i < enemyCombatants.Count; i++)
             {
-                if (equip.itemSlot == ITEM_SLOT.WEAPON)
-                {
-                    weapon=equip;
-                }
+                damageToEnemy = Mathf.Max(1,
+           (int)Mathf.Round((playerCombatant.Attack - enemyCombatants[i].Defense) * AttackIndex)
+            );
+                //Debug.Log($"Player attacks Enemy {currentEnemyIndex}: Damage = {damageToEnemy}");
+                if (eHaveSpiky && weapon == null)
+                    playerCombatant.TakeDamage(1);
+                if (pHaveBloodSuck)
+                    playerCombatant.TakeDamage(-damageToEnemy);
+                enemyCombatants[i].TakeDamage(damageToEnemy);
             }
         }
+        //Reduce weapon durability
         if (weapon!=null)
         {
             weapon.itemDurability -= 1;
         }
 
-        enemyCombatants[currentEnemyIndex].TakeDamage(damageToEnemy);
+        
         //Debug.Log($"Enemy {currentEnemyIndex} health after taking damage: {enemyCombatants[currentEnemyIndex].CurHealth}");
+
+        //Check Traits in 
 
         // Check if the player is dead and log it
         if (playerCombatant.CurHealth <= 0f)
@@ -134,10 +189,7 @@ public class CombatManager:MonoBehaviour
             if (currentEnemyIndex < enemyCombatants.Count)
             {
                 combatUI.monsterBuffer = enemyCombatants[currentEnemyIndex];
-            }
-                
-
-
+            }            
             // Check if all enemies are dead and log the combat outcome
             if (currentEnemyIndex >= enemyCombatants.Count)
             {

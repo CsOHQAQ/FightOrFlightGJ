@@ -8,7 +8,10 @@ public enum TRAIT_TARGET
 {
     NORMAL,
     FLYING,
-    GROUND
+    GROUND,
+    ATTACKALL,
+    SPIKY,
+    BLOODSUCKING,
 }
 
 
@@ -17,4 +20,5 @@ public class Trait_Type : SerializedScriptableObject
 {
     [OdinSerialize]
     public Dictionary<TRAIT_TARGET, float> TypeBehavior;
+    public TRAIT_TARGET Type;
 }
