@@ -94,7 +94,7 @@ public class DoubleDoor : InteractableObject
         LeftPart.transform.localEulerAngles = new Vector3(0, currentLeftAngle, 0);
 
         // Check if the door is fully opened using the cumulative angle tracking
-        if (Mathf.Abs(cumulativeRightDoorAngle) >= Mathf.Abs(maxDoorAngle))
+        if (Mathf.Abs(cumulativeRightDoorAngle)>=Mathf.Abs(maxDoorAngle)*0.95f)
         {
             OnDoorFullyOpened?.Invoke(gameObject.name); // Announce which door has fully opened
             boxCollider.enabled = false; // Disable the collider to prevent closing once fully opened
