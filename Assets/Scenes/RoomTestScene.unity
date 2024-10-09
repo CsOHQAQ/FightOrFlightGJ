@@ -10743,6 +10743,12 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 5016448864986579365, guid: 2403851d1c5770345b63bd648736b95b,
+        type: 3}
+      propertyPath: serializationData.Prefab
+      value: 
+      objectReference: {fileID: 5016448864986579365, guid: 2403851d1c5770345b63bd648736b95b,
+        type: 3}
     - target: {fileID: 5650029680193910003, guid: 2403851d1c5770345b63bd648736b95b,
         type: 3}
       propertyPath: m_BackGroundColor.a
