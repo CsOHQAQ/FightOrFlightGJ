@@ -30,7 +30,10 @@ public class DayManager : MonoBehaviour
 
     private DayCanvasManager canvasManager;
 
+    [Header("Debug")]
 
+    [SerializeField]
+    private bool autoStart;
 
     private void Awake()
     {
@@ -51,7 +54,10 @@ public class DayManager : MonoBehaviour
 
         earnedMoney = 0;
 
-        CreateDayCanvas();
+        if (autoStart)
+        {
+            CreateDayCanvas();
+        }
     }
 
     public void GoToNextDay()
@@ -70,7 +76,11 @@ public class DayManager : MonoBehaviour
 
     public int GetCurrentDay() { return currentDay; }
 
-    public void AddMoney(int money) { earnedMoney += money; }
+    public void AddMoney(int money)
+    {
+        earnedMoney += money;
+        Debug.Log(earnedMoney);
+    }
 
     public int GetMoney() { return earnedMoney; }
 

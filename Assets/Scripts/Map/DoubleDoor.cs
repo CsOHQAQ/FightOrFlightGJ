@@ -1,33 +1,40 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public class DoubleDoor : InteractableObject
 {
-    public GameObject LeftPart,RightPart;
+    public GameObject LeftPart, RightPart;
     public float OpenTime;
     public bool isOpen;
-    public bool CanOpen=true;
+    public bool CanOpen = true;
 
     RoomControler room;
     int openTimes;
     float openTimer;
 
+    [SerializeField]
+    float maxDoorAngle = 120;
+
+    private float doorOpeness = 0f; // Range from 0 (closed) to 1 (fully open)
+    private float rightDoorVelocity = 0f; // Velocity for smooth transition for the right door
+    private float leftDoorVelocity = 0f;  // Velocity for smooth transition for the left door
+
     public override void Interact(object args = null)
     {
-        base.Interact(args); 
-        if (!isOpen)
-            Open();
-        else
-            Close();
+        if (args != null && args is InteractDetect)
+        {
+            InteractDetect interactDetect = (InteractDetect)args;
+            doorOpeness = Mathf.Clamp(interactDetect.ScrollValue, 0f, 1f); // Clamps openness between 0 and 1
+        }
     }
+
     public void Open()
     {
-        //TODO: Maybe add opening from clockwise or anticlockwise
         isOpen = true;
         openTimes++;
     }
+
     public void Close()
     {
         isOpen = false;
@@ -43,26 +50,27 @@ public class DoubleDoor : InteractableObject
     // Update is called once per frame
     void Update()
     {
-        /*
-        //Just for testing
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            if(!isOpen)
-                Open();
-            else
-                Close();
-        }
-        */
+        // Calculate the target angles based on door openness
+        float targetRightAngle = Mathf.Lerp(0, maxDoorAngle, doorOpeness);  // Target angle for the right door
+        float targetLeftAngle = Mathf.Lerp(0, -maxDoorAngle, doorOpeness);  // Target angle for the left door
 
+        // Smoothly transition to the target angles
+        float currentRightAngle = Mathf.SmoothDampAngle(RightPart.transform.localEulerAngles.y, targetRightAngle, ref rightDoorVelocity, OpenTime);
+        float currentLeftAngle = Mathf.SmoothDampAngle(LeftPart.transform.localEulerAngles.y, targetLeftAngle, ref leftDoorVelocity, OpenTime);
+
+        // Apply the calculated angles to the door parts
+        RightPart.transform.localEulerAngles = new Vector3(0, currentRightAngle, 0);
+        LeftPart.transform.localEulerAngles = new Vector3(0, currentLeftAngle, 0);
+
+        // Additional logic for handling the door and room states
         if (isOpen)
         {
-            RightPart.transform.localEulerAngles = new Vector3(0, Mathf.MoveTowardsAngle(RightPart.transform.localEulerAngles.y, 90, 90 * Time.deltaTime / OpenTime), 0);
-            LeftPart.transform.localEulerAngles = new Vector3(0, Mathf.MoveTowardsAngle(LeftPart.transform.localEulerAngles.y, -90, 90 * Time.deltaTime / OpenTime), 0);
             if (!room.isClear)
                 openTimer += Time.deltaTime;
             else
                 openTimer = 0f;
-            if (openTimer > OpenTime) 
+
+            if (openTimer > OpenTime)
             {
                 EnterBattle();
             }
@@ -70,8 +78,6 @@ public class DoubleDoor : InteractableObject
         else
         {
             openTimer = 0f;
-            RightPart.transform.localEulerAngles = new Vector3(0, Mathf.MoveTowardsAngle(RightPart.transform.localEulerAngles.y, 0, 90 * Time.deltaTime / OpenTime), 0);
-            LeftPart.transform.localEulerAngles = new Vector3(0, Mathf.MoveTowardsAngle(LeftPart.transform.localEulerAngles.y, 0, 90 * Time.deltaTime / OpenTime), 0);
         }
     }
 
@@ -79,7 +85,5 @@ public class DoubleDoor : InteractableObject
     {
         Debug.Log("Enter Battle");
         CanOpen = false;
-        
     }
-
 }
