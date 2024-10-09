@@ -120,7 +120,7 @@ public class CombatManager:MonoBehaviour
         }
         else
         {
-            combatUI.ChangeText($"Combat Lost!");
+            combatUI.ChangeText($"Combat Lost!");            
             Debug.Log("Combat Lost! The player has died.");
         }
         combatUI.SelfClose(3f);
