@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.Rendering;
@@ -23,6 +24,8 @@ public class RoomControler : MonoBehaviour
         doors=new List<DoubleDoor>();
         InitDoors();
         combatManager=GetComponent<CombatManager>();
+
+        isClear=CheckRoomClear();
 
     }
     private void Update()
@@ -112,5 +115,17 @@ public class RoomControler : MonoBehaviour
         GameControl.Game.Player.GetComponent<PlayerMovement>().Teleport(playerPos);
 
     }
-
+    bool CheckRoomClear()
+    {
+        bool flag = true;
+        foreach (var mon in monsters) 
+        {
+            if (mon.CurHealth > 0)
+            {
+                flag = false;
+                return flag; 
+            }
+        }
+        return flag;
+    }
 }
