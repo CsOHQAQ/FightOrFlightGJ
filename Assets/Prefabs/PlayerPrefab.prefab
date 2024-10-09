@@ -257,8 +257,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1b36aa7be5822d64a8dfecab228ca93b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveForwardDistance: 2
+  gridMovement: 2
+  gridSize: 1
   timeToMove: 0.2
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  detectionDistance: 2
 --- !u!114 &8022565276185298668
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -271,4 +276,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d115b48721d1b5c4f85896106ca598be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DetectLength: 1
+  DetectLength: 1.2

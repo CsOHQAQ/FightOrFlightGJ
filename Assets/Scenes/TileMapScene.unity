@@ -2118,21 +2118,6 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1189213051545737451, guid: 2403851d1c5770345b63bd648736b95b,
         type: 3}
-      propertyPath: gridSize
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1189213051545737451, guid: 2403851d1c5770345b63bd648736b95b,
-        type: 3}
-      propertyPath: gridMovement
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 1189213051545737451, guid: 2403851d1c5770345b63bd648736b95b,
-        type: 3}
-      propertyPath: detectionDistance
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 1189213051545737451, guid: 2403851d1c5770345b63bd648736b95b,
-        type: 3}
       propertyPath: obstacleLayer.m_Bits
       value: 128
       objectReference: {fileID: 0}
@@ -27700,6 +27685,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: DoorCorridor
+      objectReference: {fileID: 0}
+    - target: {fileID: 6256818707785474937, guid: 04d401ce2b172d647b2e30087c69ee40,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

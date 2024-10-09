@@ -44,14 +44,14 @@ public class InteractDetect : MonoBehaviour
         Debug.DrawLine(transform.position, transform.position + transform.forward * DetectLength, Color.red);
         if (Physics.Raycast(transform.position, transform.forward, out hitInfo, DetectLength))
         {
-            Debug.Log($"{hitInfo.transform.name}, its layer mask: {hitInfo.transform.gameObject.layer}");
+            //Debug.Log($"{hitInfo.transform.name}, its layer mask: {hitInfo.transform.gameObject.layer}");
             if (hitInfo.transform.gameObject.layer == LayerMask.NameToLayer("Interactable Obj"))
             {
                 //interactable object detected.
                 hitInfo.transform.GetComponent<InteractableObject>().Interact(this);
                 scrollValue += context.ReadValue<Vector2>().y*0.1f;
                 scrollValue = Mathf.Clamp(scrollValue, 0f, 1f);
-                Debug.Log(scrollValue);
+                
                 return true;
             }
             scrollValue = 0f;
