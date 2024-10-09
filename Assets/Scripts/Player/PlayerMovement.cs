@@ -24,6 +24,7 @@ public class PlayerMovement : MonoBehaviour
 
     private bool isMoving;
     [SerializeField] private LayerMask obstacleLayer;
+    [SerializeField] private LayerMask interactableLayer;
     [SerializeField] private float detectionDistance = 1.1f;
 
     InteractDetect interactDetect;
@@ -188,7 +189,18 @@ public class PlayerMovement : MonoBehaviour
     private bool IsObstacleInDirection(Vector3 direction)
     {
         Vector3 rayOrigin = transform.position + Vector3.up * 0.5f;
-        return Physics.Raycast(rayOrigin, direction, out RaycastHit hit, detectionDistance, obstacleLayer);
+
+        if (Physics.Raycast(rayOrigin, direction, out RaycastHit hit, detectionDistance, obstacleLayer))
+        {
+            if (hit.transform.TryGetComponent<OpenChest>(out OpenChest openChest))
+            {
+                openChest.Interact();
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     private IEnumerator CollisionEffect(Vector3 direction)
