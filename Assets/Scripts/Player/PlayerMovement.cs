@@ -1,7 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Net.Http.Headers;
+using System.Xml.Serialization;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using static PlayerHandsComponent;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -22,6 +25,7 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 originalPosition, targetPosition;
     [SerializeField] private float timeToMove = 0.2f;
 
+    [HideInInspector] public bool CanMove = true;
     private bool isMoving;
     private bool isRotating;
 
@@ -30,6 +34,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float detectionDistance = 1.1f;
 
     InteractDetect interactDetect;
+    PlayerHandsComponent hand;
 
     private void Awake()
     {
@@ -50,6 +55,7 @@ public class PlayerMovement : MonoBehaviour
         isMoving = false;
         isRotating = false;
         interactDetect = GetComponent<InteractDetect>();
+        hand = GetComponent<PlayerHandsComponent>();
     }
 
     private void OnEnable()
@@ -78,12 +84,28 @@ public class PlayerMovement : MonoBehaviour
             if (!interactDetect.TryInteract(context))
             {
                 movementInput = tempInput;
+                hand.StartCoroutine(hand.EaseToState(HandState.Lowered));
             }
             else
             {
+                if (hand.lastState == HandState.Lowered)
+                {
+                    hand.StartCoroutine(hand.EaseToState(HandState.Raised));
+                }
+                else
+                {
+                    if (interactDetect.interactable is DoubleDoor)
+                    {
+                        DoubleDoor door = interactDetect.interactable as DoubleDoor;
+                        Debug.Log(door.DoorOpeness);
+                        hand.StartCoroutine(hand.EaseToState(HandState.Pushed, door.DoorOpeness));
+                    }
+                }
+
                 if(interactDetect.ScrollValue<=0f)
                 {
                     movementInput = tempInput;
+                    return;
                 }
             }
         }
@@ -91,8 +113,6 @@ public class PlayerMovement : MonoBehaviour
         {
             movementInput = tempInput;
         }
-
-        
     }
 
     private void MovingOnGrid()
@@ -175,7 +195,6 @@ public class PlayerMovement : MonoBehaviour
         }
 
         transform.position = targetPosition;
-        // SnapToGrid();
         isMoving = false;
     }
 
@@ -237,6 +256,18 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        MovingOnGrid();
+        if (CanMove)
+        {
+            MovingOnGrid();
+        }
+    }
+
+    public void Teleport(Vector3 position)
+    {
+        StopCoroutine("MovePlayer");
+        isMoving = false;
+        float y = transform.position.y;//A ugly fix to keep the player on the ground
+        transform.position = position;
+        transform.position = new Vector3(transform.position.x, y, transform.position.z);
     }
 }
