@@ -66,7 +66,7 @@ public class RoomControler : MonoBehaviour
                 foreach (MonsterStats monster in monsters)
                 {
                     monster.RefreshAwareness(isViewedByPlayer);
-                    if (monster.awareLevel == MonsterStats.AwareLevel.Awared)
+                    if (monster.CurAwareLevel == MonsterStats.AwareLevel.Awared)
                     {
                         EngageCombat();
                         return;
@@ -123,6 +123,7 @@ public class RoomControler : MonoBehaviour
 
     void LeaveCombat(bool result)
     {
+        isRefreshing = false;
         inCombat = false;
         GameControl.Game.Player.GetComponent<PlayerMovement>().CanMove = true;
         if (result)//Player Wins
@@ -132,7 +133,11 @@ public class RoomControler : MonoBehaviour
         else
         {
             //Player Loses, Please call the new day
-
+            foreach(var mo in monsters)
+            {
+                mo.Awareness = 0;
+                mo.CurAwareLevel = MonsterStats.AwareLevel.NotAwared;
+            }
         }
     }
 
