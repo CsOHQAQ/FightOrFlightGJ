@@ -23,6 +23,8 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float timeToMove = 0.2f;
 
     private bool isMoving;
+    private bool isRotating;
+
     [SerializeField] private LayerMask obstacleLayer;
     [SerializeField] private LayerMask interactableLayer;
     [SerializeField] private float detectionDistance = 1.1f;
@@ -46,6 +48,7 @@ public class PlayerMovement : MonoBehaviour
         targetPosition = Vector3.zero;
 
         isMoving = false;
+        isRotating = false;
         interactDetect = GetComponent<InteractDetect>();
     }
 
@@ -97,46 +100,46 @@ public class PlayerMovement : MonoBehaviour
         Vector3 move = new Vector3(movementInput.x, 0, movementInput.y).normalized;
 
 
-        if (move == moveForward && !isMoving)
+        if (!isMoving && !isRotating)
         {
-            if (IsObstacleInDirection(transform.forward))
+            if (move == moveForward)
             {
-                StartCoroutine(CollisionEffect(transform.forward));
+                if (IsObstacleInDirection(transform.forward))
+                {
+                    StartCoroutine(CollisionEffect(transform.forward));
+                }
+                else
+                {
+                    StartCoroutine(MovePlayer(gridMovement));
+                }
             }
-            else
+            else if (move == moveBackward)
             {
-                StartCoroutine(MovePlayer(gridMovement));
-            }
-        }
+                if (IsObstacleInDirection(-transform.forward))
+                {
+                    StartCoroutine(CollisionEffect(-transform.forward));
+                }
+                else
+                {
+                    StartCoroutine(MovePlayer(-gridMovement));
+                }
 
-        if (move == moveBackward && !isMoving)
-        {
-            if (IsObstacleInDirection(-transform.forward))
-            {
-                StartCoroutine(CollisionEffect(-transform.forward));
             }
-            else
+            else if (move == moveLeft)
             {
-                StartCoroutine(MovePlayer(-gridMovement));
+                StartCoroutine(RotatePlayer(moveRotationLeft));
             }
-            
-        }
-
-        if (move == moveLeft && !isMoving)
-        {
-            StartCoroutine(RotatePlayer(moveRotationLeft));
-        }
-
-        if (move == moveRight && !isMoving)
-        {
-            StartCoroutine(RotatePlayer(moveRotationRight));
-        }
+            else if (move == moveRight)
+            {
+                StartCoroutine(RotatePlayer(moveRotationRight));
+            }
+        }    
 
     }
 
     private IEnumerator RotatePlayer(float rotation)
     {
-        isMoving = true;
+        isRotating = true;
 
         float elapsedTime = 0;
         originalRotation = transform.rotation;
@@ -149,19 +152,9 @@ public class PlayerMovement : MonoBehaviour
             yield return null;
         }
 
-        while (isMoving)
-        {
-            Vector3 move = new Vector3(movementInput.x, 0, movementInput.y);
-
-            if (move == Vector3.zero)
-            {
-                isMoving = false;
-            }
-
-            yield return null;
-        }
-
         transform.rotation = targetRotation;
+
+        isRotating = false;
 
     }
 
