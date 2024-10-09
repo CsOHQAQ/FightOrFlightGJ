@@ -16,5 +16,5 @@ MonoBehaviour:
   itemId: 7
   itemSprite: {fileID: 0}
   itemDescription: It's a Bomb
-  itemValue: 0
+  itemValue: -1
   itemType: 2

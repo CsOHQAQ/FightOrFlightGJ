@@ -36,13 +36,31 @@ public class OpenChest : InteractableObject
         {
             if (currentItem == 0)
             {
+                Item_ScriptableObject bombItem = ItemManager.Instance.GetItemByName("bomb");
 
+                chestItems.Add(bombItem);
             }
+            else
+            {
+                int randomIndex = Random.Range(0, ItemManager.Instance.GetAllItems().Count);
+                Item_ScriptableObject randomItem = ItemManager.Instance.GetItemByID(randomIndex);
 
-            int randomIndex = Random.Range(0, ItemManager.Instance.GetAllItems().Count);
-            Item_ScriptableObject randomItem = ItemManager.Instance.GetItemByID(randomIndex);
+                chestItems.Add(randomItem);
+            }
+        }
 
-            chestItems.Add(randomItem);
+        ShuffleChest();
+    }
+
+    private void ShuffleChest()
+    {
+        for (int currentItem = chestItems.Count - 1; currentItem > 0; currentItem--)
+        {
+            int randomIndex = Random.Range(0, currentItem + 1);
+
+            Item_ScriptableObject tempChestItem = chestItems[currentItem];
+            chestItems[currentItem] = chestItems[randomIndex];
+            chestItems[randomIndex] = tempChestItem;
         }
     }
 }
