@@ -12,6 +12,7 @@ public class OpenChest : InteractableObject
     [SerializeField] List<Item_ScriptableObject> chestItems;
     [SerializeField] private int maxCount = 5;
     [SerializeField] private float detectionDistance = 1.5f;
+    [SerializeField] private Vector3 bombIncreaseSize = new Vector3(0.2f, 0.2f, 0.2f);
 
     private GameObject spawnedItem;
 
@@ -52,24 +53,35 @@ public class OpenChest : InteractableObject
     {
         chestItems = new List<Item_ScriptableObject>();
 
-        for (int currentItem = 0; currentItem < maxCount; currentItem++)
+        if (maxCount > 1)
         {
-            if (currentItem == 0)
+            for (int currentItem = 0; currentItem < maxCount; currentItem++)
             {
-                Item_ScriptableObject bombItem = ItemManager.Instance.GetItemByName("bomb");
+                if (currentItem == 0)
+                {
+                    Item_ScriptableObject bombItem = ItemManager.Instance.GetItemByName("bomb");
 
-                chestItems.Add(bombItem);
-            }
-            else
-            {
-                int randomIndex = Random.Range(0, ItemManager.Instance.GetAllItems().Count - 1);
-                Item_ScriptableObject randomItem = ItemManager.Instance.GetItemByID(randomIndex);
+                    chestItems.Add(bombItem);
+                }
+                else
+                {
+                    int randomIndex = Random.Range(0, ItemManager.Instance.GetAllItems().Count - 1);
+                    Item_ScriptableObject randomItem = ItemManager.Instance.GetItemByID(randomIndex);
 
-                chestItems.Add(randomItem);
+                    chestItems.Add(randomItem);
+                }
             }
+
+            ShuffleChest();
         }
+        else
+        {
+            int randomIndex = Random.Range(0, ItemManager.Instance.GetAllItems().Count);
+            Item_ScriptableObject randomItem = ItemManager.Instance.GetItemByID(randomIndex);
 
-        ShuffleChest();
+            chestItems.Add(randomItem);
+        }
+        
     }
 
     private void ShuffleChest()
@@ -106,7 +118,10 @@ public class OpenChest : InteractableObject
 
                 if (itemData.itemName == "bomb")
                 {
+                    spawnedItem.transform.localScale += bombIncreaseSize;
                     bombActive = true;
+
+                    ImplementBombItem(spawnedItem);
                 }
                 else
                 {
@@ -115,6 +130,22 @@ public class OpenChest : InteractableObject
             }
             chestItems.RemoveAt(0);
         }
+    }
+
+    private void ImplementBombItem(GameObject _theItem)
+    {
+        Bomb bomb = _theItem.GetComponent<Bomb>();
+
+        if (bomb != null)
+        {
+            bomb.Chest = gameObject;
+            bomb.bombActive = bombActive;
+        }
+        else
+        {
+            Debug.LogWarning("No Bomb Component found on the item");
+        }
+        
     }
 
     private void PutItemInInventory(Item_ScriptableObject _itemToAdd)

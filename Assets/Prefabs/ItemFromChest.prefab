@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 8859748323042816519}
   - component: {fileID: 7030788870310970083}
   - component: {fileID: 5348415542400443539}
+  - component: {fileID: 8305385714493530508}
   m_Layer: 0
   m_Name: ItemFromChest
   m_TagString: Untagged
@@ -106,3 +107,22 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &8305385714493530508
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6400296752658903697}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d8492de5ec72cb449c1c95fd3ebb20e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Chest: {fileID: 0}
+  bombs:
+  - {fileID: 21300000, guid: c42b93fdf74c226478a900d6c5b3e474, type: 3}
+  - {fileID: 21300000, guid: e28919c50fe09014fbe4bc2fc081b5bb, type: 3}
+  timeToExplode: 1.4
+  bombActive: 0
+  timeToChangeSprite: 0.2
