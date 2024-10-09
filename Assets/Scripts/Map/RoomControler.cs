@@ -132,7 +132,10 @@ public class RoomControler : MonoBehaviour
         else
         {
             //Player Loses, Please call the new day
-
+            foreach(var mo in monsters)
+            {
+                mo.awareLevel = 0;
+            }
         }
     }
 
