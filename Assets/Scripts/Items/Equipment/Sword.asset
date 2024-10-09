@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Sword
   m_EditorClassIdentifier: 
   itemName: Sword
+  itemId: 4
   itemSprite: {fileID: 21300000, guid: 79313167ea9d6f3468d5e854e9655f21, type: 3}
   itemDescription: It's a sword.
   itemValue: 1
@@ -21,3 +22,4 @@ MonoBehaviour:
   itemDurability: 100
   attackValue: 0
   defenceValue: 0
+  traitType: {fileID: 0}
