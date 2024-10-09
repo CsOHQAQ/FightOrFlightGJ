@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ItemPickUp : MonoBehaviour
 {
-    [HideInInspector] public Equipment_ScriptableObject item;
+    public Equipment_ScriptableObject item;
 
     private void OnTriggerEnter(Collider other)
     {

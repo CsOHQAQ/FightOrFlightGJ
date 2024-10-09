@@ -1,7 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Net.Http.Headers;
+using System.Xml.Serialization;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using static PlayerHandsComponent;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -23,13 +26,12 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float timeToMove = 0.2f;
 
     private bool isMoving;
-    private bool isRotating;
-
+    public bool CanMove = true;
     [SerializeField] private LayerMask obstacleLayer;
-    [SerializeField] private LayerMask interactableLayer;
     [SerializeField] private float detectionDistance = 1.1f;
 
     InteractDetect interactDetect;
+    PlayerHandsComponent hand;
 
     private void Awake()
     {
@@ -48,8 +50,8 @@ public class PlayerMovement : MonoBehaviour
         targetPosition = Vector3.zero;
 
         isMoving = false;
-        isRotating = false;
         interactDetect = GetComponent<InteractDetect>();
+        hand = GetComponentInChildren<PlayerHandsComponent>();
     }
 
     private void OnEnable()
@@ -78,13 +80,33 @@ public class PlayerMovement : MonoBehaviour
             if (!interactDetect.TryInteract(context))
             {
                 movementInput = tempInput;
+                hand.StartCoroutine(hand.EaseToState(HandState.Lowered));
             }
             else
             {
-                if(interactDetect.ScrollValue<=0f)
+                if (hand.lastState == HandState.Lowered)
                 {
-                    movementInput = tempInput;
+                    hand.StartCoroutine(hand.EaseToState(HandState.Raised));
                 }
+                else
+                {
+                    if (interactDetect.interactable is DoubleDoor)
+                    {
+                        DoubleDoor door = interactDetect.interactable as DoubleDoor;
+                        Debug.Log(door.DoorOpeness);
+                        hand.StartCoroutine(hand.EaseToState(HandState.Pushed, door.DoorOpeness));
+                    }
+
+                }
+                if (interactDetect.ScrollValue<=0f)
+                {
+                    
+                    movementInput = tempInput;
+                    return;
+                }
+                
+
+                
             }
         }
         else
@@ -100,46 +122,46 @@ public class PlayerMovement : MonoBehaviour
         Vector3 move = new Vector3(movementInput.x, 0, movementInput.y).normalized;
 
 
-        if (!isMoving && !isRotating)
+        if (move == moveForward && !isMoving)
         {
-            if (move == moveForward)
+            if (IsObstacleInDirection(transform.forward))
             {
-                if (IsObstacleInDirection(transform.forward))
-                {
-                    StartCoroutine(CollisionEffect(transform.forward));
-                }
-                else
-                {
-                    StartCoroutine(MovePlayer(gridMovement));
-                }
+                StartCoroutine(CollisionEffect(transform.forward));
             }
-            else if (move == moveBackward)
+            else
             {
-                if (IsObstacleInDirection(-transform.forward))
-                {
-                    StartCoroutine(CollisionEffect(-transform.forward));
-                }
-                else
-                {
-                    StartCoroutine(MovePlayer(-gridMovement));
-                }
+                StartCoroutine(MovePlayer(gridMovement));
+            }
+        }
 
-            }
-            else if (move == moveLeft)
+        if (move == moveBackward && !isMoving)
+        {
+            if (IsObstacleInDirection(-transform.forward))
             {
-                StartCoroutine(RotatePlayer(moveRotationLeft));
+                StartCoroutine(CollisionEffect(-transform.forward));
             }
-            else if (move == moveRight)
+            else
             {
-                StartCoroutine(RotatePlayer(moveRotationRight));
+                StartCoroutine(MovePlayer(-gridMovement));
             }
-        }    
+            
+        }
+
+        if (move == moveLeft && !isMoving)
+        {
+            StartCoroutine(RotatePlayer(moveRotationLeft));
+        }
+
+        if (move == moveRight && !isMoving)
+        {
+            StartCoroutine(RotatePlayer(moveRotationRight));
+        }
 
     }
 
     private IEnumerator RotatePlayer(float rotation)
     {
-        isRotating = true;
+        isMoving = true;
 
         float elapsedTime = 0;
         originalRotation = transform.rotation;
@@ -152,9 +174,19 @@ public class PlayerMovement : MonoBehaviour
             yield return null;
         }
 
-        transform.rotation = targetRotation;
+        while (isMoving)
+        {
+            Vector3 move = new Vector3(movementInput.x, 0, movementInput.y);
 
-        isRotating = false;
+            if (move == Vector3.zero)
+            {
+                isMoving = false;
+            }
+
+            yield return null;
+        }
+
+        transform.rotation = targetRotation;
 
     }
 
@@ -182,18 +214,7 @@ public class PlayerMovement : MonoBehaviour
     private bool IsObstacleInDirection(Vector3 direction)
     {
         Vector3 rayOrigin = transform.position + Vector3.up * 0.5f;
-
-        if (Physics.Raycast(rayOrigin, direction, out RaycastHit hit, detectionDistance, obstacleLayer))
-        {
-            if (hit.transform.TryGetComponent<OpenChest>(out OpenChest openChest))
-            {
-                openChest.Interact();
-            }
-
-            return true;
-        }
-
-        return false;
+        return Physics.Raycast(rayOrigin, direction, out RaycastHit hit, detectionDistance, obstacleLayer);
     }
 
     private IEnumerator CollisionEffect(Vector3 direction)
@@ -237,6 +258,16 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        MovingOnGrid();
+        if(CanMove)
+            MovingOnGrid();
+    }
+
+    public void Teleport(Vector3 position)
+    {
+        StopCoroutine("MovePlayer");
+        isMoving = false;
+        float y = transform.position.y;//A ugly fix to keep the player on the ground
+        transform.position=position;
+        transform.position = new Vector3(transform.position.x, y, transform.position.z);
     }
 }
