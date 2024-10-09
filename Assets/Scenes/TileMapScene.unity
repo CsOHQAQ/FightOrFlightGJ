@@ -259,6 +259,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8022565276185298668, guid: 2403851d1c5770345b63bd648736b95b,
+        type: 3}
+      propertyPath: DetectLength
+      value: 1.2
+      objectReference: {fileID: 0}
     - target: {fileID: 8770639961009290830, guid: 2403851d1c5770345b63bd648736b95b,
         type: 3}
       propertyPath: m_LocalPosition.y
@@ -985,6 +990,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: DoorCorridor
+      objectReference: {fileID: 0}
+    - target: {fileID: 7928141306489889212, guid: 04d401ce2b172d647b2e30087c69ee40,
+        type: 3}
+      propertyPath: OpenTime
+      value: 0.2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

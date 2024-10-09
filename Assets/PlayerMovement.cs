@@ -26,6 +26,7 @@ public class PlayerMovement : MonoBehaviour
     private bool isMoving;
     private bool isRotating;
 
+    InteractDetect interactDetect;
 
     private void Awake()
     {
@@ -46,6 +47,7 @@ public class PlayerMovement : MonoBehaviour
         targetPosition = Vector3.zero;
 
         isMoving = false;
+        interactDetect = GetComponent<InteractDetect>();
     }
 
     private void OnEnable()
@@ -54,23 +56,46 @@ public class PlayerMovement : MonoBehaviour
 
         controls.Player.Movement.performed += OnMove;
         controls.Player.Movement.canceled += OnMove;
+        
     }
 
     private void OnDisable()
     {
         controls.Player.Movement.performed -= OnMove;
         controls.Player.Movement.canceled -= OnMove;
+        
         controls.Disable();
     }
 
     private void OnMove(InputAction.CallbackContext context)
     {
-        movementInput = context.ReadValue<Vector2>();
+        Vector2 tempInput = context.ReadValue<Vector2>();
+        
+        if (tempInput.y != 0)
+        {
+            if (!interactDetect.TryInteract(context))
+            {
+                movementInput = tempInput;
+            }
+            else
+            {
+                if(interactDetect.ScrollValue<=0f)
+                {
+                    movementInput = tempInput;
+                }
+            }
+        }
+        else
+        {
+            movementInput = tempInput;
+        }
+
+        
     }
 
     private void MovingOnGrid()
     {
-        Vector3 move = new Vector3(movementInput.x, 0, movementInput.y);
+        Vector3 move = new Vector3(movementInput.x, 0, movementInput.y).normalized;
 
 
         if (move == moveForward && !isMoving)
