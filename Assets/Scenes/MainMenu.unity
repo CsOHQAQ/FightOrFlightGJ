@@ -1470,6 +1470,7 @@ GameObject:
   - component: {fileID: 574410920}
   - component: {fileID: 574410919}
   - component: {fileID: 574410918}
+  - component: {fileID: 574410921}
   m_Layer: 5
   m_Name: PlayButton
   m_TagString: Untagged
@@ -1541,9 +1542,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2247837640232583758}
-        m_TargetAssemblyTypeName: GameSceneManager, Assembly-CSharp
-        m_MethodName: TransitionToScene
+      - m_Target: {fileID: 574410921}
+        m_TargetAssemblyTypeName: ButtonTransition, Assembly-CSharp
+        m_MethodName: TransitionButtonOnClicked
         m_Mode: 5
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1591,6 +1592,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 574410916}
   m_CullTransparentMesh: 1
+--- !u!114 &574410921
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 574410916}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b42c9bdcddacd1d408b951f722f851d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &603302339
 GameObject:
   m_ObjectHideFlags: 0
@@ -3899,6 +3912,7 @@ GameObject:
   - component: {fileID: 1935360327}
   - component: {fileID: 1935360326}
   - component: {fileID: 1935360325}
+  - component: {fileID: 1935360328}
   m_Layer: 5
   m_Name: QuitButton
   m_TagString: Untagged
@@ -3970,9 +3984,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2247837640232583758}
-        m_TargetAssemblyTypeName: GameSceneManager, Assembly-CSharp
-        m_MethodName: QuitGame
+      - m_Target: {fileID: 1935360328}
+        m_TargetAssemblyTypeName: ButtonTransition, Assembly-CSharp
+        m_MethodName: TransitionButtonQUITOnClicked
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -4020,6 +4034,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1935360323}
   m_CullTransparentMesh: 1
+--- !u!114 &1935360328
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1935360323}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b42c9bdcddacd1d408b951f722f851d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1952411191
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4614,18 +4640,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 63d93453a205294489e135c82cc8744e, type: 3}
---- !u!114 &2247837640232583758 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4679103181526041843, guid: 63d93453a205294489e135c82cc8744e,
-    type: 3}
-  m_PrefabInstance: {fileID: 2247837640232583757}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 276479133a6de874e920cfbcbbc936dc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
