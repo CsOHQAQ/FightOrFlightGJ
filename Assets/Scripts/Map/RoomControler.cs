@@ -1,6 +1,7 @@
 using JetBrains.Annotations;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEditor.Rendering;
 using UnityEditor.Rendering.Universal;
 using UnityEngine;
@@ -90,10 +91,19 @@ public class RoomControler : MonoBehaviour
         foreach (var door in GetComponentsInChildren<DoubleDoor>())
         {
             door.Init(this);
+            door.OnDoorFullyOpened += OnDoorFullyOpen;
             doors.Add(door.GetComponent<DoubleDoor>());            
         }
     }
-
+    void OnDoorFullyOpen(string str)
+    {
+        if (!isClear)
+        {
+            Debug.Log($"{str} triggered the combat");
+            EngageCombat();
+        }
+        
+    }
     void EngageCombat()
     {
         Debug.LogWarning("EnterBattle!");
@@ -123,12 +133,15 @@ public class RoomControler : MonoBehaviour
 
     void LeaveCombat(bool result)
     {
-        isRefreshing = false;
         inCombat = false;
         GameControl.Game.Player.GetComponent<PlayerMovement>().CanMove = true;
         if (result)//Player Wins
         {
-
+            foreach (var mo in monsters)
+            {
+                mo.CurHealth = 0;
+            }
+            isClear= true;
         }
         else
         {
