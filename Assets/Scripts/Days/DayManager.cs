@@ -54,6 +54,20 @@ public class DayManager : MonoBehaviour
         CreateDayCanvas();
     }
 
+    public void GoToNextDay()
+    {
+        currentDay++;
+
+        if(currentDay >endingDay)
+        {
+            //DO the end game stuff
+        }
+        else
+        {
+            CreateDayCanvas();
+        }
+    }
+
     public int GetCurrentDay() { return currentDay; }
 
     public void AddMoney(int money) { earnedMoney += money; }
