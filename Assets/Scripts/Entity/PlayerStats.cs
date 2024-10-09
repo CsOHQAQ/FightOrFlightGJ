@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEditor.Rendering.Universal;
 using UnityEngine;
 
@@ -38,17 +39,7 @@ public class PlayerStats : MonoBehaviour
     {
         get
         {
-            int equipValue=0;
-            foreach (var equip in inventory.GetEquipment()) 
-            {
-                if(equip!=null)
-                if (equip.itemDurability > 0)
-                {
-                    equipValue += equip.attackValue;
-                }
-            }
-
-            return _attack+equipValue;
+            return _attack+inventory.GetEquippedItemStats()[0];
         }
     }
     //This has count the value of equipments
@@ -56,17 +47,7 @@ public class PlayerStats : MonoBehaviour
     {
         get
         {
-            int equipValue = 0;
-            foreach (var equip in inventory.GetEquipment())
-            {
-                if (equip != null)
-                    if (equip.itemDurability > 0)
-                {
-                    equipValue += equip.defenceValue;
-                }
-            }
-
-            return _defense + equipValue;
+            return _defense + +inventory.GetEquippedItemStats()[1];
         }
     }
 
