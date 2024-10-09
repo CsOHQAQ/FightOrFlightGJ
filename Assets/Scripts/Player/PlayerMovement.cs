@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using static PlayerHandsComponent;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -27,6 +28,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float detectionDistance = 1.1f;
 
     InteractDetect interactDetect;
+    PlayerHandsComponent hand;
 
     private void Awake()
     {
@@ -46,6 +48,7 @@ public class PlayerMovement : MonoBehaviour
 
         isMoving = false;
         interactDetect = GetComponent<InteractDetect>();
+        hand = GetComponentInChildren<PlayerHandsComponent>();
     }
 
     private void OnEnable()
@@ -74,13 +77,25 @@ public class PlayerMovement : MonoBehaviour
             if (!interactDetect.TryInteract(context))
             {
                 movementInput = tempInput;
+                hand.StartCoroutine(hand.EaseToState(HandState.Lowered));
             }
             else
             {
                 if(interactDetect.ScrollValue<=0f)
                 {
+                    hand.StartCoroutine(hand.EaseToState(HandState.Lowered));
                     movementInput = tempInput;
+                    return;
                 }
+                if (hand.lastState != HandState.Raised)
+                {
+                    hand.StartCoroutine(hand.EaseToState(HandState.Raised));
+                }
+                else
+                {
+                    hand.StartCoroutine(hand.EaseToState(HandState.Pushed, interactDetect.ScrollValue));
+                }
+                
             }
         }
         else

@@ -21,7 +21,7 @@ public class DoubleDoor : InteractableObject
     private float doorOpeness = 0f; // Range from 0 (closed) to 1 (fully open)
     private float rightDoorVelocity = 0f; // Velocity for smooth transition for the right door
     private float leftDoorVelocity = 0f;  // Velocity for smooth transition for the left door
-
+    public float DoorOpeness { get { return Mathf.Abs(cumulativeLeftDoorAngle) / Mathf.Abs(maxDoorAngle); } }
     private float cumulativeRightDoorAngle = 0f; // Tracks the cumulative right door angle
     private float cumulativeLeftDoorAngle = 0f;  // Tracks the cumulative left door angle
 
