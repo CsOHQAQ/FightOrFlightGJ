@@ -75,12 +75,12 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: b499819b74b9ac44d9ce206b06cbc6d9, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 7cc655a400f99644ca43e534557b5a35, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 2.5, y: 2.5}
+  m_Size: {x: 6.3, y: 6.3}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -111,11 +111,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a992fd26a5d38140b7f78c30cd7201e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Name: Slime
+  MonsterName: Slime
   MaxHealth: 2
   CurHealth: 2
   Attack: 1
   Defense: 0
   Awareness: 1
   CurAwareness: 0
-  isAwared: 0
+  awareLevel: 0

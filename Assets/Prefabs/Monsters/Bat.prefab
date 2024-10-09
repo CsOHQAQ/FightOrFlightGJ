@@ -75,12 +75,12 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 7dfa653669ee0704a9696d23f24a8687, type: 3}
+  m_Sprite: {fileID: 21300000, guid: ab4758ccf4422ba4fb95047bef1b5572, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 5, y: 5}
+  m_Size: {x: 2.5, y: 2.5}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -111,11 +111,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a992fd26a5d38140b7f78c30cd7201e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Name: Bat
+  MonsterName: Bat
   MaxHealth: 3
   CurHealth: 3
   Attack: 2
   Defense: 1
   Awareness: 1
   CurAwareness: 0
-  isAwared: 0
+  awareLevel: 0

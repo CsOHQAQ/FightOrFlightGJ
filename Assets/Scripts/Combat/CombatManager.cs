@@ -9,6 +9,10 @@ public class CombatManager:MonoBehaviour
     private PlayerStats playerCombatant;
 
     [SerializeField]
+    private GameObject CombatUIPrefab;
+    private CombatUI combatUI;
+
+    [SerializeField]
     private List<MonsterStats> enemyCombatants = new List<MonsterStats>();
 
     [SerializeField]
@@ -30,8 +34,10 @@ public class CombatManager:MonoBehaviour
         {
             enemyCombatants.Add(monsters[i]);
         }
-
         inCombat = true;
+
+        combatUI=Instantiate(CombatUIPrefab, GameObject.Find("Canvas").transform).GetComponent<CombatUI>();
+        combatUI.OnOpen(player,monsters);
     }
 
     void Update()
@@ -55,7 +61,8 @@ public class CombatManager:MonoBehaviour
     {
         
         Debug.Log("Starting a new turn...");
-        
+
+        combatUI.Attack();
         // Calculate and log damage to the player. You deal at least 1 damage each turn. 
         int damageToPlayer = Mathf.Max(1, enemyCombatants[currentEnemyIndex].Attack - playerCombatant.Defense);
         Debug.Log($"Enemy {currentEnemyIndex} attacks Player: Damage = {damageToPlayer}");
@@ -81,6 +88,12 @@ public class CombatManager:MonoBehaviour
         {
             Debug.Log($"Enemy {currentEnemyIndex} has died.");
             currentEnemyIndex++;
+            if (currentEnemyIndex < enemyCombatants.Count)
+            {
+                combatUI.monsterBuffer = enemyCombatants[currentEnemyIndex];
+            }
+                
+
 
             // Check if all enemies are dead and log the combat outcome
             if (currentEnemyIndex >= enemyCombatants.Count)
@@ -102,12 +115,16 @@ public class CombatManager:MonoBehaviour
     {
         if (combatWon)
         {
+            combatUI.ChangeText($"Combat Won!");
             Debug.Log($"Combat Won! All enemies have been defeated. Player's remaining health: {playerCombatant.CurHealth}");
         }
         else
         {
+            combatUI.ChangeText($"Combat Lost!");
             Debug.Log("Combat Lost! The player has died.");
         }
+        combatUI.SelfClose(3f);
+        combatUI = null;
         inCombat = false;
     }
 }

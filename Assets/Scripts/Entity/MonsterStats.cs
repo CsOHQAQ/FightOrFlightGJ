@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class MonsterStats : MonoBehaviour
 {
-    public string Name;
+    public string MonsterName;//Just differ from transform.name
     public int MaxHealth;
     public int CurHealth;
     public int Attack;
@@ -48,7 +48,7 @@ public class MonsterStats : MonoBehaviour
         if (canSeePlayer)
         {
             CurAwareness = Mathf.MoveTowards(CurAwareness, 3, Awareness * Time.deltaTime / Mathf.Log(Vector3.Distance(transform.position, GameControl.Game.Player.transform.position)+1));
-            Debug.Log($"{transform.name}'s awareness: {CurAwareness}");
+            
         }            
         else
             CurAwareness = Mathf.MoveTowards(CurAwareness,0,Time.deltaTime/10f*Awareness);

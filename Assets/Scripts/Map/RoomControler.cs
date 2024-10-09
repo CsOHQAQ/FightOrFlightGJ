@@ -93,13 +93,13 @@ public class RoomControler : MonoBehaviour
 
     void EngageCombat()
     {
-        //TODO
         Debug.LogWarning("EnterBattle!");
         combatManager.StartBattle(GameControl.Game.Player.GetComponent<PlayerStats>(),monsters);
+
         foreach (var door in doors)
         {
             door.Close();
         }
-
     }
+
 }
