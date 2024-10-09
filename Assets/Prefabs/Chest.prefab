@@ -106,9 +106,7 @@ MonoBehaviour:
   chestItems: []
   maxCount: 5
   detectionDistance: 1.5
-  playerLayer:
-    serializedVersion: 2
-    m_Bits: 8
+  bombIncreaseSize: {x: 0.2, y: 0.2, z: 0.2}
 --- !u!65 &6107487987388327201
 BoxCollider:
   m_ObjectHideFlags: 0

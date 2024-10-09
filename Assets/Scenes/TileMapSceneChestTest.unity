@@ -17671,23 +17671,23 @@ PrefabInstance:
     - target: {fileID: 1638509563111157457, guid: f82df415d3090b04f97a47668569e2eb,
         type: 3}
       propertyPath: maxCount
-      value: 1
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 1638509563111157457, guid: f82df415d3090b04f97a47668569e2eb,
         type: 3}
       propertyPath: randomize
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1638509563111157457, guid: f82df415d3090b04f97a47668569e2eb,
         type: 3}
       propertyPath: chestItems.Array.size
-      value: 2
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1638509563111157457, guid: f82df415d3090b04f97a47668569e2eb,
         type: 3}
       propertyPath: chestItems.Array.data[0]
       value: 
-      objectReference: {fileID: 11400000, guid: b92efa50401ce064399f35cf5659aaba,
+      objectReference: {fileID: 11400000, guid: bc811e3f974d1b84aba9768817cd9bcd,
         type: 2}
     - target: {fileID: 1638509563111157457, guid: f82df415d3090b04f97a47668569e2eb,
         type: 3}
