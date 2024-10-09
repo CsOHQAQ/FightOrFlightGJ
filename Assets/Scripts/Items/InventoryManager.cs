@@ -18,6 +18,13 @@ public class InventoryManager : MonoBehaviour
     [SerializeField]
     private List<Item_ScriptableObject> bagItems;
 
+    [SerializeField]
+    private UI_ItemPickup pickupUI;
+
+    [Header("DEBUG")]
+    [SerializeField]
+    private Item_ScriptableObject[] testItems;
+
     private void Awake()
     {
         if (Instance == null)
@@ -28,6 +35,15 @@ public class InventoryManager : MonoBehaviour
         else
         {
             Destroy(gameObject); // Destroy any duplicate instances
+        }
+    }
+
+    public void Start()
+    {
+        foreach (Item_ScriptableObject item in testItems)
+        {
+           
+            AddItemToBag(item);
         }
     }
 
@@ -89,6 +105,8 @@ public class InventoryManager : MonoBehaviour
         if(item)
         {
             bagItems.Add(item);
+
+            pickupUI.AddItemToStack(item);
 
             return true;
         }
