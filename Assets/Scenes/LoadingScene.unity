@@ -582,12 +582,18 @@ MonoBehaviour:
   - The kingdom of Rhonda was founded in 1307 after King Menses pushed King Dan III
     off a bridge.
   - Mushrooms encountered inside crypts and other locations should not be consumed
-    without consulting an expert.
+    without consulting an apothecary.
   - Your tithe collection officer is within their full legal right to behead on cause
     of late payments.
   - The scribe recording these rules was not paid for their effort.
   - All weapons, armor, concoctions, and more discovered within the deeps are property
     of the Kingdom.
+  - Always remember to smile!
+  - Not turning over loot to a collection officer is punishable by up to 40 years
+    in the ore mines.
+  - It only gets worse.
+  - While no one knows what happened to the fourth princess, rumors still propogate.
+    The leading theory is a wizard did it.
 --- !u!1 &1662341759
 GameObject:
   m_ObjectHideFlags: 0

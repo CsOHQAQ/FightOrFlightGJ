@@ -26,6 +26,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float timeToMove = 0.2f;
 
     private bool isMoving;
+    public bool CanMove = true;
     [SerializeField] private LayerMask obstacleLayer;
     [SerializeField] private float detectionDistance = 1.1f;
 
@@ -257,7 +258,8 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        MovingOnGrid();
+        if(CanMove)
+            MovingOnGrid();
     }
 
     public void Teleport(Vector3 position)
