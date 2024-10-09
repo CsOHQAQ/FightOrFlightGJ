@@ -72,7 +72,7 @@ public class CombatManager:MonoBehaviour
         List<Equipment_ScriptableObject> armors = new List<Equipment_ScriptableObject>();
         foreach (var equip in InventoryManager.Instance.GetEquipment())
         {
-            if (equip != null)
+            if (equip != null&&equip.traitType!=null)
             {
                 if (equip.itemSlot != ITEM_SLOT.WEAPON)
                 {
