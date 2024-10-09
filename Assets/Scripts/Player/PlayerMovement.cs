@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Net.Http.Headers;
+using System.Xml.Serialization;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using static PlayerHandsComponent;
@@ -248,5 +250,12 @@ public class PlayerMovement : MonoBehaviour
     void Update()
     {
         MovingOnGrid();
+    }
+
+    public void Teleport(Vector3 position)
+    {
+        StopCoroutine("MovePlayer");
+        isMoving = false;
+        transform.position=position;
     }
 }
