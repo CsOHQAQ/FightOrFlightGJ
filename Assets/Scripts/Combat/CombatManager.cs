@@ -35,10 +35,7 @@ public class CombatManager:MonoBehaviour
         }
         playerCombatant = player;
         enemyCombatants.Clear();
-        for (int i = 0; i < monsters.Count; i++)
-        {
-            enemyCombatants.Add(monsters[i]);
-        }
+        enemyCombatants = monsters;
         inCombat = true;
         combatResultCallBack = callback;
         combatUI=Instantiate(CombatUIPrefab, GameObject.Find("Canvas").transform).GetComponent<CombatUI>();
