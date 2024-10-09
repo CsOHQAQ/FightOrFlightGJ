@@ -198,6 +198,11 @@ public class InventoryManager : MonoBehaviour
         return stats;
     }
 
+    /// <summary>
+    /// Function to be called when the player wants to sell an item. Communicates with the DayManager that gives them the value of the item they're selling
+    /// </summary>
+    /// <param name="item">Item to be sold and removed from the inventory</param>
+    /// <returns>True if the process was succesful</returns>
     public bool SellItem(Item_ScriptableObject item)
     {
 
@@ -208,6 +213,24 @@ public class InventoryManager : MonoBehaviour
         bagItems.Remove(item);
 
         return true;
+
+    }
+
+    /// <summary>
+    /// Function to be called when the player dies, removes all of the items in their inventory and gives them nothing in return. Equipment stays.
+    /// </summary>
+    /// <returns>True if all the removals were successful</returns>
+    public bool OnDeath()
+    {
+
+        bool result = true;
+
+        foreach(Item_ScriptableObject item in bagItems)
+        {
+            result = bagItems.Remove(item);
+        }
+
+        return result;
     }
 
 }
