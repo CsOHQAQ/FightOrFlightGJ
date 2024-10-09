@@ -83,20 +83,28 @@ public class PlayerMovement : MonoBehaviour
             }
             else
             {
-                if(interactDetect.ScrollValue<=0f)
-                {
-                    hand.StartCoroutine(hand.EaseToState(HandState.Lowered));
-                    movementInput = tempInput;
-                    return;
-                }
-                if (hand.lastState != HandState.Raised)
+                if (hand.lastState == HandState.Lowered)
                 {
                     hand.StartCoroutine(hand.EaseToState(HandState.Raised));
                 }
                 else
                 {
-                    hand.StartCoroutine(hand.EaseToState(HandState.Pushed, interactDetect.ScrollValue));
+                    if (interactDetect.interactable is DoubleDoor)
+                    {
+                        DoubleDoor door = interactDetect.interactable as DoubleDoor;
+                        Debug.Log(door.DoorOpeness);
+                        hand.StartCoroutine(hand.EaseToState(HandState.Pushed, door.DoorOpeness));
+                    }
+
                 }
+                if (interactDetect.ScrollValue<=0f)
+                {
+                    
+                    movementInput = tempInput;
+                    return;
+                }
+                
+
                 
             }
         }

@@ -362,6 +362,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   DetectLength: 1.2
+  interactable: {fileID: 0}
 --- !u!1 &4174997048323174991
 GameObject:
   m_ObjectHideFlags: 0
@@ -626,7 +627,7 @@ MonoBehaviour:
       Data: 
   leftHand: {fileID: 2119708871230641419}
   rightHand: {fileID: 6596591370331646243}
-  transitionDuration: 0.4
+  transitionDuration: 0.2
   lastState: 0
 --- !u!1 &6596591370331646243
 GameObject:

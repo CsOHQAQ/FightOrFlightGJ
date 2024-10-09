@@ -18,7 +18,7 @@ public class PlayerHandsComponent : SerializedMonoBehaviour
     public struct HandTransformData
     {
         public Vector3 position;
-        public Vector3 rotation;
+        public Vector3 rotation; // Rotation in Euler angles
         public Vector3 scale;
     }
 
@@ -37,41 +37,16 @@ public class PlayerHandsComponent : SerializedMonoBehaviour
     [SerializeField]
     private float transitionDuration = 1f;
 
+    private float leftHandRotationYVelocity = 0f;  // For smoothing left hand rotation
+    private float leftHandRotationZVelocity = 0f;  // For smoothing left hand rotation
+    private float rightHandRotationYVelocity = 0f; // For smoothing right hand rotation
+    private float rightHandRotationZVelocity = 0f; // For smoothing right hand rotation
+
     public HandState lastState;
 
     void Start()
     {
         lastState = HandState.Lowered; // Default starting state
-    }
-
-    // Function to set the hand to a specific state immediately
-    public void SetHandState(HandState state)
-    {
-        if (handStateTransforms.ContainsKey(state))
-        {
-            // Set the left hand transform based on the state data
-            leftHand.transform.localPosition = handStateTransforms[state].position;
-            leftHand.transform.localRotation = Quaternion.Euler(handStateTransforms[state].rotation);
-            leftHand.transform.localScale = handStateTransforms[state].scale;
-
-            // Set the right hand transform by mirroring the left hand's position.x and rotation.y
-            Vector3 rightHandPosition = handStateTransforms[state].position;
-            rightHandPosition.x *= -1; // Mirror the x position
-
-            Vector3 rightHandRotation = handStateTransforms[state].rotation;
-            rightHandRotation.y *= -1; // Mirror the y rotation
-
-            rightHand.transform.localPosition = rightHandPosition;
-            rightHand.transform.localRotation = Quaternion.Euler(rightHandRotation);
-            rightHand.transform.localScale = handStateTransforms[state].scale; // Keep scale the same
-
-            lastState = state; // Update last state
-            Debug.Log($"Hand set to {state} state.");
-        }
-        else
-        {
-            Debug.LogWarning($"No transform data assigned for {state} state.");
-        }
     }
 
     // Coroutine to ease both hands to the transform recorded in the given state, with optional interpolation percentage
@@ -84,33 +59,27 @@ public class PlayerHandsComponent : SerializedMonoBehaviour
 
             // Get the target and last state data for left hand
             HandTransformData targetTransform = handStateTransforms[targetState];
+            if (targetState == HandState.Pushed)
+            {
+                lastState = HandState.Raised;
+            }
+
             HandTransformData lastTransform = handStateTransforms[lastState];
 
-            // Interpolate the target transform based on the percentage between the last state and the target state for the left hand
-            Vector3 interpolatedPosition = Vector3.Lerp(lastTransform.position, targetTransform.position, percentage);
-            Vector3 interpolatedScale = Vector3.Lerp(lastTransform.scale, targetTransform.scale, percentage);
-            Quaternion interpolatedRotation = Quaternion.Slerp(Quaternion.Euler(lastTransform.rotation), Quaternion.Euler(targetTransform.rotation), percentage);
+            // Calculate the actual target position, rotation, and scale based on percentage
+            Vector3 actualTargetPosition = lastTransform.position + (targetTransform.position - lastTransform.position) * percentage;
+            Vector3 actualTargetScale = lastTransform.scale + (targetTransform.scale - lastTransform.scale) * percentage;
 
-            // Mirror the x position and y rotation for the right hand
-            Vector3 rightHandTargetPosition = targetTransform.position;
-            rightHandTargetPosition.x *= -1; // Mirror x position for right hand
+            // Interpolate the rotation using the percentage
+            Vector3 actualTargetRotation = lastTransform.rotation + (targetTransform.rotation - lastTransform.rotation) * percentage;
+            //Debug.Log(actualTargetRotation);
+            // Mirror the x position for the right hand
+            Vector3 actualRightHandPosition = actualTargetPosition;
+            actualRightHandPosition.x *= -1; // Mirror x position for the right hand
 
-            Vector3 rightHandLastPosition = lastTransform.position;
-            rightHandLastPosition.x *= -1; // Mirror x position for right hand last state
-
-            Vector3 rightHandTargetRotation = targetTransform.rotation;
-            rightHandTargetRotation.y *= -1; // Mirror y rotation for right hand
-
-            Vector3 rightHandLastRotation = lastTransform.rotation;
-            rightHandLastRotation.y *= -1; // Mirror y rotation for right hand last state
-
-            Vector3 initialLeftPosition = leftHand.transform.localPosition;
-            Quaternion initialLeftRotation = leftHand.transform.localRotation;
-            Vector3 initialLeftScale = leftHand.transform.localScale;
-
-            Vector3 initialRightPosition = rightHand.transform.localPosition;
-            Quaternion initialRightRotation = rightHand.transform.localRotation;
-            Vector3 initialRightScale = rightHand.transform.localScale;
+            // Initial setup for smooth damp rotation
+            Vector3 initialLeftRotation = leftHand.transform.localEulerAngles;
+            Vector3 initialRightRotation = rightHand.transform.localEulerAngles;
 
             float elapsedTime = 0f;
 
@@ -119,31 +88,37 @@ public class PlayerHandsComponent : SerializedMonoBehaviour
                 elapsedTime += Time.deltaTime;
                 float t = elapsedTime / transitionDuration;
 
-                // Ease in and out (using Mathf.SmoothStep for smoother transition)
-                leftHand.transform.localPosition = Vector3.Lerp(initialLeftPosition, interpolatedPosition, Mathf.SmoothStep(0f, 1f, t));
-                leftHand.transform.localRotation = Quaternion.Slerp(initialLeftRotation, interpolatedRotation, Mathf.SmoothStep(0f, 1f, t));
-                leftHand.transform.localScale = Vector3.Lerp(initialLeftScale, interpolatedScale, Mathf.SmoothStep(0f, 1f, t));
+                // Ease the position and scale
+                leftHand.transform.localPosition = Vector3.Lerp(leftHand.transform.localPosition, actualTargetPosition, Mathf.SmoothStep(0f, 1f, t));
+                leftHand.transform.localScale = Vector3.Lerp(leftHand.transform.localScale, actualTargetScale, Mathf.SmoothStep(0f, 1f, t));
 
-                // Ease the right hand by mirroring left hand positions and rotations
-                rightHand.transform.localPosition = Vector3.Lerp(initialRightPosition, Vector3.Lerp(rightHandLastPosition, rightHandTargetPosition, percentage), Mathf.SmoothStep(0f, 1f, t));
-                rightHand.transform.localRotation = Quaternion.Slerp(initialRightRotation, Quaternion.Slerp(Quaternion.Euler(rightHandLastRotation), Quaternion.Euler(rightHandTargetRotation), percentage), Mathf.SmoothStep(0f, 1f, t));
-                rightHand.transform.localScale = Vector3.Lerp(initialRightScale, interpolatedScale, Mathf.SmoothStep(0f, 1f, t));
+                rightHand.transform.localPosition = Vector3.Lerp(rightHand.transform.localPosition, actualRightHandPosition, Mathf.SmoothStep(0f, 1f, t));
+                rightHand.transform.localScale = Vector3.Lerp(rightHand.transform.localScale, actualTargetScale, Mathf.SmoothStep(0f, 1f, t));
+
+                // Smoothly transition the y and z rotations for both hands using Mathf.SmoothDampAngle
+                float currentLeftRotationY = Mathf.SmoothDampAngle(leftHand.transform.localEulerAngles.y, actualTargetRotation.y, ref leftHandRotationYVelocity, transitionDuration);
+                float currentLeftRotationZ = Mathf.SmoothDampAngle(leftHand.transform.localEulerAngles.z, actualTargetRotation.z, ref leftHandRotationZVelocity, transitionDuration);
+
+                float currentRightRotationY = Mathf.SmoothDampAngle(rightHand.transform.localEulerAngles.y, -actualTargetRotation.y, ref rightHandRotationYVelocity, transitionDuration);
+                float currentRightRotationZ = Mathf.SmoothDampAngle(rightHand.transform.localEulerAngles.z, actualTargetRotation.z, ref rightHandRotationZVelocity, transitionDuration);
+
+                // Apply the calculated rotations
+                leftHand.transform.localEulerAngles = new Vector3(leftHand.transform.localEulerAngles.x, currentLeftRotationY, currentLeftRotationZ);
+                rightHand.transform.localEulerAngles = new Vector3(rightHand.transform.localEulerAngles.x, currentRightRotationY, currentRightRotationZ);
 
                 yield return null;
             }
 
             // Ensure final values are set for both hands
-            leftHand.transform.localPosition = interpolatedPosition;
-            leftHand.transform.localRotation = interpolatedRotation;
-            leftHand.transform.localScale = interpolatedScale;
+            leftHand.transform.localPosition = actualTargetPosition;
+            leftHand.transform.localScale = actualTargetScale;
+            leftHand.transform.localEulerAngles = new Vector3(leftHand.transform.localEulerAngles.x, actualTargetRotation.y, actualTargetRotation.z);
 
-            rightHand.transform.localPosition = Vector3.Lerp(rightHandLastPosition, rightHandTargetPosition, percentage);
-            rightHand.transform.localRotation = Quaternion.Slerp(Quaternion.Euler(rightHandLastRotation), Quaternion.Euler(rightHandTargetRotation), percentage);
-            rightHand.transform.localScale = interpolatedScale;
+            rightHand.transform.localPosition = actualRightHandPosition;
+            rightHand.transform.localScale = actualTargetScale;
+            rightHand.transform.localEulerAngles = new Vector3(rightHand.transform.localEulerAngles.x, -actualTargetRotation.y, actualTargetRotation.z);
 
             lastState = targetState; // Update the last state to the new state
-
-            Debug.Log($"Hands eased to {targetState} state with {percentage * 100}% interpolation.");
         }
         else
         {
