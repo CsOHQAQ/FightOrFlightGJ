@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.Rendering;
@@ -23,6 +24,8 @@ public class RoomControler : MonoBehaviour
         doors=new List<DoubleDoor>();
         InitDoors();
         combatManager=GetComponent<CombatManager>();
+
+        isClear=CheckRoomClear();
 
     }
     private void Update()
@@ -95,11 +98,34 @@ public class RoomControler : MonoBehaviour
     {
         Debug.LogWarning("EnterBattle!");
         combatManager.StartBattle(GameControl.Game.Player.GetComponent<PlayerStats>(),monsters);
-
+        
+        float playerDistance = 999f;
+        Transform cloestDoor = doors[0].transform;
         foreach (var door in doors)
         {
+            if (Vector3.Distance(door.transform.position, GameControl.Game.Player.transform.position) < playerDistance)
+            {
+                playerDistance = Vector3.Distance(door.transform.position,GameControl.Game.Player.transform.position);
+                cloestDoor = door.transform;
+            }
             door.Close();
         }
-    }
+        //Vector3 XZPlane=cloestDoor.Find("OpenPosition").transform.position;
+        //Vector3 playerPos= cloestDoor.position -XZPlane.normalized*0.5f;
+        GameControl.Game.Player.GetComponent<PlayerMovement>().Teleport(cloestDoor.Find("OpenPosition").transform.position);
 
+    }
+    bool CheckRoomClear()
+    {
+        bool flag = true;
+        foreach (var mon in monsters) 
+        {
+            if (mon.CurHealth > 0)
+            {
+                flag = false;
+                return flag; 
+            }
+        }
+        return flag;
+    }
 }

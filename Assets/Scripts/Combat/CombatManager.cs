@@ -5,7 +5,6 @@ using Sirenix.OdinInspector; // Add this to use Odin attributes
 
 public class CombatManager:MonoBehaviour
 {
-    [SerializeField]
     private PlayerStats playerCombatant;
 
     [SerializeField]
@@ -20,13 +19,17 @@ public class CombatManager:MonoBehaviour
 
     private float turnTimer = 0f; // Timer to track time between turns
     private int currentEnemyIndex = 0;
-    public bool inCombat = true;
+    public bool inCombat = false;
 
     public void StartBattle(PlayerStats player, List<MonsterStats> monsters)
     {
         if (player == null || monsters == null)
         {
-            Debug.LogError("Combatant null!!");
+            if (player == null)
+                Debug.LogError("Player Combatant null!!");
+
+            if (monsters== null)
+                Debug.LogError("Monster Combatant null!!");
         }
         playerCombatant = player;
         enemyCombatants.Clear();

@@ -8,7 +8,7 @@ public class InteractDetect : MonoBehaviour
 {
     [SerializeField]
     private float DetectLength;
-
+    public InteractableObject interactable; 
     private float scrollValue;
     public float ScrollValue { get { return scrollValue; }}
     InputControls controls;
@@ -48,7 +48,8 @@ public class InteractDetect : MonoBehaviour
             if (hitInfo.transform.gameObject.layer == LayerMask.NameToLayer("Interactable Obj"))
             {
                 //interactable object detected.
-                hitInfo.transform.GetComponent<InteractableObject>().Interact(this);
+                interactable = hitInfo.transform.GetComponent<InteractableObject>();
+                interactable.Interact(this);
                 scrollValue += context.ReadValue<Vector2>().y*0.1f;
                 scrollValue = Mathf.Clamp(scrollValue, 0f, 1f);
                 

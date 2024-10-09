@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Net.Http.Headers;
+using System.Xml.Serialization;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using static PlayerHandsComponent;
@@ -81,20 +83,28 @@ public class PlayerMovement : MonoBehaviour
             }
             else
             {
-                if(interactDetect.ScrollValue<=0f)
-                {
-                    hand.StartCoroutine(hand.EaseToState(HandState.Lowered));
-                    movementInput = tempInput;
-                    return;
-                }
-                if (hand.lastState != HandState.Raised)
+                if (hand.lastState == HandState.Lowered)
                 {
                     hand.StartCoroutine(hand.EaseToState(HandState.Raised));
                 }
                 else
                 {
-                    hand.StartCoroutine(hand.EaseToState(HandState.Pushed, interactDetect.ScrollValue));
+                    if (interactDetect.interactable is DoubleDoor)
+                    {
+                        DoubleDoor door = interactDetect.interactable as DoubleDoor;
+                        Debug.Log(door.DoorOpeness);
+                        hand.StartCoroutine(hand.EaseToState(HandState.Pushed, door.DoorOpeness));
+                    }
+
                 }
+                if (interactDetect.ScrollValue<=0f)
+                {
+                    
+                    movementInput = tempInput;
+                    return;
+                }
+                
+
                 
             }
         }
@@ -248,5 +258,14 @@ public class PlayerMovement : MonoBehaviour
     void Update()
     {
         MovingOnGrid();
+    }
+
+    public void Teleport(Vector3 position)
+    {
+        StopCoroutine("MovePlayer");
+        isMoving = false;
+        float y = transform.position.y;//A ugly fix to keep the player on the ground
+        transform.position=position;
+        transform.position = new Vector3(transform.position.x, y, transform.position.z);
     }
 }
