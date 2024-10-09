@@ -2146,6 +2146,12 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 5016448864986579365, guid: 2403851d1c5770345b63bd648736b95b,
+        type: 3}
+      propertyPath: serializationData.Prefab
+      value: 
+      objectReference: {fileID: 5016448864986579365, guid: 2403851d1c5770345b63bd648736b95b,
+        type: 3}
     - target: {fileID: 5650029680193910003, guid: 2403851d1c5770345b63bd648736b95b,
         type: 3}
       propertyPath: m_BackGroundColor.a
@@ -5769,7 +5775,6 @@ MonoBehaviour:
     type: 3}
   enemyCombatants: []
   turnDuration: 2
-  inCombat: 0
 --- !u!114 &285919711
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7323,7 +7328,6 @@ MonoBehaviour:
     type: 3}
   enemyCombatants: []
   turnDuration: 2
-  inCombat: 0
 --- !u!114 &386172681
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8148,7 +8152,6 @@ MonoBehaviour:
     type: 3}
   enemyCombatants: []
   turnDuration: 2
-  inCombat: 0
 --- !u!4 &410825683
 Transform:
   m_ObjectHideFlags: 0
@@ -9829,7 +9832,6 @@ MonoBehaviour:
     type: 3}
   enemyCombatants: []
   turnDuration: 2
-  inCombat: 0
 --- !u!114 &500025389
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11361,7 +11363,6 @@ MonoBehaviour:
     type: 3}
   enemyCombatants: []
   turnDuration: 2
-  inCombat: 0
 --- !u!4 &623672373
 Transform:
   m_ObjectHideFlags: 0
@@ -11726,7 +11727,6 @@ MonoBehaviour:
     type: 3}
   enemyCombatants: []
   turnDuration: 2
-  inCombat: 0
 --- !u!114 &657505011
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17096,7 +17096,6 @@ MonoBehaviour:
     type: 3}
   enemyCombatants: []
   turnDuration: 2
-  inCombat: 0
 --- !u!1001 &982688916
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -20662,7 +20661,6 @@ MonoBehaviour:
     type: 3}
   enemyCombatants: []
   turnDuration: 2
-  inCombat: 0
 --- !u!114 &1167200423
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -24138,7 +24136,6 @@ MonoBehaviour:
     type: 3}
   enemyCombatants: []
   turnDuration: 2
-  inCombat: 0
 --- !u!4 &1375897402
 Transform:
   m_ObjectHideFlags: 0
@@ -24949,7 +24946,6 @@ MonoBehaviour:
     type: 3}
   enemyCombatants: []
   turnDuration: 2
-  inCombat: 0
 --- !u!4 &1437563396 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8564856689968673551, guid: 8d0f9014e0e333c48842959a19fff717,
@@ -25656,7 +25652,6 @@ MonoBehaviour:
     type: 3}
   enemyCombatants: []
   turnDuration: 2
-  inCombat: 0
 --- !u!114 &1459743268
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29065,9 +29060,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   equippedItems:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 11400000, guid: 400df49ed21236448abc485fb0d61d30, type: 2}
+  - {fileID: 11400000, guid: dde0dafb533d9e84a8015e10504e709b, type: 2}
+  - {fileID: 11400000, guid: b92efa50401ce064399f35cf5659aaba, type: 2}
   bagItems: []
 --- !u!4 &1627656443
 Transform:
@@ -34288,7 +34283,7 @@ Transform:
   m_GameObject: {fileID: 1891716351}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -3, y: 0, z: 30}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -34971,7 +34966,6 @@ MonoBehaviour:
     type: 3}
   enemyCombatants: []
   turnDuration: 2
-  inCombat: 0
 --- !u!1001 &1935849790
 PrefabInstance:
   m_ObjectHideFlags: 0

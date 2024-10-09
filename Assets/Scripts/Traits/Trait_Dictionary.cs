@@ -8,7 +8,7 @@ public class Trait_Dictionary : MonoBehaviour
     [OdinSerialize]
     private Dictionary<Trait_Type, Trait_Type> traits;
 
-    static Trait_Dictionary instance;
+     public static Trait_Dictionary instance;
 
     private void Awake()
     {

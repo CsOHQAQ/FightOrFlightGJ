@@ -13,6 +13,7 @@ public class MonsterStats : MonoBehaviour
     public int Awareness;
     public float CurAwareness;
     public AwareLevel awareLevel;
+    public List<Trait_Type> traits;
 
     // Start is called before the first frame update
     void Start()
@@ -65,6 +66,6 @@ public class MonsterStats : MonoBehaviour
     public void TakeDamage(int damage)
     {
         CurHealth -= damage;
-        CurHealth = Mathf.Max(CurHealth, 0);
+        CurHealth = Mathf.Clamp(CurHealth, 0,MaxHealth);
     }
 }

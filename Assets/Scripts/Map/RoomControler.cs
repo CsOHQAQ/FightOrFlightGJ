@@ -15,7 +15,7 @@ public class RoomControler : MonoBehaviour
     public List<DoubleDoor> doors;
 
     private CombatManager combatManager;
-
+    private bool inCombat = false;
 
     private void Start()
     {
@@ -61,7 +61,7 @@ public class RoomControler : MonoBehaviour
             }
 
 
-            if (!combatManager.inCombat)
+            if (!inCombat)
             {
                 foreach (MonsterStats monster in monsters)
                 {
@@ -97,8 +97,12 @@ public class RoomControler : MonoBehaviour
     void EngageCombat()
     {
         Debug.LogWarning("EnterBattle!");
-        combatManager.StartBattle(GameControl.Game.Player.GetComponent<PlayerStats>(),monsters);
+
+        inCombat = true;
+        combatManager.StartBattle(GameControl.Game.Player.GetComponent<PlayerStats>(),monsters,LeaveCombat);
         
+        
+
         float playerDistance = 999f;
         Transform cloestDoor = doors[0].transform;
         foreach (var door in doors)
@@ -110,11 +114,28 @@ public class RoomControler : MonoBehaviour
             }
             door.Close();
         }
+        GameControl.Game.Player.GetComponent<PlayerMovement>().CanMove = false;
         //Vector3 XZPlane=cloestDoor.Find("OpenPosition").transform.position;
         //Vector3 playerPos= cloestDoor.position -XZPlane.normalized*0.5f;
         GameControl.Game.Player.GetComponent<PlayerMovement>().Teleport(cloestDoor.Find("OpenPosition").transform.position);
 
     }
+
+    void LeaveCombat(bool result)
+    {
+        inCombat = false;
+        GameControl.Game.Player.GetComponent<PlayerMovement>().CanMove = true;
+        if (result)//Player Wins
+        {
+
+        }
+        else
+        {
+            //Player Loses, Please call the new day
+
+        }
+    }
+
     bool CheckRoomClear()
     {
         bool flag = true;

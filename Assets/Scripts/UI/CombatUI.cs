@@ -48,7 +48,7 @@ public class CombatUI : MonoBehaviour
             m.GetComponent<Image>().color = new Color(0.5f,0.5f,0.5f);
         }
         monster = monsters[0];
-        ChangeNextMonster();
+        ChangeToNextMonster();
 
     }
     private void Update()
@@ -62,13 +62,15 @@ public class CombatUI : MonoBehaviour
                 monster=monsterBuffer; ;
                 monsterBuffer = null;
             }
-            ChangeNextMonster();
-
+            ChangeToNextMonster();
         }
-
     }
 
-    public void ChangeNextMonster()
+    public void RemoveNextMonster()
+    {
+
+    }
+    public void ChangeToNextMonster()
     {
         if (monsterListTran.childCount > 0)
         {
@@ -97,6 +99,7 @@ public class CombatUI : MonoBehaviour
     IEnumerator WaitForClose(float second)
     {
         yield return new WaitForSeconds(second);
+        Debug.Log($"{gameObject} is destoryed");
         Destroy(gameObject);
     }
 }
