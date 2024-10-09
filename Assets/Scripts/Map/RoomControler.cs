@@ -95,11 +95,22 @@ public class RoomControler : MonoBehaviour
     {
         Debug.LogWarning("EnterBattle!");
         combatManager.StartBattle(GameControl.Game.Player.GetComponent<PlayerStats>(),monsters);
-
+        
+        float playerDistance = 999f;
+        Transform cloestDoor = doors[0].transform;
         foreach (var door in doors)
         {
+            if (Vector3.Distance(door.transform.position, GameControl.Game.Player.transform.position) < playerDistance)
+            {
+                playerDistance = Vector3.Distance(door.transform.position,GameControl.Game.Player.transform.position);
+                cloestDoor = door.transform;
+            }
             door.Close();
         }
+        Vector3 XZPlane=new Vector3(cloestDoor.localPosition.x,0, cloestDoor.localPosition.z);
+        Vector3 playerPos= cloestDoor.position -XZPlane.normalized*0.5f;
+        GameControl.Game.Player.GetComponent<PlayerMovement>().Teleport(playerPos);
+
     }
 
 }
