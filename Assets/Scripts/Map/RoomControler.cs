@@ -110,9 +110,9 @@ public class RoomControler : MonoBehaviour
             }
             door.Close();
         }
-        Vector3 XZPlane=new Vector3(cloestDoor.localPosition.x,0, cloestDoor.localPosition.z);
-        Vector3 playerPos= cloestDoor.position -XZPlane.normalized*0.5f;
-        GameControl.Game.Player.GetComponent<PlayerMovement>().Teleport(playerPos);
+        //Vector3 XZPlane=cloestDoor.Find("OpenPosition").transform.position;
+        //Vector3 playerPos= cloestDoor.position -XZPlane.normalized*0.5f;
+        GameControl.Game.Player.GetComponent<PlayerMovement>().Teleport(cloestDoor.Find("OpenPosition").transform.position);
 
     }
     bool CheckRoomClear()

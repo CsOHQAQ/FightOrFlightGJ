@@ -264,6 +264,8 @@ public class PlayerMovement : MonoBehaviour
     {
         StopCoroutine("MovePlayer");
         isMoving = false;
+        float y = transform.position.y;//A ugly fix to keep the player on the ground
         transform.position=position;
+        transform.position = new Vector3(transform.position.x, y, transform.position.z);
     }
 }
