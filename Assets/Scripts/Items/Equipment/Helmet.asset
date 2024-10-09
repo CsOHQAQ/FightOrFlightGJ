@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: Helmet
   m_EditorClassIdentifier: 
   itemName: Helmet
-  itemId: 2
   itemSprite: {fileID: 21300000, guid: 1970454620ccd284f92ad5e9ed1a6d0c, type: 3}
   itemDescription: It's a helmet
   itemValue: 1
