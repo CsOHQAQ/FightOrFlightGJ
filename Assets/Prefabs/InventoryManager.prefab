@@ -330,6 +330,11 @@ PrefabInstance:
       propertyPath: m_SortingOrder
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 3795296870189668508, guid: 0c15642d854138a49aca2693f7cd7773,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 7925741749224482782}
     - target: {fileID: 6109024105978267804, guid: 0c15642d854138a49aca2693f7cd7773,
         type: 3}
       propertyPath: m_Name
@@ -338,7 +343,7 @@ PrefabInstance:
     - target: {fileID: 6109024105978267804, guid: 0c15642d854138a49aca2693f7cd7773,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6541597029183823512, guid: 0c15642d854138a49aca2693f7cd7773,
         type: 3}
@@ -349,6 +354,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: InteractButtonClicked
+      objectReference: {fileID: 0}
+    - target: {fileID: 7671079826216283203, guid: 0c15642d854138a49aca2693f7cd7773,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 605.7
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
