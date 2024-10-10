@@ -69,7 +69,7 @@ public class GameSceneManager : MonoBehaviour
 
         if(sceneName != "EndOfGameScene")
         {
-            DayManager.Instance.GoToNextDay();
+           // DayManager.Instance.GoToNextDay();
         }
 
         canTransition = true;
