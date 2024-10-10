@@ -7,7 +7,8 @@ public enum ITEM_TYPE
 {
     EQUIPMENT,
     CONSUMEABLE,
-    BOMB
+    BOMB,
+    JUNK
 }
 
 

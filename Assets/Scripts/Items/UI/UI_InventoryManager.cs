@@ -264,10 +264,15 @@ public class UI_InventoryManager : MonoBehaviour
                 switch (bags.GetBagItems()[currentSelectedItem.GetListIndex()].itemType)
                 {
                     case ITEM_TYPE.EQUIPMENT:
+                        interactButton.gameObject.SetActive(true);
                         interactButtonText.SetText("Equip");
                         break;
                     case ITEM_TYPE.CONSUMEABLE:
+                        interactButton.gameObject.SetActive(true);
                         interactButtonText.SetText("Use");
+                        break;
+                    case ITEM_TYPE.JUNK:
+                        interactButton.gameObject.SetActive(false);
                         break;
                     default:
                         interactButtonText.SetText("");
