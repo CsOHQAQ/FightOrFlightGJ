@@ -125,7 +125,8 @@ public class CombatManager:MonoBehaviour
         if (armors.Count > 0)
         {
             Randomer rnd = new Randomer();
-            armors[rnd.nextInt(armors.Count)].itemDurability -= 1;
+            //
+            armors[rnd.nextInt(armors.Count)].itemCurrentDurability -= 1;
         }
 
         //Debug.Log($"Enemy {currentEnemyIndex} attacks Player: Damage = {damageToPlayer}");
@@ -162,7 +163,7 @@ public class CombatManager:MonoBehaviour
         //Reduce weapon durability
         if (weapon!=null)
         {
-            weapon.itemDurability -= 1;
+            weapon.itemCurrentDurability -= 1;
         }
 
         
@@ -210,7 +211,7 @@ public class CombatManager:MonoBehaviour
         {
             if (equip != null)
             {
-                Debug.Log($"{equip.name}'s durability remains {equip.itemDurability}");
+                Debug.Log($"{equip.name}'s durability remains {equip.itemCurrentDurability}");
             }
         }
 

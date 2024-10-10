@@ -327,7 +327,7 @@ public class UI_InventoryManager : MonoBehaviour
         if (item.itemType == ITEM_TYPE.EQUIPMENT)
         {
             Equipment_ScriptableObject eItem = (Equipment_ScriptableObject)item;
-            itemDurabilityText.text = eItem.itemDurability.ToString() + " / 100";
+            itemDurabilityText.text = eItem.itemCurrentDurability.ToString() +  " / " + eItem.itemMaxDurability.ToString();
         }
         else
         {

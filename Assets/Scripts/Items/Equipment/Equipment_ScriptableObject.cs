@@ -28,7 +28,10 @@ public class Equipment_ScriptableObject : Item_ScriptableObject
     public ITEM_SLOT itemSlot;
 
     [SerializeField]
-    public int itemDurability;
+    public int itemMaxDurability;
+
+    [SerializeField]
+    public int itemCurrentDurability;
 
     [SerializeField]
     public int attackValue;
