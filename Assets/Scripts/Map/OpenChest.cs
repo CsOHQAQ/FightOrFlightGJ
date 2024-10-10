@@ -68,12 +68,22 @@ public class OpenChest : InteractableObject
                     int randomIndex = 0;
                     do
                     {
-                        randomIndex = Random.Range(0, ItemManager.Instance.GetAllItems().Count);
+                   
+                        randomIndex = Random.Range(0, ItemManager.Instance.GetAllItems().Count - 1);
+
+
                     } while (randomIndex== bombId);
                     
                     Item_ScriptableObject randomItem = ItemManager.Instance.GetItemByID(randomIndex);
 
+                    if (randomItem == null)
+                    {
+                        maxCount++;
+                        continue;
+                    }
+
                     chestItems.Add(randomItem);
+           
                 }
             }
 
