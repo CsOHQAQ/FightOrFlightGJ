@@ -38,4 +38,9 @@ public class GameControl : MonoBehaviour
     {
         
     }
+
+    public static void Reset()
+    {
+        _gameControl = null;
+    }
 }
