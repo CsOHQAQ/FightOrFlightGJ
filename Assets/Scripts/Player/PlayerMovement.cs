@@ -97,7 +97,6 @@ public class PlayerMovement : MonoBehaviour
                     if (interactDetect.interactable is DoubleDoor)
                     {
                         DoubleDoor door = interactDetect.interactable as DoubleDoor;
-                        Debug.Log(door.DoorOpeness);
                         hand.StartCoroutine(hand.EaseToState(HandState.Pushed, door.DoorOpeness));
                     }
                 }

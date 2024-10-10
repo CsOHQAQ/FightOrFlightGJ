@@ -181,8 +181,9 @@ public class CombatManager:MonoBehaviour
         // Check if the current enemy is dead and log it
         if (enemyCombatants[currentEnemyIndex].CurHealth <= 0)
         {
-            //Debug.Log($"Enemy {currentEnemyIndex} has died.");
-            currentEnemyIndex++;
+            Destroy(enemyCombatants[0].gameObject);
+                //Debug.Log($"Enemy {currentEnemyIndex} has died.");
+            enemyCombatants.RemoveAt(0);
             if (currentEnemyIndex < enemyCombatants.Count)
             {
                 combatUI.monsterBuffer = enemyCombatants[currentEnemyIndex];

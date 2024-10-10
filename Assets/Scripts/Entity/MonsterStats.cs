@@ -16,10 +16,13 @@ public class MonsterStats : MonoBehaviour
     public AwareLevel CurAwareLevel;
     public List<Trait_Type> traits;
 
+    AwareHint awareHint;
     // Start is called before the first frame update
     void Start()
     {
         CurAwareness = 0f;
+        awareHint=GetComponentInChildren<AwareHint>();
+        awareHint.Init(this);
     }
 
 
@@ -36,7 +39,7 @@ public class MonsterStats : MonoBehaviour
             CurAwareLevel = AwareLevel.Searching;
             //GetComponent<FacingPlayer>().CanFacing = true;
         }
-        else 
+        else if(CurAwareness>=3f)
         {
             CurAwareLevel = AwareLevel.Awared;
         }
@@ -52,7 +55,7 @@ public class MonsterStats : MonoBehaviour
             
         }            
         else
-            CurAwareness = Mathf.MoveTowards(CurAwareness,0,Time.deltaTime/10f*Awareness);
+                CurAwareness = Mathf.MoveTowards(CurAwareness,0,Time.deltaTime/10f*Awareness);
     }
 
     public enum AwareLevel
@@ -61,6 +64,7 @@ public class MonsterStats : MonoBehaviour
         NotAwared, //Awareness 0-1
         Searching, //Awareness 1-2
         Awared, //Awareness 2-3
+
     }
 
     public void TakeDamage(int damage)
