@@ -129,7 +129,7 @@ public class UI_InventoryManager : MonoBehaviour
         PopulateCanvas();
     }
 
-    private void HideCanvas()
+    public void HideCanvas()
     {
         ClearCanvas();
         inventoryCanvas.gameObject.SetActive(false);
