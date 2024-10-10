@@ -56,8 +56,15 @@ public class DayManager : MonoBehaviour
 
         if (autoStart)
         {
-            CreateDayCanvas();
+            //CreateDayCanvas();
+            EndOfDay();
         }
+    }
+
+    public void EndOfDay()
+    {
+        UI_InventoryManager.Instance.ShowInventoryCanvas();
+        UI_InventoryManager.Instance.EnterStore();
     }
 
     public void GoToNextDay()
@@ -65,6 +72,8 @@ public class DayManager : MonoBehaviour
         currentDay++;
 
         Debug.Log("Day: " + currentDay);
+
+        UI_InventoryManager.Instance.ExitStore();
 
         if(currentDay > endingDay)
         {
