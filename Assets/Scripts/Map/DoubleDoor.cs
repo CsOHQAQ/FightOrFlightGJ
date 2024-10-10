@@ -100,7 +100,7 @@ public class DoubleDoor : InteractableObject
         {
             OnDoorFullyOpened?.Invoke(gameObject.name); // Announce which door has fully opened
             boxCollider.enabled = false; // Disable the collider to prevent closing once fully opened
-            Debug.Log($"{gameObject.name} is fully opened.");
+          //  Debug.Log($"{gameObject.name} is fully opened.");
         }
 
         // Check if the door is starting to open from a closed state
@@ -135,7 +135,7 @@ public class DoubleDoor : InteractableObject
     {
         Vector2 doorDirect = new Vector2(transform.Find("OpenPosition").localPosition.x, transform.Find("OpenPosition").localPosition.z);
         Vector2 playerDirect = new Vector2(transform.position.x- GameControl.Game.Player.transform.position.x,  transform.position.z- GameControl.Game.Player.transform.position.z);
-        Debug.Log($"player's angle to door {Vector2.Angle(doorDirect, playerDirect)}");
+       // Debug.Log($"player's angle to door {Vector2.Angle(doorDirect, playerDirect)}");
         return Vector2.Angle(doorDirect, playerDirect) < 90;
         
     }
