@@ -13,7 +13,7 @@ public class GameControl : MonoBehaviour
     {
         get
         {
-            if (_gameControl is null)
+            if (_gameControl == null)
             {
                 //_gameControl = new GameControl();
                 _gameControl= GameObject.Find("GameControl").GetComponent<GameControl>();//Really Ugly 
@@ -41,6 +41,7 @@ public class GameControl : MonoBehaviour
 
     public static void Reset()
     {
+        Debug.LogWarning("GameControl Reset!");
         _gameControl = null;
     }
 }
