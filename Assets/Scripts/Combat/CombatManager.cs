@@ -223,9 +223,9 @@ public class CombatManager:MonoBehaviour
             combatUI.ChangeText($"Combat Lost!");            
             //Debug.Log("Combat Lost! The player has died.");
         }
-        combatUI.SelfClose(3f);
-        combatUI = null;
+        combatUI.SelfClose(2f);
         combatResultCallBack(combatWon);
+        combatUI = null;
         inCombat = false;
     }
 }

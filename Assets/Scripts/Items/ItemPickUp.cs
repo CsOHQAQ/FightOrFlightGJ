@@ -4,7 +4,12 @@ using UnityEngine;
 
 public class ItemPickUp : MonoBehaviour
 {
-    [HideInInspector] public Equipment_ScriptableObject item;
+    [SerializeField] public Item_ScriptableObject item;
+
+    private void Start()
+    {
+        GetComponent<SpriteRenderer>().sprite = item.itemSprite;
+    }
 
     private void OnTriggerEnter(Collider other)
     {

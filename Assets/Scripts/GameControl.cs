@@ -5,6 +5,7 @@ using UnityEngine;
 public class GameControl : MonoBehaviour
 {
     public GameObject Player;
+    public BlackOutUI blackOutUI;
 
     private static GameControl _gameControl = null;
     public static GameControl Game
@@ -24,6 +25,8 @@ public class GameControl : MonoBehaviour
     void Init()
     {
         Player = GameObject.FindGameObjectWithTag("Player");
+        blackOutUI= GameObject.Find("BlackOut").GetComponent<BlackOutUI>();
+        blackOutUI.SetTransparent(0);
     }
 
 
