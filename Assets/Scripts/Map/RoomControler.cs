@@ -116,7 +116,6 @@ public class RoomControler : MonoBehaviour
         inCombat = true;
         combatManager.StartBattle(GameControl.Game.Player.GetComponent<PlayerStats>(),monsters,LeaveCombat);
         GameControl.Game.EscapeBtn.btn.interactable = false;
-        StartCoroutine(GameControl.Game.blackOutUI.TurnBlack(0.5f, 0.5f));
 
         float playerDistance = 999f;
         Transform cloestDoor = doors[0].transform;
@@ -143,7 +142,6 @@ public class RoomControler : MonoBehaviour
         if (result)//Player Wins
         {
             GameControl.Game.EscapeBtn.btn.interactable = true;
-            StartCoroutine(GameControl.Game.blackOutUI.TurnBlack(0f,0.5f));
             foreach (var mo in monsters)
             {
                 mo.CurHealth = 0;
@@ -155,8 +153,8 @@ public class RoomControler : MonoBehaviour
             //Player Loses, Please call the new day
             GameControl.Game.Player.GetComponent<PlayerMovement>().CanMove= false;
 
-            StartCoroutine(Wait(2f,GameSceneManager.Instance.OnDeath));
-            GameSceneManager.Instance.OnDeath();
+            //StartCoroutine(Wait(2f,GameSceneManager.Instance.OnDeath));
+            //GameSceneManager.Instance.OnDeath();
 
             foreach (var mo in monsters)
             {

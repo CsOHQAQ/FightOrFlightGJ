@@ -43,7 +43,7 @@ public class CombatManager:MonoBehaviour
         inCombat = true;
         combatResultCallBack = callback;
         WorldHealthBar.SetActive(false);
-        combatUI=Instantiate(CombatUIPrefab, GameObject.Find("Canvas").transform).GetComponent<CombatUI>();
+        combatUI=Instantiate(CombatUIPrefab, GameObject.Find("Canvas").transform.Find("Combat")).GetComponent<CombatUI>();
         combatUI.OnOpen(player,monsters);
 
     }

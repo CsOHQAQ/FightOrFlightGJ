@@ -66,8 +66,8 @@ public class GameSceneManager : MonoBehaviour
         yield return new WaitForSeconds(delay);
 
         SceneManager.LoadScene(sceneName);
-
-        if(sceneName != "EndOfGameScene")
+        GameControl.Reset();
+        if (sceneName != "EndOfGameScene")
         {
            // DayManager.Instance.GoToNextDay();
         }
@@ -78,7 +78,6 @@ public class GameSceneManager : MonoBehaviour
     public void OnDeath()
     {
         InventoryManager.Instance.OnDeath();
-        GameControl.Reset();
         TransitionToScene("DeathScene");
     }
 }
