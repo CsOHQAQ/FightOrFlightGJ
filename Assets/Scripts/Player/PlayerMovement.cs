@@ -64,6 +64,7 @@ public class PlayerMovement : MonoBehaviour
 
         controls.Player.Movement.performed += OnMove;
         controls.Player.Movement.canceled += OnMove;
+        controls.Player.ItemMenu.performed += OnOpenItemMenu;
         
     }
 
@@ -71,7 +72,7 @@ public class PlayerMovement : MonoBehaviour
     {
         controls.Player.Movement.performed -= OnMove;
         controls.Player.Movement.canceled -= OnMove;
-        
+        controls.Player.ItemMenu.performed -= OnOpenItemMenu;
         controls.Disable();
     }
 
@@ -270,5 +271,11 @@ public class PlayerMovement : MonoBehaviour
         float y = transform.position.y;//A ugly fix to keep the player on the ground
         transform.position = position;
         transform.position = new Vector3(transform.position.x, y, transform.position.z);
+    }
+    
+    public void OnOpenItemMenu(InputAction.CallbackContext context)
+    {
+       CanMove = !UI_InventoryManager.Instance.ToggleCanvas();
+        
     }
 }
