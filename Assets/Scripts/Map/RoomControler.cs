@@ -146,6 +146,9 @@ public class RoomControler : MonoBehaviour
         else
         {
             //Player Loses, Please call the new day
+            GameControl.Game.Player.GetComponent<PlayerMovement>().CanMove= false;
+            DayManager.Instance.EndOfDay();
+
             foreach(var mo in monsters)
             {
                 mo.Awareness = 0;

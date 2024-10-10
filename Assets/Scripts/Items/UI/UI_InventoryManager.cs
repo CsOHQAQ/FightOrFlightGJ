@@ -99,7 +99,7 @@ public class UI_InventoryManager : MonoBehaviour
 
         endDayButton.gameObject.SetActive(false);
 
-        if (autoStart)
+        if (autoStart) 
         {
             ToggleCanvas();
         }
