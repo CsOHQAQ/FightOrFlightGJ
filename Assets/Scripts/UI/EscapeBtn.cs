@@ -18,6 +18,8 @@ public class EscapeBtn : MonoBehaviour
     }
     void Escape()
     {
+        GameControl.Game.Player.GetComponent<PlayerMovement>().CanMove = false;
+
         DayManager.Instance.EndOfDay();
     }
 }
