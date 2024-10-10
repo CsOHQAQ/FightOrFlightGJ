@@ -99,7 +99,6 @@ public class CombatUI : MonoBehaviour
     IEnumerator WaitForClose(float second)
     {
         yield return new WaitForSeconds(second);
-        Debug.Log($"{gameObject} is destoryed");
         Destroy(gameObject);
     }
 }
