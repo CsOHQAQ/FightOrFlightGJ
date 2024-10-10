@@ -25,7 +25,6 @@ public class PlayerMovement : MonoBehaviour
 
     // Sound Dictionary
     private SoundManager soundManager;
-
     private List<string> matchingKeys;
 
     private Quaternion originalRotation, targetRotation;
