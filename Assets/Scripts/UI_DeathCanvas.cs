@@ -26,6 +26,9 @@ public class UI_DeathCanvas : MonoBehaviour
     [SerializeField]
     private float charDelay;
 
+    [SerializeField]
+    private string sceneToLoad;
+
     private string stringTitle;
     private string stringMessage;
 
