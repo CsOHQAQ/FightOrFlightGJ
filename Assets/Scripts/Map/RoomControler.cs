@@ -34,12 +34,15 @@ public class RoomControler : MonoBehaviour
     {
         if (isRefreshing)
         {
+            float openness=0;
             bool isViewedByPlayer=false;
             foreach (var door in doors)
             {
+                openness = Mathf.Max(openness,door.DoorOpeness);
                 if (door.isOpen)
                 {
                     isViewedByPlayer = true;
+
                 }
             }
 
@@ -67,7 +70,7 @@ public class RoomControler : MonoBehaviour
             {
                 foreach (MonsterStats monster in monsters)
                 {
-                    monster.RefreshAwareness(isViewedByPlayer);
+                    monster.RefreshAwareness(isViewedByPlayer,openness);
                     if (monster.CurAwareLevel == MonsterStats.AwareLevel.Awared)
                     {
                         EngageCombat();
