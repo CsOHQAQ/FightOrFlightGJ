@@ -3,10 +3,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
+using System.Linq;
 
 public class SoundManager : MonoBehaviour
 {
     public static SoundManager Instance;
+
+    // Sound Dictionary
+    private SoundManager soundManager;
+    private List<string> matchingKeys;
 
 
     [System.Serializable]
@@ -20,6 +25,7 @@ public class SoundManager : MonoBehaviour
 
     private Dictionary<string, AudioClip> soundDictionary;
     private AudioSource audioSource;
+    private AudioSource audioSourceMusic;
 
     private void Awake()
     {
@@ -29,12 +35,15 @@ public class SoundManager : MonoBehaviour
             DontDestroyOnLoad(gameObject);
 
             audioSource = gameObject.AddComponent<AudioSource>();
+            audioSourceMusic = gameObject.AddComponent<AudioSource>();
             soundDictionary = new Dictionary<string, AudioClip>();
+
 
             foreach (var sound in sounds)
             {
                 soundDictionary[sound.name] = sound.clip;
             }
+
         }
         else
         {
@@ -44,7 +53,14 @@ public class SoundManager : MonoBehaviour
 
     private void Start()
     {
-        // PlayBackgroundMusic("sonic");
+        soundManager = SoundManager.Instance;
+        matchingKeys = soundManager.GetSoundDict().Keys.Where(k => k.StartsWith("Background")).ToList();
+
+
+        int randomIndex = Random.Range(0, matchingKeys.Count - 1);
+        string randomKey = matchingKeys[randomIndex];
+
+        PlayBackgroundMusic(randomKey);
     }
 
     public void PlaySound(string name, float volume)
@@ -66,9 +82,10 @@ public class SoundManager : MonoBehaviour
     {
         if (soundDictionary.TryGetValue(name, out var clip))
         {
-            audioSource.clip = clip;
-            audioSource.loop = true;
-            audioSource.Play();
+            audioSourceMusic.clip = clip;
+            audioSourceMusic.loop = true;
+            audioSourceMusic.volume = 0.25f;
+            audioSourceMusic.Play();
         }
         else
         {

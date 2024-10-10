@@ -53,3 +53,13 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 8fb71e2b2d2404e4e82f6703514a3428, type: 3}
   - name: FootStep4
     clip: {fileID: 8300000, guid: 7e0490454ca5ce84a9b5fd6a0db4368c, type: 3}
+  - name: Background1
+    clip: {fileID: 8300000, guid: aaafaf4dca559414fa431081e3e77849, type: 3}
+  - name: Background2
+    clip: {fileID: 8300000, guid: ec8f269285d74b748a9007b40de62677, type: 3}
+  - name: Background3
+    clip: {fileID: 8300000, guid: 3a5a8c12685aeb743984e6a10ccd6ac7, type: 3}
+  - name: Background4
+    clip: {fileID: 8300000, guid: f4e6842fdc2f53247b9fa280499bfe3b, type: 3}
+  - name: Background5
+    clip: {fileID: 8300000, guid: 57f09d99a1ed5c64c90466f6e22732e5, type: 3}
