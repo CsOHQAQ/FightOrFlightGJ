@@ -71,6 +71,8 @@ public class DayManager : MonoBehaviour
     {
         currentDay++;
 
+        GameControl.Reset();
+
         Debug.Log("Day: " + currentDay);
 
         UI_InventoryManager.Instance.ExitStore();
@@ -81,6 +83,7 @@ public class DayManager : MonoBehaviour
         }
         else
         {
+            GameSceneManager.Instance.TransitionToScene("TileMapScene");
             CreateDayCanvas();
         }
     }
