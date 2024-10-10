@@ -120,6 +120,7 @@ public class Bomb : MonoBehaviour
 
     private void playExplosion()
     {
+        SoundManager.Instance.PlaySoundBoom("Explosion", 0.3f);
         visualEffect.Play();
         StartCoroutine(DestroyChest());
     }

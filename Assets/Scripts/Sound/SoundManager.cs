@@ -26,6 +26,7 @@ public class SoundManager : MonoBehaviour
     private Dictionary<string, AudioClip> soundDictionary;
     private AudioSource audioSource;
     private AudioSource audioSourceMusic;
+    private AudioSource audioSourceBoom;
 
     private void Awake()
     {
@@ -36,6 +37,7 @@ public class SoundManager : MonoBehaviour
 
             audioSource = gameObject.AddComponent<AudioSource>();
             audioSourceMusic = gameObject.AddComponent<AudioSource>();
+            audioSourceBoom = gameObject.GetComponent<AudioSource>();
             soundDictionary = new Dictionary<string, AudioClip>();
 
 
@@ -71,6 +73,21 @@ public class SoundManager : MonoBehaviour
             audioSource.clip = clip;
             audioSource.volume = Mathf.Clamp(volume, 0.0f, 1.0f);
             audioSource.PlayOneShot(clip);
+        }
+        else
+        {
+            Debug.LogWarning($"Sound: {name} not found");
+        }
+    }
+
+    public void PlaySoundBoom(string name, float volume)
+    {
+        if (soundDictionary.TryGetValue(name, out var clip))
+        {
+
+            audioSourceBoom.clip = clip;
+            audioSourceBoom.volume = Mathf.Clamp(volume, 0.0f, 1.0f);
+            audioSourceBoom.PlayOneShot(clip);
         }
         else
         {
