@@ -34,6 +34,7 @@ Transform:
   - {fileID: 3307823710104363613}
   - {fileID: 329680815478734742}
   - {fileID: 378617037855564183}
+  - {fileID: 7473266652557187377}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1609055379476658689
@@ -68,6 +69,107 @@ MonoBehaviour:
     type: 3}
   enemyCombatants: []
   turnDuration: 2
+--- !u!1001 &2955531172824411026
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1166992259034531322}
+    m_Modifications:
+    - target: {fileID: 3363154474944927334, guid: f82df415d3090b04f97a47668569e2eb,
+        type: 3}
+      propertyPath: m_Name
+      value: Chest
+      objectReference: {fileID: 0}
+    - target: {fileID: 5670673623262392995, guid: f82df415d3090b04f97a47668569e2eb,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -18.415108
+      objectReference: {fileID: 0}
+    - target: {fileID: 5670673623262392995, guid: f82df415d3090b04f97a47668569e2eb,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.45418942
+      objectReference: {fileID: 0}
+    - target: {fileID: 5670673623262392995, guid: f82df415d3090b04f97a47668569e2eb,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 72.65
+      objectReference: {fileID: 0}
+    - target: {fileID: 5670673623262392995, guid: f82df415d3090b04f97a47668569e2eb,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5670673623262392995, guid: f82df415d3090b04f97a47668569e2eb,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5670673623262392995, guid: f82df415d3090b04f97a47668569e2eb,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5670673623262392995, guid: f82df415d3090b04f97a47668569e2eb,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5670673623262392995, guid: f82df415d3090b04f97a47668569e2eb,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5670673623262392995, guid: f82df415d3090b04f97a47668569e2eb,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5670673623262392995, guid: f82df415d3090b04f97a47668569e2eb,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8124387371718137243, guid: f82df415d3090b04f97a47668569e2eb,
+        type: 3}
+      propertyPath: maxCount
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8124387371718137243, guid: f82df415d3090b04f97a47668569e2eb,
+        type: 3}
+      propertyPath: randomize
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8124387371718137243, guid: f82df415d3090b04f97a47668569e2eb,
+        type: 3}
+      propertyPath: chestItems.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8124387371718137243, guid: f82df415d3090b04f97a47668569e2eb,
+        type: 3}
+      propertyPath: chestItems.Array.data[0]
+      value: 
+      objectReference: {fileID: 11400000, guid: 2179a5915e438b341a55704d3dc1f09b,
+        type: 2}
+    - target: {fileID: 8124387371718137243, guid: f82df415d3090b04f97a47668569e2eb,
+        type: 3}
+      propertyPath: chestItems.Array.data[1]
+      value: 
+      objectReference: {fileID: 11400000, guid: a620fb90e1b8b9242999d212ba021095,
+        type: 2}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: f82df415d3090b04f97a47668569e2eb, type: 3}
+--- !u!4 &7473266652557187377 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5670673623262392995, guid: f82df415d3090b04f97a47668569e2eb,
+    type: 3}
+  m_PrefabInstance: {fileID: 2955531172824411026}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &7770268859147167880
 PrefabInstance:
   m_ObjectHideFlags: 0
