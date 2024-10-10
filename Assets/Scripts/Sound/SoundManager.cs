@@ -1,6 +1,8 @@
+using JetBrains.Annotations;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class SoundManager : MonoBehaviour
 {
@@ -42,13 +44,16 @@ public class SoundManager : MonoBehaviour
 
     private void Start()
     {
-        PlayBackgroundMusic("sonic");
+        // PlayBackgroundMusic("sonic");
     }
 
-    public void PlaySound(string name)
+    public void PlaySound(string name, float volume)
     {
         if (soundDictionary.TryGetValue(name, out var clip))
         {
+
+            audioSource.clip = clip;
+            audioSource.volume = Mathf.Clamp(volume, 0.0f, 1.0f);
             audioSource.PlayOneShot(clip);
         }
         else
@@ -69,6 +74,11 @@ public class SoundManager : MonoBehaviour
         {
             Debug.LogWarning($"Background Music: {name} not found");
         }
+    }
+
+    public Dictionary<string, AudioClip> GetSoundDict()
+    {
+        return soundDictionary;
     }
 
     public void StopBackgroundMusic()
