@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Net.Http.Headers;
+using System.Xml;
 using System.Xml.Serialization;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using static PlayerHandsComponent;
@@ -20,6 +22,11 @@ public class PlayerMovement : MonoBehaviour
 
     private InputControls controls;
     private Vector2 movementInput;
+
+    // Sound Dictionary
+    private SoundManager soundManager;
+
+    private List<string> matchingKeys;
 
     private Quaternion originalRotation, targetRotation;
     private Vector3 originalPosition, targetPosition;
@@ -56,6 +63,12 @@ public class PlayerMovement : MonoBehaviour
         isRotating = false;
         interactDetect = GetComponent<InteractDetect>();
         hand = GetComponentInChildren<PlayerHandsComponent>();
+    }
+
+    private void Start()
+    {
+        soundManager = SoundManager.Instance;
+        matchingKeys = soundManager.GetSoundDict().Keys.Where(k => k.StartsWith("FootStep")).ToList();
     }
 
     private void OnEnable()
@@ -180,7 +193,20 @@ public class PlayerMovement : MonoBehaviour
 
     private IEnumerator MovePlayer(float direction)
     {
+
         isMoving = true;
+
+        if(matchingKeys.Count == 0)
+        {
+            Debug.LogWarning("No keys match the given prefix xd");
+            yield break;
+        }
+
+        int randomIndex = Random.Range(0, matchingKeys.Count - 1);
+        string randomKey = matchingKeys[randomIndex];
+
+        soundManager.PlaySound(randomKey, 0.25f);
+
 
         float elapsedTime = 0;
 
