@@ -104,8 +104,10 @@ public class InventoryManager : MonoBehaviour
     {
         if(item)
         {
+            Debug.Log("bagItems.Add");
             bagItems.Add(item);
 
+            Debug.Log("AddItemToStack");
             pickupUI.AddItemToStack(item);
 
             return true;

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Rendering;
 using UnityEngine;
 
 public class OpenChest : InteractableObject
@@ -11,7 +12,6 @@ public class OpenChest : InteractableObject
     [SerializeField] bool randomize = true;
     [SerializeField] List<Item_ScriptableObject> chestItems;
     [SerializeField] private int maxCount = 5;
-    [SerializeField] private float detectionDistance = 1.5f;
     [SerializeField] private Vector3 bombIncreaseSize = new Vector3(0.2f, 0.2f, 0.2f);
 
     private GameObject spawnedItem;
@@ -125,8 +125,18 @@ public class OpenChest : InteractableObject
                 }
                 else
                 {
-                    Debug.Log("Running Putting in inventory");
                     PutItemInInventory(itemData);
+
+
+                    // Ensure spawnedItem is still valid before destroying it
+                    if (spawnedItem != null)
+                    {
+                        Destroy(spawnedItem, 2.0f);
+                    }
+                    else
+                    {
+                        Debug.Log("spawnedItem is already null or destroyed.");
+                    }
                 }
             }
             chestItems.RemoveAt(0);
@@ -152,8 +162,6 @@ public class OpenChest : InteractableObject
     private void PutItemInInventory(Item_ScriptableObject _itemToAdd)
     {
         InventoryManager.Instance.AddItemToBag(_itemToAdd);
-
-        Destroy(spawnedItem, 2.0f);
     }
 
     private IEnumerator CloseChestAfterDelay(float delay)
