@@ -25,7 +25,7 @@ public class CombatUI : MonoBehaviour
 
     public void OnOpen(PlayerStats p,List<MonsterStats> monsters)
     {
-        animator= GetComponent<Animator>();
+        animator = GetComponent<Animator>();
         monsterListTran = transform.Find("MonsterList");
         PlayerHealth = transform.Find("Player").Find("HealthBar").Find("CurHealth").GetComponent<Image>();
         MonsterHealth= transform.Find("Monster").Find("HealthBar").Find("CurHealth").GetComponent<Image>();

@@ -6,8 +6,11 @@ using System; // Add this to use Odin attributes
 
 public class CombatManager:MonoBehaviour
 {
-    private PlayerStats playerCombatant;
+    [SerializeField]
+    private GameObject WorldHealthBar;
 
+    private PlayerStats playerCombatant;
+    
     [SerializeField]
     private GameObject CombatUIPrefab;
     private CombatUI combatUI;
@@ -33,13 +36,16 @@ public class CombatManager:MonoBehaviour
             if (monsters== null)
                 Debug.LogError("Monster Combatant null!!");
         }
+
         playerCombatant = player;
         enemyCombatants.Clear();
         enemyCombatants = monsters;
         inCombat = true;
         combatResultCallBack = callback;
+        WorldHealthBar.SetActive(false);
         combatUI=Instantiate(CombatUIPrefab, GameObject.Find("Canvas").transform).GetComponent<CombatUI>();
         combatUI.OnOpen(player,monsters);
+
     }
 
     void Update()
@@ -229,5 +235,18 @@ public class CombatManager:MonoBehaviour
         combatResultCallBack(combatWon);
         combatUI = null;
         inCombat = false;
+        StartCoroutine(WaitAndReactivateHealthBar(2f));
+
+    }
+
+    IEnumerator WaitAndReactivateHealthBar(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        ReactivateHealthBar();
+    }
+
+    void ReactivateHealthBar()
+    {
+        WorldHealthBar.SetActive(true);
     }
 }

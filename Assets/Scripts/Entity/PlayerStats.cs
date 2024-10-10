@@ -13,6 +13,8 @@ public class PlayerStats : MonoBehaviour
     [SerializeField]
     private RectTransform _healthBarFill;
     [SerializeField]
+    private RectTransform _healthBarContainer;
+    [SerializeField]
     private int _maxHealth;
     [SerializeField]
     private int _curHealth;
@@ -73,8 +75,10 @@ public class PlayerStats : MonoBehaviour
 
     private void UpdateHealthBar()
     {
-        float fillAmount = CurHealth / MaxHealth;
-        _healthBarFill.localScale = new Vector3(fillAmount, 1, 1);
+        float fillAmount = (float)CurHealth / MaxHealth;
+
+        float newWidth = fillAmount * _healthBarContainer.rect.width;
+        _healthBarFill.sizeDelta = new Vector2(newWidth, _healthBarFill.sizeDelta.y);
     }
 
 }
