@@ -6,7 +6,8 @@ using UnityEngine;
 public enum ITEM_TYPE
 {
     EQUIPMENT,
-    CONSUMEABLE
+    CONSUMEABLE,
+    BOMB
 }
 
 
@@ -19,10 +20,13 @@ public class Item_ScriptableObject : ScriptableObject
     public string itemName;
 
     [SerializeField]
+    public int itemId;
+
+    [SerializeField]
     public Sprite itemSprite;
 
     [SerializeField]
-    [TextArea(2,3)]
+    [TextArea(2, 3)]
     public string itemDescription;
 
     [SerializeField]
