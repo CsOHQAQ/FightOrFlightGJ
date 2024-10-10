@@ -55,7 +55,7 @@ public class PlayerMovement : MonoBehaviour
         isMoving = false;
         isRotating = false;
         interactDetect = GetComponent<InteractDetect>();
-        hand = GetComponent<PlayerHandsComponent>();
+        hand = GetComponentInChildren<PlayerHandsComponent>();
     }
 
     private void OnEnable()
