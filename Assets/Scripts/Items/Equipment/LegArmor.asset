@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: LegArmor
   m_EditorClassIdentifier: 
   itemName: Leg Armor
+  itemId: 3
   itemSprite: {fileID: 0}
   itemDescription: It's leg armor
   itemValue: 1

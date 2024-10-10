@@ -125,6 +125,7 @@ public class OpenChest : InteractableObject
                 }
                 else
                 {
+                    Debug.Log("Running Putting in inventory");
                     PutItemInInventory(itemData);
                 }
             }

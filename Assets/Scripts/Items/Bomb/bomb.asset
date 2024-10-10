@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemName: bomb
   itemId: 7
-  itemSprite: {fileID: 0}
+  itemSprite: {fileID: 21300000, guid: c42b93fdf74c226478a900d6c5b3e474, type: 3}
   itemDescription: It's a bomb.
   itemValue: -1
   itemType: 2
