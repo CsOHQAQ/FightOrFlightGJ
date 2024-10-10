@@ -133,9 +133,9 @@ public class DoubleDoor : InteractableObject
 
     bool PlayerSide()
     {
-        Vector2 doorDirect = new Vector2(transform.Find("OpenPosition").localPosition.x, transform.Find("OpenPosition").localPosition.z);
+        Vector2 doorDirect = new Vector2(transform.Find("OpenPosition").position.x-transform.position.x, transform.Find("OpenPosition").position.z - transform.position.z);
         Vector2 playerDirect = new Vector2(transform.position.x- GameControl.Game.Player.transform.position.x,  transform.position.z- GameControl.Game.Player.transform.position.z);
-        Debug.Log($"player's angle to door {Vector2.Angle(doorDirect, playerDirect)}");
+        //Debug.Log($"player's angle to door {Vector2.Angle(doorDirect, playerDirect)}");
         return Vector2.Angle(doorDirect, playerDirect) < 90;
         
     }
