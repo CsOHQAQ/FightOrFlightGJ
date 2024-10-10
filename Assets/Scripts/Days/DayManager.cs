@@ -64,9 +64,11 @@ public class DayManager : MonoBehaviour
     {
         currentDay++;
 
-        if(currentDay >endingDay)
+        Debug.Log("Day: " + currentDay);
+
+        if(currentDay > endingDay)
         {
-            //DO the end game stuff
+            GameSceneManager.Instance.TransitionToScene("EndOfGameScene");
         }
         else
         {
@@ -102,5 +104,17 @@ public class DayManager : MonoBehaviour
     public void ClearCanvas()
     {
         canvasManager = null;
+    }
+
+    public bool GetSuccess()
+    {
+        if(currentDay >= endingDay && earnedMoney >= moneyQuota)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 }

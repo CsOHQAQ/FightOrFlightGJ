@@ -1070,7 +1070,7 @@ MonoBehaviour:
   buttonDelay: 1
   successString: Victory
   failureString: Defeat
-  shouldDebug: 1
+  shouldDebug: 0
   debugSuccess: 0
 --- !u!1 &1868654379
 GameObject:
