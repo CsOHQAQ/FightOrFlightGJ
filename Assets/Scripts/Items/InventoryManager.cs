@@ -188,6 +188,7 @@ public class InventoryManager : MonoBehaviour
 
         foreach (Equipment_ScriptableObject equippedItem in equippedItems)
         {
+            if (equippedItem ==null) continue;
             attack += equippedItem.attackValue;
             defense += equippedItem.defenceValue;
         }

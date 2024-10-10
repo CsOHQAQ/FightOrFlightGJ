@@ -29,12 +29,12 @@ public class MonsterStats : MonoBehaviour
         if (CurAwareness < 1f)
         {
             CurAwareLevel = AwareLevel.NotAwared;
-            GetComponent<FacingPlayer>().CanFacing = false;
+            //GetComponent<FacingPlayer>().CanFacing = false;
         }
         else if (CurAwareness > 1f && CurAwareness < 2f)
         {
             CurAwareLevel = AwareLevel.Searching;
-            GetComponent<FacingPlayer>().CanFacing = true;
+            //GetComponent<FacingPlayer>().CanFacing = true;
         }
         else 
         {
