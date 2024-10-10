@@ -70,6 +70,7 @@ MonoBehaviour:
   inventoryGrid: {fileID: 3301851032108438925}
   itemSpritePrefab: {fileID: 8380679540434264940, guid: 89af0323aab89d44a89e8308726176ee,
     type: 3}
+  endDayButton: {fileID: 0}
   itemNameText: {fileID: 3645978670065210600}
   itemDescriptionText: {fileID: 2536254553264730993}
   itemSpriteImage: {fileID: 3549772430830933094}
@@ -89,6 +90,21 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 5160177663680777317}
     m_Modifications:
+    - target: {fileID: 2360818975024526324, guid: 01ea53f6bea2d134ba9c851bc49cddb2,
+        type: 3}
+      propertyPath: m_UiScaleMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2360818975024526324, guid: 01ea53f6bea2d134ba9c851bc49cddb2,
+        type: 3}
+      propertyPath: m_ReferenceResolution.x
+      value: 1024
+      objectReference: {fileID: 0}
+    - target: {fileID: 2360818975024526324, guid: 01ea53f6bea2d134ba9c851bc49cddb2,
+        type: 3}
+      propertyPath: m_ReferenceResolution.y
+      value: 768
+      objectReference: {fileID: 0}
     - target: {fileID: 3244588532838953974, guid: 01ea53f6bea2d134ba9c851bc49cddb2,
         type: 3}
       propertyPath: m_Pivot.x
@@ -188,6 +204,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4863137157109286898, guid: 01ea53f6bea2d134ba9c851bc49cddb2,
+        type: 3}
+      propertyPath: fadeTime
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 5086241458958187285, guid: 01ea53f6bea2d134ba9c851bc49cddb2,
         type: 3}
@@ -343,7 +364,7 @@ PrefabInstance:
     - target: {fileID: 6109024105978267804, guid: 0c15642d854138a49aca2693f7cd7773,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6541597029183823512, guid: 0c15642d854138a49aca2693f7cd7773,
         type: 3}

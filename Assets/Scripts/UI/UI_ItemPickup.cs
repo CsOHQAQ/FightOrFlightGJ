@@ -27,7 +27,7 @@ public class UI_ItemPickup : MonoBehaviour
     private float stackDelay;
 
     [SerializeField]
-    private float fadeTime;
+    private float fadeTime = 0.5f;
 
     private bool bInProgress;
 
@@ -78,6 +78,8 @@ public class UI_ItemPickup : MonoBehaviour
 
         if (itemStack.Count > 0)
         {
+
+            Debug.Log($"Here is the item stack: {itemStack.Count}");
             HidePlate();
 
             yield return new WaitForSeconds(stackDelay);
@@ -117,6 +119,7 @@ public class UI_ItemPickup : MonoBehaviour
 
         while (elapsedTime < fadeTime)
         {
+            Debug.Log($"this is my elapsedTime: {elapsedTime} Fadetime: {fadeTime}");
 
             elapsedTime += Time.deltaTime;
 
