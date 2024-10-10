@@ -10,8 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 2842137475657174737}
   - component: {fileID: 3876546859502422857}
-  - component: {fileID: 6843174886302118852}
   - component: {fileID: 4495796183698232393}
+  - component: {fileID: 8457061197498386877}
   m_Layer: 0
   m_Name: Slime
   m_TagString: Untagged
@@ -54,7 +54,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: a90364b3a1b40034ea03bb78b5d4b427, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -75,7 +75,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 7cc655a400f99644ca43e534557b5a35, type: 3}
+  m_Sprite: {fileID: 21300000, guid: e87e82aa24f37004bbe8cc0143025829, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -86,19 +86,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &6843174886302118852
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 508815301652849005}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 351bbd9872ebd8d4ca0e3eb71ccca751, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  CanFacing: 1
 --- !u!114 &4495796183698232393
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -118,4 +105,22 @@ MonoBehaviour:
   Defense: 0
   Awareness: 1
   CurAwareness: 0
-  awareLevel: 0
+  CurAwareLevel: 0
+  traits: []
+--- !u!114 &8457061197498386877
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 508815301652849005}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9b49f72cbf883a459e77ba999810e7b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spriteList:
+  - {fileID: 21300000, guid: e87e82aa24f37004bbe8cc0143025829, type: 3}
+  - {fileID: 21300000, guid: fa277363680fade4a8294e8f92ff0cf0, type: 3}
+  switchInterval: 0.5
+  rotateToFacePlayer: 1
