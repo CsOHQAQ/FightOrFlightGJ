@@ -53,6 +53,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: b92efa50401ce064399f35cf5659aaba, type: 2}
   bagItems: []
   pickupUI: {fileID: 5352203100933516118}
+  testItems: []
 --- !u!114 &7925741749224482782
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -333,6 +334,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: InventoryCanvas
+      objectReference: {fileID: 0}
+    - target: {fileID: 6109024105978267804, guid: 0c15642d854138a49aca2693f7cd7773,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6541597029183823512, guid: 0c15642d854138a49aca2693f7cd7773,
         type: 3}
