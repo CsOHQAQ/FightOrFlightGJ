@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.Rendering.Universal;
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// Just a prototype for testing.
 /// </summary>
 public class PlayerStats : MonoBehaviour
 {
+    [SerializeField]
+    private RectTransform _healthBarFill;
     [SerializeField]
     private int _maxHealth;
     [SerializeField]
@@ -59,11 +62,19 @@ public class PlayerStats : MonoBehaviour
     private void Start()
     {
         inventory=InventoryManager.Instance;
+        UpdateHealthBar();
     }
     public void TakeDamage(int damage)
     {
         _curHealth -= damage;
         _curHealth = Mathf.Clamp(_curHealth, 0, MaxHealth);
+        UpdateHealthBar();
+    }
+
+    private void UpdateHealthBar()
+    {
+        float fillAmount = CurHealth / MaxHealth;
+        _healthBarFill.localScale = new Vector3(fillAmount, 1, 1);
     }
 
 }
