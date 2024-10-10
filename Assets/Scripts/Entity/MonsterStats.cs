@@ -16,6 +16,9 @@ public class MonsterStats : MonoBehaviour
     public AwareLevel CurAwareLevel;
     public List<Trait_Type> traits;
 
+
+    [SerializeField]
+    float OpennessTolerate = 0.1f;
     AwareHint awareHint;
     // Start is called before the first frame update
     void Start()
@@ -46,12 +49,13 @@ public class MonsterStats : MonoBehaviour
 
     }
 
-    public void RefreshAwareness(bool canSeePlayer)
+    public void RefreshAwareness(bool canSeePlayer,float openAngle)
     {
-        
+        if(openAngle<OpennessTolerate)
+            canSeePlayer = false;
         if (canSeePlayer)
         {
-            CurAwareness = Mathf.MoveTowards(CurAwareness, 3, Awareness * Time.deltaTime / Mathf.Log(Vector3.Distance(transform.position, GameControl.Game.Player.transform.position)+1));
+            CurAwareness = Mathf.MoveTowards(CurAwareness, 3,openAngle* Awareness * Time.deltaTime / Mathf.Log(Vector3.Distance(transform.position, GameControl.Game.Player.transform.position)+1));
             
         }            
         else
