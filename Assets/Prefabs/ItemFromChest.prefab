@@ -123,6 +123,10 @@ MonoBehaviour:
   bombs:
   - {fileID: 21300000, guid: c42b93fdf74c226478a900d6c5b3e474, type: 3}
   - {fileID: 21300000, guid: e28919c50fe09014fbe4bc2fc081b5bb, type: 3}
+  effectAsset: {fileID: 8926484042661614526, guid: 5877a2ea162c8b94c8c1e7f12e932d67,
+    type: 3}
+  effectDurationToDestroyChest: 0.13
+  effectDurationToDestroyEffect: 0.5
   timeToExplode: 1.4
   bombActive: 0
-  timeToChangeSprite: 0.2
+  timeToChangeSprite: 0.1

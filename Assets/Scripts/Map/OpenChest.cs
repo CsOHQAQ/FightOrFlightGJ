@@ -17,7 +17,7 @@ public class OpenChest : InteractableObject
     private GameObject spawnedItem;
 
     private bool isOpen = false;
-    private bool bombActive = false;
+    [HideInInspector] public bool bombActive = false;
 
     private SpriteRenderer spriteRenderer;
 
@@ -68,12 +68,22 @@ public class OpenChest : InteractableObject
                     int randomIndex = 0;
                     do
                     {
-                        randomIndex = Random.Range(0, ItemManager.Instance.GetAllItems().Count);
+                   
+                        randomIndex = Random.Range(0, ItemManager.Instance.GetAllItems().Count - 1);
+
+
                     } while (randomIndex== bombId);
                     
                     Item_ScriptableObject randomItem = ItemManager.Instance.GetItemByID(randomIndex);
 
+                    if (randomItem == null)
+                    {
+                        maxCount++;
+                        continue;
+                    }
+
                     chestItems.Add(randomItem);
+           
                 }
             }
 
@@ -155,13 +165,11 @@ public class OpenChest : InteractableObject
         if (bomb != null)
         {
             bomb.Chest = gameObject;
-            bomb.bombActive = bombActive;
         }
         else
         {
             Debug.LogWarning("No Bomb Component found on the item");
         }
-
     }
 
     private void PutItemInInventory(Item_ScriptableObject _itemToAdd)
