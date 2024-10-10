@@ -9,7 +9,7 @@ public class Bomb : MonoBehaviour
     [SerializeField] private List<Sprite> bombs;
     [SerializeField] private VisualEffectAsset effectAsset;
     private VisualEffect visualEffect;
-    [SerializeField] private float effectDurationToDestroyChest = 0.13f;
+    [SerializeField] private float effectDurationToDestroyChest = 0.11f;
     [SerializeField] private float effectDurationToDestroyEffect = 0.5f;
     private bool bombFlip = true;
 
@@ -24,7 +24,10 @@ public class Bomb : MonoBehaviour
 
     private SpriteRenderer spriteRenderer;
 
+    private bool exploded = false;
     private bool startToDetonate = false;
+
+    private GameObject playerObject;
 
     private void OnEnable()
     {
@@ -43,6 +46,15 @@ public class Bomb : MonoBehaviour
 
     private void InitializieBomb()
     {
+        if (playerObject == null)
+        {
+            playerObject = GameObject.FindGameObjectWithTag("Player");
+        }
+        else
+        {
+            Debug.LogWarning("Not Player Object found with tag");
+        }
+
         spriteRenderer = GetComponent<SpriteRenderer>();
 
         if (visualEffect == null)
@@ -76,17 +88,29 @@ public class Bomb : MonoBehaviour
 
     }
 
+    private void OnTriggerStay(Collider other)
+    {
+        if (exploded)
+        {
+            if (other.CompareTag("Player"))
+            {
+                exploded = false;
+
+                playerObject.GetComponent<PlayerStats>().TakeDamage(1);
+            }
+        } 
+    }
+
     private void ToDetonate()
     {
         currentTimeBeforeExplode += Time.deltaTime;
-
-        Debug.Log($"This is my current time : {currentTimeBeforeExplode}");
 
         if (currentTimeBeforeExplode >= timeToExplode)
         {
             if (!goExplode)
             {
                 goExplode = true;
+                exploded = true;
                 spriteRenderer.enabled = false;
                 playExplosion();
             }
@@ -106,7 +130,7 @@ public class Bomb : MonoBehaviour
 
         Destroy(Chest);
 
-        DestroyExplosion();
+        StartCoroutine(DestroyExplosion());
     }
 
     private IEnumerator DestroyExplosion()
@@ -118,15 +142,20 @@ public class Bomb : MonoBehaviour
 
     private void ChangeSprite()
     {
-        currentTimeBeforeChangeSprite += Time.deltaTime;
 
-        if (currentTimeBeforeChangeSprite >= timeToChangeSprite)
+        if (!goExplode)
         {
-            spriteRenderer.sprite = bombs[bombFlip ? 1 : 0];
+            currentTimeBeforeChangeSprite += Time.deltaTime;
 
-            bombFlip = !bombFlip;
+            if (currentTimeBeforeChangeSprite >= timeToChangeSprite)
+            {
+                spriteRenderer.sprite = bombs[bombFlip ? 1 : 0];
 
-            currentTimeBeforeChangeSprite = 0.0f;
+                bombFlip = !bombFlip;
+
+                currentTimeBeforeChangeSprite = 0.0f;
+            }
         }
+        
     }
 }

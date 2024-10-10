@@ -122,7 +122,7 @@ public class OpenChest : InteractableObject
         {
             Quaternion itemRotation = Quaternion.Euler(0, transform.eulerAngles.y, 0);
 
-            spawnedItem = Instantiate(itemPrefab, transform.position + Vector3.up, itemRotation);
+            spawnedItem = Instantiate(itemPrefab, transform.position + Vector3.up * 0.8f, itemRotation);
 
             SpriteRenderer spriteRenderer = spawnedItem.GetComponent<SpriteRenderer>();
 
@@ -165,6 +165,17 @@ public class OpenChest : InteractableObject
         if (bomb != null)
         {
             bomb.Chest = gameObject;
+
+            BoxCollider boxCollider = _theItem.GetComponent<BoxCollider>();
+
+            if (boxCollider != null)
+            {
+                boxCollider.size = new Vector3(8.0f, 8.0f, 14.0f);
+            }
+            else
+            {
+                Debug.LogWarning("No BoxCollider found on the item");
+            }
         }
         else
         {
