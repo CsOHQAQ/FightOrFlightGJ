@@ -70,6 +70,10 @@ public class PlayerStats : MonoBehaviour
     {
         _curHealth -= damage;
         _curHealth = Mathf.Clamp(_curHealth, 0, MaxHealth);
+        if (_curHealth <= 0)
+        {
+            GameControl.Game.blackOutUI.TurnBlack(1, 2.5f);
+        }
         UpdateHealthBar();
     }
 
