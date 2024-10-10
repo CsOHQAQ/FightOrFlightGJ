@@ -2,6 +2,7 @@ using JetBrains.Annotations;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting.Antlr3.Runtime.Tree;
 using UnityEditor;
 using UnityEditor.Rendering;
 using UnityEditor.Rendering.Universal;
@@ -34,12 +35,15 @@ public class RoomControler : MonoBehaviour
     {
         if (isRefreshing)
         {
+            float openness=0;
             bool isViewedByPlayer=false;
             foreach (var door in doors)
             {
+                openness = Mathf.Max(openness,door.DoorOpeness);
                 if (door.isOpen)
                 {
                     isViewedByPlayer = true;
+
                 }
             }
 
@@ -67,7 +71,7 @@ public class RoomControler : MonoBehaviour
             {
                 foreach (MonsterStats monster in monsters)
                 {
-                    monster.RefreshAwareness(isViewedByPlayer);
+                    monster.RefreshAwareness(isViewedByPlayer,openness);
                     if (monster.CurAwareLevel == MonsterStats.AwareLevel.Awared)
                     {
                         EngageCombat();
@@ -111,7 +115,7 @@ public class RoomControler : MonoBehaviour
 
         inCombat = true;
         combatManager.StartBattle(GameControl.Game.Player.GetComponent<PlayerStats>(),monsters,LeaveCombat);
-
+        GameControl.Game.EscapeBtn.btn.interactable = false;
         StartCoroutine(GameControl.Game.blackOutUI.TurnBlack(0.5f, 0.5f));
 
         float playerDistance = 999f;
@@ -138,6 +142,7 @@ public class RoomControler : MonoBehaviour
         GameControl.Game.Player.GetComponent<PlayerMovement>().CanMove = true;
         if (result)//Player Wins
         {
+            GameControl.Game.EscapeBtn.btn.interactable = true;
             StartCoroutine(GameControl.Game.blackOutUI.TurnBlack(0f,0.5f));
             foreach (var mo in monsters)
             {

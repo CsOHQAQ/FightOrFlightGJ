@@ -67,6 +67,11 @@ public class GameSceneManager : MonoBehaviour
 
         SceneManager.LoadScene(sceneName);
 
+        if(sceneName != "EndOfGameScene")
+        {
+            DayManager.Instance.GoToNextDay();
+        }
+
         canTransition = true;
     }
 

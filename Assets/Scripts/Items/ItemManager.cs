@@ -31,6 +31,13 @@ public class ItemManager : MonoBehaviour
         return allItems.Find(item => item.itemName == name);
     }
 
+    public int GetIndexByName(string name)
+    {
+        Item_ScriptableObject item = GetItemByName(name);
+        return item.itemId;
+    }
+
+
     public List<Item_ScriptableObject> GetAllItems()
     {
         return new List<Item_ScriptableObject>(allItems);
