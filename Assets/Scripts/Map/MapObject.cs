@@ -10,7 +10,7 @@ public class MapObject : MonoBehaviour
 
     // Time between sprite changes
     [SerializeField]
-    private float switchInterval = 1f;
+    private float switchInterval = 0.5f;
 
     // Bool to control if the object rotates to face the player
     [SerializeField]
