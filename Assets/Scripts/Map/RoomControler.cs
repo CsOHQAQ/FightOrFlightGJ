@@ -150,6 +150,8 @@ public class RoomControler : MonoBehaviour
             GameControl.Game.Player.GetComponent<PlayerMovement>().CanMove= false;
             GameControl.Game.blackOutUI.StartCoroutine(GameControl.Game.blackOutUI.TurnBlack(1,2f));
 
+            GameSceneManager.Instance.OnDeath();
+
             foreach(var mo in monsters)
             {
                 mo.Awareness = 0;

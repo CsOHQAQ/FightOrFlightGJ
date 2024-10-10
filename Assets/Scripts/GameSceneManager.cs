@@ -69,4 +69,11 @@ public class GameSceneManager : MonoBehaviour
 
         canTransition = true;
     }
+
+    public void OnDeath()
+    {
+        InventoryManager.Instance.OnDeath();
+
+        TransitionToScene("DeathScene");
+    }
 }
