@@ -110,11 +110,12 @@ public class UI_InventoryManager : MonoBehaviour
 
     }
 
-    public void ToggleCanvas()
+    public bool ToggleCanvas()
     {
         if (!isActive) { ShowInventoryCanvas(); }
         else { HideCanvas(); }
         isActive = !isActive;
+        return isActive;
     }
 
     public void ShowInventoryCanvas()

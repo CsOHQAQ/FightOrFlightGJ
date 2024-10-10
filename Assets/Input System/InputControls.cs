@@ -44,6 +44,15 @@ public partial class @InputControls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ItemMenu"",
+                    ""type"": ""Button"",
+                    ""id"": ""2c434063-1b51-4c03-867c-1722b8a0ac5f"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -222,6 +231,17 @@ public partial class @InputControls: IInputActionCollection2, IDisposable
                     ""action"": ""Interact"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8237c22c-6ec8-4853-9599-9ca54bb8d057"",
+                    ""path"": ""<Mouse>/middleButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ItemMenu"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -232,6 +252,7 @@ public partial class @InputControls: IInputActionCollection2, IDisposable
         m_Player = asset.FindActionMap("Player", throwIfNotFound: true);
         m_Player_Movement = m_Player.FindAction("Movement", throwIfNotFound: true);
         m_Player_Interact = m_Player.FindAction("Interact", throwIfNotFound: true);
+        m_Player_ItemMenu = m_Player.FindAction("ItemMenu", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -295,12 +316,14 @@ public partial class @InputControls: IInputActionCollection2, IDisposable
     private List<IPlayerActions> m_PlayerActionsCallbackInterfaces = new List<IPlayerActions>();
     private readonly InputAction m_Player_Movement;
     private readonly InputAction m_Player_Interact;
+    private readonly InputAction m_Player_ItemMenu;
     public struct PlayerActions
     {
         private @InputControls m_Wrapper;
         public PlayerActions(@InputControls wrapper) { m_Wrapper = wrapper; }
         public InputAction @Movement => m_Wrapper.m_Player_Movement;
         public InputAction @Interact => m_Wrapper.m_Player_Interact;
+        public InputAction @ItemMenu => m_Wrapper.m_Player_ItemMenu;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -316,6 +339,9 @@ public partial class @InputControls: IInputActionCollection2, IDisposable
             @Interact.started += instance.OnInteract;
             @Interact.performed += instance.OnInteract;
             @Interact.canceled += instance.OnInteract;
+            @ItemMenu.started += instance.OnItemMenu;
+            @ItemMenu.performed += instance.OnItemMenu;
+            @ItemMenu.canceled += instance.OnItemMenu;
         }
 
         private void UnregisterCallbacks(IPlayerActions instance)
@@ -326,6 +352,9 @@ public partial class @InputControls: IInputActionCollection2, IDisposable
             @Interact.started -= instance.OnInteract;
             @Interact.performed -= instance.OnInteract;
             @Interact.canceled -= instance.OnInteract;
+            @ItemMenu.started -= instance.OnItemMenu;
+            @ItemMenu.performed -= instance.OnItemMenu;
+            @ItemMenu.canceled -= instance.OnItemMenu;
         }
 
         public void RemoveCallbacks(IPlayerActions instance)
@@ -347,5 +376,6 @@ public partial class @InputControls: IInputActionCollection2, IDisposable
     {
         void OnMovement(InputAction.CallbackContext context);
         void OnInteract(InputAction.CallbackContext context);
+        void OnItemMenu(InputAction.CallbackContext context);
     }
 }
