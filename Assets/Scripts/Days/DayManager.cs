@@ -81,6 +81,7 @@ public class DayManager : MonoBehaviour
         }
         else
         {
+            GameSceneManager.Instance.TransitionToScene("TileMapScene");
             CreateDayCanvas();
         }
     }
