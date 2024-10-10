@@ -417,6 +417,7 @@ GameObject:
   - component: {fileID: 490135088038180266}
   - component: {fileID: 891813060960052592}
   - component: {fileID: 3795296870189668508}
+  - component: {fileID: 6624101793042715483}
   m_Layer: 5
   m_Name: EndDay
   m_TagString: Untagged
@@ -527,9 +528,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: UI_InventoryManager, Assembly-CSharp
-        m_MethodName: InteractButtonClicked
+      - m_Target: {fileID: 6624101793042715483}
+        m_TargetAssemblyTypeName: UI_EndDayButton, Assembly-CSharp
+        m_MethodName: EndDayButtonOnClick
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -539,6 +540,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &6624101793042715483
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2773510288787219215}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 271c46b718b9ad6439995dbb2d759282, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3796167652280139457
 GameObject:
   m_ObjectHideFlags: 0
