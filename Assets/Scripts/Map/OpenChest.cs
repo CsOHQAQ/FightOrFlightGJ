@@ -52,7 +52,7 @@ public class OpenChest : InteractableObject
     private void PopulateChest()
     {
         chestItems = new List<Item_ScriptableObject>();
-
+        int bombId = ItemManager.Instance.GetIndexByName("bomb");
         if (maxCount > 1)
         {
             for (int currentItem = 0; currentItem < maxCount; currentItem++)
@@ -65,7 +65,12 @@ public class OpenChest : InteractableObject
                 }
                 else
                 {
-                    int randomIndex = Random.Range(0, ItemManager.Instance.GetAllItems().Count - 1);
+                    int randomIndex = 0;
+                    do
+                    {
+                        randomIndex = Random.Range(0, ItemManager.Instance.GetAllItems().Count);
+                    } while (randomIndex== bombId);
+                    
                     Item_ScriptableObject randomItem = ItemManager.Instance.GetItemByID(randomIndex);
 
                     chestItems.Add(randomItem);
