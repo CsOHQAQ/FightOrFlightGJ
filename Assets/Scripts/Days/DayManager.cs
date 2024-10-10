@@ -56,17 +56,28 @@ public class DayManager : MonoBehaviour
 
         if (autoStart)
         {
-            CreateDayCanvas();
+            //CreateDayCanvas();
+            EndOfDay();
         }
+    }
+
+    public void EndOfDay()
+    {
+        UI_InventoryManager.Instance.ShowInventoryCanvas();
+        UI_InventoryManager.Instance.EnterStore();
     }
 
     public void GoToNextDay()
     {
         currentDay++;
 
-        if(currentDay >endingDay)
+        Debug.Log("Day: " + currentDay);
+
+        UI_InventoryManager.Instance.ExitStore();
+
+        if(currentDay > endingDay)
         {
-            //DO the end game stuff
+            GameSceneManager.Instance.TransitionToScene("EndOfGameScene");
         }
         else
         {
@@ -102,5 +113,17 @@ public class DayManager : MonoBehaviour
     public void ClearCanvas()
     {
         canvasManager = null;
+    }
+
+    public bool GetSuccess()
+    {
+        if(currentDay >= endingDay && earnedMoney >= moneyQuota)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 }

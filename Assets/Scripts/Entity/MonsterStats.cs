@@ -1,6 +1,7 @@
 using JetBrains.Annotations;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Rendering;
 using UnityEngine;
 
 public class MonsterStats : MonoBehaviour
@@ -12,12 +13,13 @@ public class MonsterStats : MonoBehaviour
     public int Defense;
     public int Awareness;
     public float CurAwareness;
-    public AwareLevel awareLevel;
+    public AwareLevel CurAwareLevel;
+    public List<Trait_Type> traits;
 
     // Start is called before the first frame update
     void Start()
     {
-        awareLevel = AwareLevel.NotAwared;
+        CurAwareness = 0f;
     }
 
 
@@ -26,19 +28,18 @@ public class MonsterStats : MonoBehaviour
     {
         if (CurAwareness < 1f)
         {
-            awareLevel = AwareLevel.NotAwared;
-            GetComponent<FacingPlayer>().CanFacing=false;
+            CurAwareLevel = AwareLevel.NotAwared;
+            //GetComponent<FacingPlayer>().CanFacing = false;
         }
-        else if (CurAwareness > 1f&&CurAwareness<2f)
+        else if (CurAwareness > 1f && CurAwareness < 2f)
         {
-            awareLevel = AwareLevel.Searching;
-            GetComponent<FacingPlayer>().CanFacing = true;
+            CurAwareLevel = AwareLevel.Searching;
+            //GetComponent<FacingPlayer>().CanFacing = true;
         }
-        else
+        else 
         {
-            awareLevel=AwareLevel.Awared;
+            CurAwareLevel = AwareLevel.Awared;
         }
-        
 
     }
 
@@ -65,6 +66,6 @@ public class MonsterStats : MonoBehaviour
     public void TakeDamage(int damage)
     {
         CurHealth -= damage;
-        CurHealth = Mathf.Max(CurHealth, 0);
+        CurHealth = Mathf.Clamp(CurHealth, 0,MaxHealth);
     }
 }

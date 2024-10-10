@@ -24,6 +24,9 @@ public class UI_InventoryManager : MonoBehaviour
     [SerializeField]
     private GameObject itemSpritePrefab;
 
+    [SerializeField]
+    private Button endDayButton;
+
     [Header("Active Item Attributes")]
 
     [SerializeField]
@@ -94,7 +97,9 @@ public class UI_InventoryManager : MonoBehaviour
 
         //atStore = false;
 
-        if (autoStart)
+        endDayButton.gameObject.SetActive(false);
+
+        if (autoStart) 
         {
             ToggleCanvas();
         }
@@ -105,11 +110,12 @@ public class UI_InventoryManager : MonoBehaviour
 
     }
 
-    public void ToggleCanvas()
+    public bool ToggleCanvas()
     {
         if (!isActive) { ShowInventoryCanvas(); }
         else { HideCanvas(); }
         isActive = !isActive;
+        return isActive;
     }
 
     public void ShowInventoryCanvas()
@@ -326,6 +332,14 @@ public class UI_InventoryManager : MonoBehaviour
         itemValueText.text = ("$" + item.itemValue);
     }
 
-    public void EnterStore() { atStore = true; }
-    public void ExitStore() { atStore = false; }
+    public void EnterStore()
+    {
+        atStore = true;
+        endDayButton.gameObject.SetActive(true);
+    }
+    public void ExitStore()
+    {
+        atStore = false;
+        endDayButton.gameObject.SetActive(false);
+    }
 }

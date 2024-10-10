@@ -18,6 +18,13 @@ public class InventoryManager : MonoBehaviour
     [SerializeField]
     private List<Item_ScriptableObject> bagItems;
 
+    [SerializeField]
+    private UI_ItemPickup pickupUI;
+
+    [Header("DEBUG")]
+    [SerializeField]
+    private Item_ScriptableObject[] testItems;
+
     private void Awake()
     {
         if (Instance == null)
@@ -28,6 +35,15 @@ public class InventoryManager : MonoBehaviour
         else
         {
             Destroy(gameObject); // Destroy any duplicate instances
+        }
+    }
+
+    public void Start()
+    {
+        foreach (Item_ScriptableObject item in testItems)
+        {
+           
+            AddItemToBag(item);
         }
     }
 
@@ -88,7 +104,11 @@ public class InventoryManager : MonoBehaviour
     {
         if(item)
         {
+            Debug.Log("bagItems.Add");
             bagItems.Add(item);
+
+            Debug.Log("AddItemToStack");
+            pickupUI.AddItemToStack(item);
 
             return true;
         }
@@ -170,6 +190,7 @@ public class InventoryManager : MonoBehaviour
 
         foreach (Equipment_ScriptableObject equippedItem in equippedItems)
         {
+            if (equippedItem ==null) continue;
             attack += equippedItem.attackValue;
             defense += equippedItem.defenceValue;
         }
@@ -180,6 +201,11 @@ public class InventoryManager : MonoBehaviour
         return stats;
     }
 
+    /// <summary>
+    /// Function to be called when the player wants to sell an item. Communicates with the DayManager that gives them the value of the item they're selling
+    /// </summary>
+    /// <param name="item">Item to be sold and removed from the inventory</param>
+    /// <returns>True if the process was succesful</returns>
     public bool SellItem(Item_ScriptableObject item)
     {
 
@@ -190,6 +216,24 @@ public class InventoryManager : MonoBehaviour
         bagItems.Remove(item);
 
         return true;
+
+    }
+
+    /// <summary>
+    /// Function to be called when the player dies, removes all of the items in their inventory and gives them nothing in return. Equipment stays.
+    /// </summary>
+    /// <returns>True if all the removals were successful</returns>
+    public bool OnDeath()
+    {
+
+        bool result = true;
+
+        foreach(Item_ScriptableObject item in bagItems)
+        {
+            result = bagItems.Remove(item);
+        }
+
+        return result;
     }
 
 }

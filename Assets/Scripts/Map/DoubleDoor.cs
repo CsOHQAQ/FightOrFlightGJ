@@ -74,6 +74,8 @@ public class DoubleDoor : InteractableObject
             return;
         }
 
+        maxDoorAngle = Mathf.Abs(maxDoorAngle) * (PlayerSide() ? 1 : -1);
+
         // Calculate the target angles based on door openness
         float targetRightAngle = Mathf.Lerp(0, maxDoorAngle, doorOpeness);  // Target angle for the right door
         float targetLeftAngle = Mathf.Lerp(0, -maxDoorAngle, doorOpeness);  // Target angle for the left door
@@ -98,7 +100,7 @@ public class DoubleDoor : InteractableObject
         {
             OnDoorFullyOpened?.Invoke(gameObject.name); // Announce which door has fully opened
             boxCollider.enabled = false; // Disable the collider to prevent closing once fully opened
-            Debug.Log($"{gameObject.name} is fully opened.");
+          //  Debug.Log($"{gameObject.name} is fully opened.");
         }
 
         // Check if the door is starting to open from a closed state
@@ -128,4 +130,14 @@ public class DoubleDoor : InteractableObject
         Debug.Log("Enter Battle");
         CanOpen = false;
     }
+
+    bool PlayerSide()
+    {
+        Vector2 doorDirect = new Vector2(transform.Find("OpenPosition").localPosition.x, transform.Find("OpenPosition").localPosition.z);
+        Vector2 playerDirect = new Vector2(transform.position.x- GameControl.Game.Player.transform.position.x,  transform.position.z- GameControl.Game.Player.transform.position.z);
+       // Debug.Log($"player's angle to door {Vector2.Angle(doorDirect, playerDirect)}");
+        return Vector2.Angle(doorDirect, playerDirect) < 90;
+        
+    }
+
 }

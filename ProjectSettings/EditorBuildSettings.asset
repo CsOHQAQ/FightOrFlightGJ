@@ -14,4 +14,13 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
+  - enabled: 1
+    path: Assets/Scenes/EndOfGameScene.unity
+    guid: 306c850677ea03a4cb23ec41a22a964d
+  - enabled: 1
+    path: Assets/Scenes/DeathScene.unity
+    guid: d39a58fe4af07644883a0eb39a02b336
+  - enabled: 1
+    path: Assets/Scenes/TileMapScene.unity
+    guid: 6b70909f464ee014e8e02417e8640651
   m_configObjects: {}

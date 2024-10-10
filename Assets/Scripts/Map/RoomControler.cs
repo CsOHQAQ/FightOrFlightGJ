@@ -1,6 +1,8 @@
 using JetBrains.Annotations;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEditor.Rendering;
 using UnityEditor.Rendering.Universal;
 using UnityEngine;
@@ -15,7 +17,7 @@ public class RoomControler : MonoBehaviour
     public List<DoubleDoor> doors;
 
     private CombatManager combatManager;
-
+    private bool inCombat = false;
 
     private void Start()
     {
@@ -61,12 +63,12 @@ public class RoomControler : MonoBehaviour
             }
 
 
-            if (!combatManager.inCombat)
+            if (!inCombat)
             {
                 foreach (MonsterStats monster in monsters)
                 {
                     monster.RefreshAwareness(isViewedByPlayer);
-                    if (monster.awareLevel == MonsterStats.AwareLevel.Awared)
+                    if (monster.CurAwareLevel == MonsterStats.AwareLevel.Awared)
                     {
                         EngageCombat();
                         return;
@@ -90,15 +92,28 @@ public class RoomControler : MonoBehaviour
         foreach (var door in GetComponentsInChildren<DoubleDoor>())
         {
             door.Init(this);
+            door.OnDoorFullyOpened += OnDoorFullyOpen;
             doors.Add(door.GetComponent<DoubleDoor>());            
         }
     }
-
+    void OnDoorFullyOpen(string str)
+    {
+        if (!isClear)
+        {
+            Debug.Log($"{str} triggered the combat");
+            EngageCombat();
+        }
+        
+    }
     void EngageCombat()
     {
         Debug.LogWarning("EnterBattle!");
-        combatManager.StartBattle(GameControl.Game.Player.GetComponent<PlayerStats>(),monsters);
-        
+
+        inCombat = true;
+        combatManager.StartBattle(GameControl.Game.Player.GetComponent<PlayerStats>(),monsters,LeaveCombat);
+
+        StartCoroutine(GameControl.Game.blackOutUI.TurnBlack(0.5f, 0.5f));
+
         float playerDistance = 999f;
         Transform cloestDoor = doors[0].transform;
         foreach (var door in doors)
@@ -110,11 +125,48 @@ public class RoomControler : MonoBehaviour
             }
             door.Close();
         }
+        GameControl.Game.Player.GetComponent<PlayerMovement>().CanMove = false;
         //Vector3 XZPlane=cloestDoor.Find("OpenPosition").transform.position;
         //Vector3 playerPos= cloestDoor.position -XZPlane.normalized*0.5f;
         GameControl.Game.Player.GetComponent<PlayerMovement>().Teleport(cloestDoor.Find("OpenPosition").transform.position);
 
     }
+
+    void LeaveCombat(bool result)
+    {
+        inCombat = false;
+        GameControl.Game.Player.GetComponent<PlayerMovement>().CanMove = true;
+        if (result)//Player Wins
+        {
+            StartCoroutine(GameControl.Game.blackOutUI.TurnBlack(0f,0.5f));
+            foreach (var mo in monsters)
+            {
+                mo.CurHealth = 0;
+            }
+            isClear= true;
+        }
+        else
+        {
+            //Player Loses, Please call the new day
+            GameControl.Game.Player.GetComponent<PlayerMovement>().CanMove= false;
+
+            StartCoroutine(Wait(2f,GameSceneManager.Instance.OnDeath));
+            GameSceneManager.Instance.OnDeath();
+
+            foreach (var mo in monsters)
+            {
+                mo.Awareness = 0;
+                mo.CurAwareLevel = MonsterStats.AwareLevel.NotAwared;
+            }
+        }
+    }
+
+    IEnumerator Wait(float waitSec,Action call)
+    {
+        yield return new WaitForSeconds(waitSec);
+        call();
+    }
+
     bool CheckRoomClear()
     {
         bool flag = true;

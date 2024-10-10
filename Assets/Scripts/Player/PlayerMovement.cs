@@ -25,8 +25,12 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 originalPosition, targetPosition;
     [SerializeField] private float timeToMove = 0.2f;
 
+    [HideInInspector] public bool CanMove = true;
     private bool isMoving;
+    private bool isRotating;
+
     [SerializeField] private LayerMask obstacleLayer;
+    [SerializeField] private LayerMask interactableLayer;
     [SerializeField] private float detectionDistance = 1.1f;
 
     InteractDetect interactDetect;
@@ -49,6 +53,7 @@ public class PlayerMovement : MonoBehaviour
         targetPosition = Vector3.zero;
 
         isMoving = false;
+        isRotating = false;
         interactDetect = GetComponent<InteractDetect>();
         hand = GetComponentInChildren<PlayerHandsComponent>();
     }
@@ -59,6 +64,7 @@ public class PlayerMovement : MonoBehaviour
 
         controls.Player.Movement.performed += OnMove;
         controls.Player.Movement.canceled += OnMove;
+        controls.Player.ItemMenu.performed += OnOpenItemMenu;
         
     }
 
@@ -66,7 +72,7 @@ public class PlayerMovement : MonoBehaviour
     {
         controls.Player.Movement.performed -= OnMove;
         controls.Player.Movement.canceled -= OnMove;
-        
+        controls.Player.ItemMenu.performed -= OnOpenItemMenu;
         controls.Disable();
     }
 
@@ -95,25 +101,19 @@ public class PlayerMovement : MonoBehaviour
                         Debug.Log(door.DoorOpeness);
                         hand.StartCoroutine(hand.EaseToState(HandState.Pushed, door.DoorOpeness));
                     }
-
                 }
-                if (interactDetect.ScrollValue<=0f)
+
+                if(interactDetect.ScrollValue<=0f)
                 {
-                    
                     movementInput = tempInput;
                     return;
                 }
-                
-
-                
             }
         }
         else
         {
             movementInput = tempInput;
         }
-
-        
     }
 
     private void MovingOnGrid()
@@ -121,46 +121,46 @@ public class PlayerMovement : MonoBehaviour
         Vector3 move = new Vector3(movementInput.x, 0, movementInput.y).normalized;
 
 
-        if (move == moveForward && !isMoving)
+        if (!isMoving && !isRotating)
         {
-            if (IsObstacleInDirection(transform.forward))
+            if (move == moveForward)
             {
-                StartCoroutine(CollisionEffect(transform.forward));
+                if (IsObstacleInDirection(transform.forward))
+                {
+                    StartCoroutine(CollisionEffect(transform.forward));
+                }
+                else
+                {
+                    StartCoroutine(MovePlayer(gridMovement));
+                }
             }
-            else
+            else if (move == moveBackward)
             {
-                StartCoroutine(MovePlayer(gridMovement));
-            }
-        }
+                if (IsObstacleInDirection(-transform.forward))
+                {
+                    StartCoroutine(CollisionEffect(-transform.forward));
+                }
+                else
+                {
+                    StartCoroutine(MovePlayer(-gridMovement));
+                }
 
-        if (move == moveBackward && !isMoving)
-        {
-            if (IsObstacleInDirection(-transform.forward))
-            {
-                StartCoroutine(CollisionEffect(-transform.forward));
             }
-            else
+            else if (move == moveLeft)
             {
-                StartCoroutine(MovePlayer(-gridMovement));
+                StartCoroutine(RotatePlayer(moveRotationLeft));
             }
-            
-        }
-
-        if (move == moveLeft && !isMoving)
-        {
-            StartCoroutine(RotatePlayer(moveRotationLeft));
-        }
-
-        if (move == moveRight && !isMoving)
-        {
-            StartCoroutine(RotatePlayer(moveRotationRight));
-        }
+            else if (move == moveRight)
+            {
+                StartCoroutine(RotatePlayer(moveRotationRight));
+            }
+        }    
 
     }
 
     private IEnumerator RotatePlayer(float rotation)
     {
-        isMoving = true;
+        isRotating = true;
 
         float elapsedTime = 0;
         originalRotation = transform.rotation;
@@ -173,19 +173,9 @@ public class PlayerMovement : MonoBehaviour
             yield return null;
         }
 
-        while (isMoving)
-        {
-            Vector3 move = new Vector3(movementInput.x, 0, movementInput.y);
-
-            if (move == Vector3.zero)
-            {
-                isMoving = false;
-            }
-
-            yield return null;
-        }
-
         transform.rotation = targetRotation;
+
+        isRotating = false;
 
     }
 
@@ -206,14 +196,25 @@ public class PlayerMovement : MonoBehaviour
         }
 
         transform.position = targetPosition;
-        // SnapToGrid();
         isMoving = false;
     }
 
     private bool IsObstacleInDirection(Vector3 direction)
     {
         Vector3 rayOrigin = transform.position + Vector3.up * 0.5f;
-        return Physics.Raycast(rayOrigin, direction, out RaycastHit hit, detectionDistance, obstacleLayer);
+
+        if (Physics.Raycast(rayOrigin, direction, out RaycastHit hit, detectionDistance, obstacleLayer))
+        {
+
+            if (hit.transform.TryGetComponent<OpenChest>(out OpenChest openChest))
+            {
+                openChest.Interact();
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     private IEnumerator CollisionEffect(Vector3 direction)
@@ -257,7 +258,10 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        MovingOnGrid();
+        if (CanMove)
+        {
+            MovingOnGrid();
+        }
     }
 
     public void Teleport(Vector3 position)
@@ -265,7 +269,13 @@ public class PlayerMovement : MonoBehaviour
         StopCoroutine("MovePlayer");
         isMoving = false;
         float y = transform.position.y;//A ugly fix to keep the player on the ground
-        transform.position=position;
+        transform.position = position;
         transform.position = new Vector3(transform.position.x, y, transform.position.z);
+    }
+    
+    public void OnOpenItemMenu(InputAction.CallbackContext context)
+    {
+       CanMove = !UI_InventoryManager.Instance.ToggleCanvas();
+        
     }
 }

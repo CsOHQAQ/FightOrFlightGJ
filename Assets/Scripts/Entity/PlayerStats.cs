@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEditor.Rendering.Universal;
 using UnityEngine;
 
@@ -16,6 +17,9 @@ public class PlayerStats : MonoBehaviour
     private int _attack;
     [SerializeField]
     private int _defense;
+    [SerializeField]
+    private List<TRAIT_TARGET> traits;
+
 
 
     public string Name;
@@ -38,17 +42,7 @@ public class PlayerStats : MonoBehaviour
     {
         get
         {
-            int equipValue=0;
-            foreach (var equip in inventory.GetEquipment()) 
-            {
-                if(equip!=null)
-                if (equip.itemDurability > 0)
-                {
-                    equipValue += equip.attackValue;
-                }
-            }
-
-            return _attack+equipValue;
+            return _attack+inventory.GetEquippedItemStats()[0];
         }
     }
     //This has count the value of equipments
@@ -56,17 +50,7 @@ public class PlayerStats : MonoBehaviour
     {
         get
         {
-            int equipValue = 0;
-            foreach (var equip in inventory.GetEquipment())
-            {
-                if (equip != null)
-                    if (equip.itemDurability > 0)
-                {
-                    equipValue += equip.defenceValue;
-                }
-            }
-
-            return _defense + equipValue;
+            return _defense + +inventory.GetEquippedItemStats()[1];
         }
     }
 
@@ -79,7 +63,7 @@ public class PlayerStats : MonoBehaviour
     public void TakeDamage(int damage)
     {
         _curHealth -= damage;
-        _curHealth = Mathf.Max(_curHealth, 0);
+        _curHealth = Mathf.Clamp(_curHealth, 0, MaxHealth);
     }
 
 }
