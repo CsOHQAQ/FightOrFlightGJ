@@ -102,12 +102,12 @@ PrefabInstance:
     - target: {fileID: 7904698128978134616, guid: 9a87b4f68c2415242b4b9c7a4b4fbe79,
         type: 3}
       propertyPath: m_InstanceId
-      value: -409514
+      value: -1158898
       objectReference: {fileID: 0}
     - target: {fileID: 9214098392063829967, guid: 9a87b4f68c2415242b4b9c7a4b4fbe79,
         type: 3}
       propertyPath: m_InstanceId
-      value: -409504
+      value: -1158888
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -294,7 +294,7 @@ PrefabInstance:
     - target: {fileID: 5747076482094674548, guid: befa357327da0d6458aba29db72445ba,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: -0.7071068
+      value: 0.7071068
       objectReference: {fileID: 0}
     - target: {fileID: 5747076482094674548, guid: befa357327da0d6458aba29db72445ba,
         type: 3}
@@ -309,7 +309,7 @@ PrefabInstance:
     - target: {fileID: 5747076482094674548, guid: befa357327da0d6458aba29db72445ba,
         type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5747076482094674548, guid: befa357327da0d6458aba29db72445ba,
         type: 3}
@@ -319,12 +319,17 @@ PrefabInstance:
     - target: {fileID: 5747076482094674548, guid: befa357327da0d6458aba29db72445ba,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 270
+      value: 90
       objectReference: {fileID: 0}
     - target: {fileID: 5747076482094674548, guid: befa357327da0d6458aba29db72445ba,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5883906277802356884, guid: befa357327da0d6458aba29db72445ba,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6110159930584408917, guid: befa357327da0d6458aba29db72445ba,
         type: 3}
@@ -353,7 +358,7 @@ PrefabInstance:
     - target: {fileID: 90014260158153186, guid: a78893e89f3a82e4a9eb9306fe09dcfe,
         type: 3}
       propertyPath: m_InstanceId
-      value: -409488
+      value: -1158804
       objectReference: {fileID: 0}
     - target: {fileID: 2020823706268748826, guid: a78893e89f3a82e4a9eb9306fe09dcfe,
         type: 3}
@@ -409,6 +414,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: HollowWall
+      objectReference: {fileID: 0}
+    - target: {fileID: 5208101543230875871, guid: a78893e89f3a82e4a9eb9306fe09dcfe,
+        type: 3}
+      propertyPath: m_InstanceId
+      value: -1158814
       objectReference: {fileID: 0}
     - target: {fileID: 6511251845482143268, guid: a78893e89f3a82e4a9eb9306fe09dcfe,
         type: 3}
