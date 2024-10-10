@@ -32,8 +32,6 @@ public class BlackOutUI : MonoBehaviour
             img.color = new Color(0, 0, 0, Mathf.MoveTowards(img.color.a,na,speed));
             yield return null;
         }
-        if(img.color.a>=1)
-            DayManager.Instance.EndOfDay();
     }
 
 }

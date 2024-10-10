@@ -1,4 +1,5 @@
 using JetBrains.Annotations;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
@@ -148,14 +149,22 @@ public class RoomControler : MonoBehaviour
         {
             //Player Loses, Please call the new day
             GameControl.Game.Player.GetComponent<PlayerMovement>().CanMove= false;
-            GameControl.Game.blackOutUI.StartCoroutine(GameControl.Game.blackOutUI.TurnBlack(1,2f));
 
-            foreach(var mo in monsters)
+            StartCoroutine(Wait(2f,GameSceneManager.Instance.OnDeath));
+            GameSceneManager.Instance.OnDeath();
+
+            foreach (var mo in monsters)
             {
                 mo.Awareness = 0;
                 mo.CurAwareLevel = MonsterStats.AwareLevel.NotAwared;
             }
         }
+    }
+
+    IEnumerator Wait(float waitSec,Action call)
+    {
+        yield return new WaitForSeconds(waitSec);
+        call();
     }
 
     bool CheckRoomClear()
