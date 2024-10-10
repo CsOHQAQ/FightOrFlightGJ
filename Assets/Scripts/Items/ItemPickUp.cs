@@ -6,10 +6,7 @@ public class ItemPickUp : MonoBehaviour
 {
     [SerializeField] public Item_ScriptableObject item;
 
-    private void Start()
-    {
-        GetComponent<SpriteRenderer>().sprite = item.itemSprite;
-    }
+
 
     private void OnTriggerEnter(Collider other)
     {

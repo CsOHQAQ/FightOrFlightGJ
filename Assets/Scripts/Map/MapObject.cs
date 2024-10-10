@@ -23,6 +23,7 @@ public class MapObject : MonoBehaviour
 
     void Start()
     {
+        
         // Get the SpriteRenderer component attached to this GameObject
         spriteRenderer = GetComponent<SpriteRenderer>();
 
@@ -31,6 +32,14 @@ public class MapObject : MonoBehaviour
         {
             // Assign the first sprite in the list to the SpriteRenderer
             spriteRenderer.sprite = spriteList[0];
+        }
+        else
+        {
+            ItemPickUp pickUp = GetComponent<ItemPickUp>();
+            if (pickUp != null)
+            {
+                spriteRenderer.sprite = pickUp.item.itemSprite;
+            }
         }
 
         // Try to get the main camera
