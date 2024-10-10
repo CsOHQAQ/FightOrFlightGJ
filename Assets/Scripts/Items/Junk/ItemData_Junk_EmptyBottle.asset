@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd38a7bd9735ea54796235080975e24a, type: 3}
+  m_Name: ItemData_Junk_EmptyBottle
+  m_EditorClassIdentifier: 
+  itemName: Empty Bottle
+  itemId: 9
+  itemSprite: {fileID: 21300000, guid: 37caad60129880d4cac459db490a18b8, type: 3}
+  itemDescription: 'Hey could''d be worse. At least it''s not borken. '
+  itemValue: 3
+  itemType: 3

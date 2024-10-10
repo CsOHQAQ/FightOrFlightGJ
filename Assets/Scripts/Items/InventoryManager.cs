@@ -211,7 +211,15 @@ public class InventoryManager : MonoBehaviour
 
         if (item == null) {  return false; }
 
-        DayManager.Instance.AddMoney(item.itemValue);
+        if (item.itemType == ITEM_TYPE.EQUIPMENT)
+        {
+            Equipment_ScriptableObject eItem = (Equipment_ScriptableObject)item;
+            DayManager.Instance.AddMoney((eItem.itemCurrentDurability / eItem.itemMaxDurability) * eItem.itemValue);
+        }
+        else
+        {
+            DayManager.Instance.AddMoney(item.itemValue);
+        }
 
         bagItems.Remove(item);
 
