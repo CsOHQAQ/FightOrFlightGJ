@@ -14,10 +14,15 @@ public class InventoryController : MonoBehaviour
     //[SerializeField]
     private UI_InventoryManager inventoryManagerUI;
 
-    private void Start()
+    private void Awake()
     {
         inventoryManager = InventoryManager.Instance;
         inventoryManagerUI = UI_InventoryManager.Instance;
+    }
+
+    private void Start()
+    {
+
         if (inventoryManagerUI != null && inventoryManager != null)
         {
             Debug.Log("Managers found.");
