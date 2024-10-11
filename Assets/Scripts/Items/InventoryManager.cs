@@ -236,13 +236,15 @@ public class InventoryManager : MonoBehaviour
 
         bool result = true;
 
-        foreach(Item_ScriptableObject item in bagItems)
-        {
-            if (item)
-            {
-                result = bagItems.Remove(item);
-            }
-        }
+        //foreach(Item_ScriptableObject item in bagItems)
+        //{
+        //    if (item)
+        //    {
+        //        result = bagItems.Remove(item);
+        //    }
+        //}
+
+        bagItems.Clear();
 
         return result;
     }

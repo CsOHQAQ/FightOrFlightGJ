@@ -18,6 +18,10 @@ public class InventoryController : MonoBehaviour
     {
         inventoryManager = InventoryManager.Instance;
         inventoryManagerUI = UI_InventoryManager.Instance;
+        if (inventoryManagerUI != null && inventoryManager != null)
+        {
+            Debug.Log("Managers found.");
+        }
     }
 
     private void Update()
