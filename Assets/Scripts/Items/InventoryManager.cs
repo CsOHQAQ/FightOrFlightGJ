@@ -14,6 +14,9 @@ public class InventoryManager : MonoBehaviour
     [SerializeField]
     private Equipment_ScriptableObject[] equippedItems;
 
+    //Hidden array that just matches whatever we start the player with and should reset to this when they play again.
+    private Equipment_ScriptableObject[] startingItems;
+
     //List of Item SOs that the player currently has but are not equipped
     [SerializeField]
     private List<Item_ScriptableObject> bagItems;
@@ -40,6 +43,9 @@ public class InventoryManager : MonoBehaviour
 
     public void Start()
     {
+
+        startingItems = equippedItems;
+
         foreach (Item_ScriptableObject item in testItems)
         {
            
@@ -90,7 +96,11 @@ public class InventoryManager : MonoBehaviour
     /// <param name="slot">The slot that the item is being put into. 0-Head, 1-Chest, 2-Weapon</param>
     private void EquipItem(Equipment_ScriptableObject itemToEquip, int slot)
     {
-        bagItems.Add(equippedItems[slot]);
+        //Make sure that the slot they are replacing actually contains an item
+        if (equippedItems[slot] != null)
+        {
+            bagItems.Add(equippedItems[slot]);
+        }
         bagItems.Remove(itemToEquip);
         equippedItems[slot] = itemToEquip;
     }
@@ -240,6 +250,21 @@ public class InventoryManager : MonoBehaviour
         {
             result = bagItems.Remove(item);
         }
+
+        return result;
+    }
+
+    /// <summary>
+    /// Function to be called when the player presses the main menu button in the results scene. Should clear out their bags and reset their equipment back to their starting values
+    /// </summary>
+    /// <returns>True if successful</returns>
+    public bool RestartInventory()
+    {
+        bool result = false;
+        
+        result = OnDeath();
+
+        equippedItems = startingItems;
 
         return result;
     }

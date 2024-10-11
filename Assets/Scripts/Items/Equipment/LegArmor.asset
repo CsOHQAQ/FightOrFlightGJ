@@ -17,7 +17,7 @@ MonoBehaviour:
   itemSprite: {fileID: 21300000, guid: 344660e0e1586c840b07b71f1d502fdd, type: 3}
   itemDescription: It's leg armor
   itemValue: 1
-  itemType: 0
+  itemType: 3
   itemSlot: 3
   itemMaxDurability: 0
   itemCurrentDurability: 0
