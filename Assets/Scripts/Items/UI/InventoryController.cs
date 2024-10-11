@@ -8,15 +8,25 @@ public class InventoryController : MonoBehaviour
     [HideInInspector]
     public InventoryGrid selectedInventoryGrid;
 
-    [SerializeField]
     private InventoryManager inventoryManager;
 
-    [SerializeField]
     private UI_InventoryManager inventoryManagerUI;
+
+    private void Start()
+    {
+        if (inventoryManager == null && inventoryManagerUI == null)
+        {
+            inventoryManager = InventoryManager.Instance;
+            inventoryManagerUI = UI_InventoryManager.Instance;
+        }
+    }
 
     private void Update()
     {
-        if(selectedInventoryGrid == null) { return; }
+        if(selectedInventoryGrid == null) 
+        {
+            return; 
+        }
 
         if (Input.GetMouseButton(0))
         {

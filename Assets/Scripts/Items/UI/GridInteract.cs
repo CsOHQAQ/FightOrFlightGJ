@@ -21,7 +21,7 @@ public class GridInteract : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         inventoryController.selectedInventoryGrid = null;
     }
 
-    private void Awake()
+    private void OnEnable()
     {
         inventoryController = FindObjectOfType(typeof(InventoryController)) as InventoryController;
         inventoryGrid = GetComponent<InventoryGrid>();
