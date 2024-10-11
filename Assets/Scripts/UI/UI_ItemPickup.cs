@@ -119,7 +119,7 @@ public class UI_ItemPickup : MonoBehaviour
 
         while (elapsedTime < fadeTime)
         {
-            //Debug.Log($"this is my elapsedTime: {elapsedTime} Fadetime: {fadeTime}");
+            Debug.Log($"this is my elapsedTime: {elapsedTime} Fadetime: {fadeTime}");
 
             elapsedTime += Time.deltaTime;
 
