@@ -238,10 +238,7 @@ public class InventoryManager : MonoBehaviour
 
         foreach(Item_ScriptableObject item in bagItems)
         {
-            if (item)
-            {
-                result = bagItems.Remove(item);
-            }
+            result = bagItems.Remove(item);
         }
 
         return result;
