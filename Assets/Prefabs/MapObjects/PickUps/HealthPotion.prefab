@@ -17,7 +17,17 @@ PrefabInstance:
     - target: {fileID: 153675798163247035, guid: 4dd751d0a137e5c4b9254d205003115f,
         type: 3}
       propertyPath: m_Name
-      value: HealthPotion 1
+      value: HealthPotion
+      objectReference: {fileID: 0}
+    - target: {fileID: 4210263775102349326, guid: 4dd751d0a137e5c4b9254d205003115f,
+        type: 3}
+      propertyPath: m_Size.x
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 4210263775102349326, guid: 4dd751d0a137e5c4b9254d205003115f,
+        type: 3}
+      propertyPath: m_Size.z
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 4210263775102349326, guid: 4dd751d0a137e5c4b9254d205003115f,
         type: 3}

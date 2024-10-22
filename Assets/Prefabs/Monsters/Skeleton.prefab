@@ -104,7 +104,7 @@ MonoBehaviour:
   CurHealth: 5
   Attack: 2
   Defense: 1
-  Awareness: 1
+  Awareness: 2
   CurAwareness: 0
   CurAwareLevel: 0
   traits: []
