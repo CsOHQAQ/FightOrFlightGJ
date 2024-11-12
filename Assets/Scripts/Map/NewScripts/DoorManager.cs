@@ -18,7 +18,10 @@ public class DoorManager : MonoBehaviour
     private float currentDoorAngle;
     [SerializeField, Tooltip("Defines the angle at which the door is considered to be fully opened."), Range(80f, 179f)]
     private float MaxDoorAngle = 120;
-    public float TargetDoorAngle{ get{return targetOpeness * MaxDoorAngle;}}
+    public float TargetDoorAngle => (compareX ? Mathf.Sign(LeftPart.transform.position.z-RightPart.transform.position.z) : Mathf.Sign(LeftPart.transform.position.x-RightPart.transform.position.x)*-1f) * relativePos * targetOpeness * MaxDoorAngle;     
+    [SerializeField]
+    private float doorOpenSpeed=2f;
+
     public float CurrentDoorAngle { get{
         if (LeftPart != null)
         {
@@ -41,7 +44,7 @@ public class DoorManager : MonoBehaviour
 void Start()
 {
     InitializeDoor();
-    Debug.Log(this.CurrentDoorAngle);
+    
 
     SetRelativePosition();
 }
@@ -52,11 +55,13 @@ private void SetRelativePosition()
     {
         if (compareX)
         {
+            
             // Compare the x positions
             relativePos = DoorOpener.transform.position.x > LeftPart.transform.position.x ? 1f : -1f;
         }
         else
         {
+            
             // Compare the z positions
             relativePos = DoorOpener.transform.position.z > LeftPart.transform.position.z ? 1f : -1f;
         }
@@ -72,7 +77,12 @@ private void SetRelativePosition()
     // Update is called once per frame
     void FixedUpdate()
     {
-        if (LeftPart != null)
+        DoorUpdate();
+    }
+
+    public void DoorUpdate()
+    {
+        if (LeftPart != null && RightPart != null)
         {
             // Check if current angle is different from the target angle
             float currentAngle = CurrentDoorAngle;
@@ -81,17 +91,22 @@ private void SetRelativePosition()
             if (!Mathf.Approximately(currentAngle, targetAngle))
             {
                 // Smoothly interpolate the current angle towards the target angle
-                float newAngle = Mathf.LerpAngle(currentAngle, targetAngle, Time.fixedDeltaTime * 2f); // 2f can be adjusted for speed
+                float newAngle = Mathf.LerpAngle(currentAngle, targetAngle, Time.fixedDeltaTime * doorOpenSpeed);
 
                 // Set the local Y rotation of LeftPart to the new interpolated angle
-                Vector3 localEulerAngles = LeftPart.transform.localEulerAngles;
-                localEulerAngles.y = newAngle;
-                LeftPart.transform.localEulerAngles = localEulerAngles;
+                Vector3 leftLocalEulerAngles = LeftPart.transform.localEulerAngles;
+                leftLocalEulerAngles.y = newAngle;
+                LeftPart.transform.localEulerAngles = leftLocalEulerAngles;
+
+                // Mirror the rotation for RightPart
+                Vector3 rightLocalEulerAngles = RightPart.transform.localEulerAngles;
+                rightLocalEulerAngles.y = -newAngle; // Mirrored angle
+                RightPart.transform.localEulerAngles = rightLocalEulerAngles;
             }
         }
         else
         {
-            Debug.LogWarning("LeftPart GameObject is not assigned.");
+            Debug.LogWarning("LeftPart or RightPart GameObject is not assigned.");
         }
     }
 
@@ -138,8 +153,6 @@ private void SetRelativePosition()
 
         //Debug.Log($"Left Part Position: {leftPartPosition}");
         //Debug.Log($"Right Part Position: {rightPartPosition}");
-
-        bool compareX;
 
         // Check differences in x and z values
         bool isXDifferent = !Mathf.Approximately(leftPartPosition.x, rightPartPosition.x);
