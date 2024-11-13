@@ -5,9 +5,8 @@ using UnityEngine.InputSystem;
 public class PlayerCharacter : MonoBehaviour
 {
     private bool isMoving = false;
-
     private InteractComponent interactComponent;
-
+    
     [SerializeField, Tooltip("Duration of the movement forward or backward in seconds.")]
     private float moveDuration = 1.0f;
 
@@ -23,41 +22,113 @@ public class PlayerCharacter : MonoBehaviour
     [SerializeField, Tooltip("Duration of the bump animation in seconds.")]
     private float bumpDuration = 0.1f;
 
+    private enum PlayerState
+    {
+        MovementState,
+        DoorOpeningState,
+        MenuState
+    }
+
+    private PlayerState currentState;
+
     private void Awake()
     {
         interactComponent = GetComponentInChildren<InteractComponent>();
-        if(interactComponent==null)
+        if (interactComponent == null)
         {
             Debug.LogError("Could not detect Interact Component on Character");
         }
+
+        // Initialize to MovementState
+        ChangeState(PlayerState.MovementState);
     }
 
-    // This function is called when movement input is performed
-    public void OnMovementPerformed(InputAction.CallbackContext context)
+    private void ChangeState(PlayerState newState)
     {
-        Vector2 inputDirection = context.ReadValue<Vector2>();
+        // Call OnStateExit for the current state
+        OnStateExit(currentState);
 
-        if (!isMoving)
+        // Change to the new state
+        currentState = newState;
+
+        // Call OnStateEnter for the new state
+        OnStateEnter(currentState);
+    }
+
+    private void OnStateEnter(PlayerState state)
+    {
+        switch (state)
         {
-            if (inputDirection.y != 0) // Forward or backward
-            {
-                InteractInfo interactInfo = interactComponent.PerformInteractionCheck(gameObject.transform.forward * inputDirection.y);
-                if (interactInfo.InteractableObject==null )
-                {
-                    StartCoroutine(Move(inputDirection.y));
-                }else{
-                    if(interactInfo.InteractableObject.layer == LayerMask.NameToLayer("Obstacle"))
-                    {StartCoroutine(Bump(inputDirection.y));}
-                }
-            }
-            else if (inputDirection.x != 0) // Turning left or right
-            {
-                StartCoroutine(Turn(inputDirection.x));
-            }
+            case PlayerState.MovementState:
+                Debug.Log("Entering Movement State");
+                // Any initialization logic specific to MovementState
+                break;
+
+            case PlayerState.DoorOpeningState:
+                Debug.Log("Entering Door Opening State");
+                
+                break;
+
+            case PlayerState.MenuState:
+                Debug.Log("Entering Menu State");
+                // Disable player movement or display a menu
+                break;
         }
     }
 
-    // Coroutine for moving forward or backward
+    private void OnStateExit(PlayerState state)
+    {
+        switch (state)
+        {
+            case PlayerState.MovementState:
+                Debug.Log("Exiting Movement State");
+                // Clean up or finalize logic for MovementState if needed
+                break;
+
+            case PlayerState.DoorOpeningState:
+                Debug.Log("Exiting Door Opening State");
+                // Logic to finalize or reset after DoorOpeningState
+                break;
+
+            case PlayerState.MenuState:
+                Debug.Log("Exiting Menu State");
+                // Logic to hide menu or re-enable movement
+                break;
+        }
+    }
+
+    public void OnMovementPerformed(InputAction.CallbackContext context)
+    {
+        if (currentState != PlayerState.MovementState || isMoving)
+            return; // Only allow movement in MovementState and when not moving
+
+        Vector2 inputDirection = context.ReadValue<Vector2>();
+        HandleMovement(inputDirection);
+
+    }
+    private void HandleMovement(Vector2 inputDirection)
+    {
+        if (inputDirection.y != 0) // Forward or backward
+        {
+            InteractInfo interactInfo = interactComponent.PerformInteractionCheck(gameObject.transform.forward * inputDirection.y);
+            if (interactInfo.InteractableObject == null)
+            {
+                StartCoroutine(Move(inputDirection.y));
+            }
+            else
+            {
+                if (interactInfo.InteractableObject.layer == LayerMask.NameToLayer("Obstacle"))
+                {
+                    StartCoroutine(Bump(inputDirection.y));
+                }
+            }
+        }
+        else if (inputDirection.x != 0) // Turning left or right
+        {
+            StartCoroutine(Turn(inputDirection.x));
+        }
+    }
+
     private IEnumerator Move(float direction)
     {
         isMoving = true;
@@ -77,7 +148,6 @@ public class PlayerCharacter : MonoBehaviour
         isMoving = false;
     }
 
-    // Coroutine for turning (x = -1 for left, x = 1 for right)
     private IEnumerator Turn(float direction)
     {
         isMoving = true;
@@ -97,18 +167,15 @@ public class PlayerCharacter : MonoBehaviour
         isMoving = false;
     }
 
-    // Coroutine for bump animation (with direction input)
     private IEnumerator Bump(float direction)
     {
         isMoving = true;
 
         Vector3 originalPosition = transform.position;
-        // Calculate bump position based on direction (forward or backward)
         Vector3 bumpPosition = originalPosition + transform.forward * Mathf.Sign(direction) * bumpDistance;
 
         float elapsedTime = 0f;
 
-        // Move halfway into the direction
         while (elapsedTime < bumpDuration)
         {
             transform.position = Vector3.Lerp(originalPosition, bumpPosition, elapsedTime / bumpDuration);
@@ -116,7 +183,6 @@ public class PlayerCharacter : MonoBehaviour
             yield return null;
         }
 
-        // Move back to original position
         elapsedTime = 0f;
         while (elapsedTime < bumpDuration)
         {
@@ -127,6 +193,10 @@ public class PlayerCharacter : MonoBehaviour
 
         transform.position = originalPosition;
         isMoving = false;
+    }
+    public void OnInteractDoor(Door door)
+    {
+        ChangeState(PlayerState.DoorOpeningState);
     }
 
 }

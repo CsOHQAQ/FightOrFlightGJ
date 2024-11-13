@@ -151,6 +151,8 @@ private void SetRelativePosition()
         GameObject playerObject = args as GameObject;
         playerInput = playerObject.GetComponentInChildren<PlayerInput>();
         playerInput.actions["Movement"].performed += OnMovementPerformed;
+        PlayerCharacter character = playerObject.GetComponentInChildren<PlayerCharacter>();
+        character.OnInteractDoor(this);
     }
     private void OnMovementPerformed(InputAction.CallbackContext context)
     {
