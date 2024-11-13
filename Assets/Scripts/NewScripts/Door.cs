@@ -5,8 +5,10 @@ using System;
 using UnityEditor;
 using UnityEngine.InputSystem;
 
-public class Door : MonoBehaviour, IInteractables
+public class Door : MonoBehaviour, IInteractable
 {
+    private PlayerInput playerInput;
+
     public GameObject LeftPart, RightPart;
     public GameObject DoorOpener;
 
@@ -68,7 +70,7 @@ private void SetRelativePosition()
             relativePos = DoorOpener.transform.position.z > LeftPart.transform.position.z ? 1f : -1f;
         }
 
-        Debug.Log($"Relative Position set based on {(compareX ? "X" : "Z")} axis: {relativePos}");
+        //Debug.Log($"Relative Position set based on {(compareX ? "X" : "Z")} axis: {relativePos}");
     }
     else
     {
@@ -111,7 +113,7 @@ private void SetRelativePosition()
             Debug.LogWarning("LeftPart or RightPart GameObject is not assigned.");
         }
     }
-
+    /*
     public void OnMovement(InputValue value)
     {
         float doorInput = value.Get<Vector2>().y;
@@ -125,7 +127,7 @@ private void SetRelativePosition()
             Debug.Log($"Door Input: {doorInput}, Target Openess: {targetOpeness}, Target Door Angle: {this.TargetDoorAngle}");
         }
     }
-
+    */
     public float GetCurrentDoorAngle()
     {
         if (LeftPart != null)
@@ -146,9 +148,24 @@ private void SetRelativePosition()
     
     public void Interact(object args = null)
     {
-        
+        GameObject playerObject = args as GameObject;
+        playerInput = playerObject.GetComponentInChildren<PlayerInput>();
+        playerInput.actions["Movement"].performed += OnMovementPerformed;
     }
-
+    private void OnMovementPerformed(InputAction.CallbackContext context)
+    {
+        Vector2 moveInput = context.ReadValue<Vector2>();
+        if (moveInput.y!=0f)
+        {
+            targetOpeness += moveInput.y * doorOpenessPerInput;
+            targetOpeness = Mathf.Clamp(targetOpeness, 0f, 1f);
+            if (targetOpeness ==0f && moveInput.y<0)
+            {
+                playerInput.actions["Movement"].performed -= OnMovementPerformed;
+            }
+            Debug.Log($"Door Input: {moveInput}, Target Openess: {targetOpeness}, Target Door Angle: {this.TargetDoorAngle}");
+        }
+    }
     private void InitializeDoor()
     {
         if (LeftPart != null && RightPart != null)
@@ -168,11 +185,11 @@ private void SetRelativePosition()
             {
                 case (true, false):
                     compareX = false;
-                    Debug.Log($"Only x is different: compareX = {compareX}");
+                    //Debug.Log($"Only x is different: compareX = {compareX}");
                     break;
                 case (false, true):
                     compareX = true;
-                    Debug.Log($"Only z is different: compareX = {compareX}");
+                    //Debug.Log($"Only z is different: compareX = {compareX}");
                     break;
                 case (true, true):
                     Debug.LogError("Error: Both x and z positions are different.");
