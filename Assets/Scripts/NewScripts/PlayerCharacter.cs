@@ -22,7 +22,7 @@ public class PlayerCharacter : MonoBehaviour
     [SerializeField, Tooltip("Duration of the bump animation in seconds.")]
     private float bumpDuration = 0.1f;
 
-    private enum PlayerState
+    public enum PlayerState
     {
         MovementState,
         DoorOpeningState,
@@ -43,7 +43,7 @@ public class PlayerCharacter : MonoBehaviour
         ChangeState(PlayerState.MovementState);
     }
 
-    private void ChangeState(PlayerState newState)
+    public void ChangeState(PlayerState newState)
     {
         // Call OnStateExit for the current state
         OnStateExit(currentState);
@@ -127,6 +127,18 @@ public class PlayerCharacter : MonoBehaviour
         {
             StartCoroutine(Turn(inputDirection.x));
         }
+    }
+
+
+    public void OnDoorFullyOpened()
+    {
+        //Need to transit to Combat not movement state in the future. 
+        ChangeState(PlayerState.MovementState);
+    }
+
+    public void OnDoorFullyClosed()
+    {
+        ChangeState(PlayerState.MovementState);
     }
 
     private IEnumerator Move(float direction)
