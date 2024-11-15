@@ -24,6 +24,7 @@ public class PlayerCharacter : MonoBehaviour
     private float bumpDuration = 0.1f;
 
     private Door currentDoor;
+    public Door CurrentDoor{get{return currentDoor;}}
 
     public enum PlayerState
     {
@@ -42,6 +43,11 @@ public class PlayerCharacter : MonoBehaviour
         {
             Debug.LogError("Could not detect Interact Component on Character");
         }
+        if (hand == null)
+        {
+            Debug.LogError("Could not detect Hand Movement Component on Character");
+        }
+        hand.Initialize(this);
 
         // Initialize to MovementState
         ChangeState(PlayerState.MovementState);
@@ -65,12 +71,13 @@ public class PlayerCharacter : MonoBehaviour
         {
             case PlayerState.MovementState:
                 Debug.Log("Entering Movement State");
+                hand.ChangeState(HandState.Lowered);
                 // Any initialization logic specific to MovementState
                 break;
 
             case PlayerState.DoorOpeningState:
                 Debug.Log("Entering Door Opening State");
-                
+                hand.ChangeState(HandState.Raised);
                 break;
 
             case PlayerState.MenuState:

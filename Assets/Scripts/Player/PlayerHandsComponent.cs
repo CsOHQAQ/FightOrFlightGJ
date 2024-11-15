@@ -3,17 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using Sirenix.OdinInspector;
 
+public enum HandState
+{
+    Lowered,
+    Raised,
+    Pushed
+}
+
 public class PlayerHandsComponent : SerializedMonoBehaviour
 {
-    // Enum to represent hand states
-    public enum HandState
-    {
-        Lowered,
-        Raised,
-        Pushed
-    }
-
-    // Struct to hold position, rotation, and scale
     [System.Serializable]
     public struct HandTransformData
     {
@@ -22,64 +20,156 @@ public class PlayerHandsComponent : SerializedMonoBehaviour
         public Vector3 scale;
     }
 
-    // GameObject references for the left and right hands
+    private PlayerCharacter ownerCharacter;
+
     [SerializeField]
     private GameObject leftHand;
 
     [SerializeField]
     private GameObject rightHand;
 
-    // A dictionary mapping hand states to their corresponding hand transform data (position, rotation, scale)
     [SerializeField, DictionaryDrawerSettings(DisplayMode = DictionaryDisplayOptions.ExpandedFoldout)]
     public Dictionary<HandState, HandTransformData> handStateTransforms = new Dictionary<HandState, HandTransformData>();
 
-    // Speed for easing into the hand position/rotation/scale
     [SerializeField]
     private float transitionDuration = 1f;
 
-    private float leftHandRotationYVelocity = 0f;  // For smoothing left hand rotation
-    private float leftHandRotationZVelocity = 0f;  // For smoothing left hand rotation
-    private float rightHandRotationYVelocity = 0f; // For smoothing right hand rotation
-    private float rightHandRotationZVelocity = 0f; // For smoothing right hand rotation
+    private float leftHandRotationYVelocity = 0f;
+    private float leftHandRotationZVelocity = 0f;
+    private float rightHandRotationYVelocity = 0f;
+    private float rightHandRotationZVelocity = 0f;
 
+    private HandState currentState;
     public HandState lastState;
+
+    public void Initialize(PlayerCharacter ownerCharacter)
+    {
+        this.ownerCharacter = ownerCharacter;
+    }
 
     void Start()
     {
-        lastState = HandState.Lowered; // Default starting state
+        ChangeState(HandState.Lowered); // Initialize to default state
     }
 
-    // Coroutine to ease both hands to the transform recorded in the given state, with optional interpolation percentage
+    void Update()
+    {
+        OnUpdate(currentState); // Call OnUpdate for the current state
+    }
+
+    // State machine core
+    public void ChangeState(HandState newState)
+    {
+        OnStateExit(currentState); // Handle exit logic for the current state
+        lastState = currentState; // Update last state
+        currentState = newState; // Set new state
+        OnStateEnter(currentState); // Handle enter logic for the new state
+    }
+
+    private void OnStateEnter(HandState state)
+    {
+        switch (state)
+        {
+            case HandState.Lowered:
+                StartCoroutine(EaseToState(state));
+                break;
+            case HandState.Raised:
+                StartCoroutine(EaseToState(state));
+                break;
+
+            case HandState.Pushed:
+                Debug.Log("Entering Pushed State");
+                break;
+
+            default:
+                Debug.LogWarning($"Unhandled state: {state}");
+                break;
+        }
+    }
+
+    private void OnStateExit(HandState state)
+    {
+        switch (state)
+        {
+            case HandState.Lowered:
+            case HandState.Raised:
+            case HandState.Pushed:
+                Debug.Log($"Exiting {state} State");
+                break;
+
+            default:
+                Debug.LogWarning($"Unhandled state: {state}");
+                break;
+        }
+    }
+
+    private void OnUpdate(HandState state)
+    {
+        switch (state)
+        {
+            case HandState.Pushed:
+                UpdateHandTransformsForPush();
+                break;
+        }
+    }
+
+    private void UpdateHandTransformsForPush()
+    {
+        // Check if the owner character and door are assigned
+        if (ownerCharacter?.CurrentDoor == null)
+        {
+            Debug.LogWarning("Owner character or CurrentDoor is not set.");
+            return;
+        }
+
+        // Get the door's current openness, which ranges from 0 to 1
+        float openness = ownerCharacter.CurrentDoor.CurrentOpenness;
+
+        // Retrieve Raised and Pushed transforms from the dictionary
+        if (handStateTransforms.TryGetValue(HandState.Raised, out HandTransformData raisedTransform) &&
+            handStateTransforms.TryGetValue(HandState.Pushed, out HandTransformData pushedTransform))
+        {
+            Debug.LogWarning(openness);
+            // Interpolate the position, scale, and rotation based on openness
+            Vector3 interpolatedPosition = Vector3.Lerp(raisedTransform.position, pushedTransform.position, openness);
+            Vector3 interpolatedScale = Vector3.Lerp(raisedTransform.scale, pushedTransform.scale, openness);
+            Vector3 interpolatedRotation = Vector3.Lerp(raisedTransform.rotation, pushedTransform.rotation, openness);
+
+            // Mirror x position for the right hand
+            Vector3 interpolatedRightHandPosition = interpolatedPosition;
+            interpolatedRightHandPosition.x *= -1;
+
+            // Apply interpolated transformations to left and right hands
+            leftHand.transform.localPosition = interpolatedPosition;
+            leftHand.transform.localScale = interpolatedScale;
+            leftHand.transform.localEulerAngles = interpolatedRotation;
+
+            rightHand.transform.localPosition = interpolatedRightHandPosition;
+            rightHand.transform.localScale = interpolatedScale;
+            rightHand.transform.localEulerAngles = new Vector3(interpolatedRotation.x, -interpolatedRotation.y, interpolatedRotation.z);
+        }
+        else
+        {
+            Debug.LogWarning("Hand transform data for Raised or Pushed state is missing.");
+        }
+    }
+
+    // Coroutine to ease both hands to the transform recorded in the given state
     public IEnumerator EaseToState(HandState targetState, float percentage = 1f)
     {
         if (handStateTransforms.ContainsKey(targetState) && handStateTransforms.ContainsKey(lastState))
         {
-            // Clamp the percentage between 0 and 1
             percentage = Mathf.Clamp01(percentage);
 
-            // Get the target and last state data for left hand
             HandTransformData targetTransform = handStateTransforms[targetState];
-            if (targetState == HandState.Pushed)
-            {
-                lastState = HandState.Raised;
-            }
-
             HandTransformData lastTransform = handStateTransforms[lastState];
 
-            // Calculate the actual target position, rotation, and scale based on percentage
             Vector3 actualTargetPosition = lastTransform.position + (targetTransform.position - lastTransform.position) * percentage;
             Vector3 actualTargetScale = lastTransform.scale + (targetTransform.scale - lastTransform.scale) * percentage;
-
-            // Interpolate the rotation using the percentage
             Vector3 actualTargetRotation = lastTransform.rotation + (targetTransform.rotation - lastTransform.rotation) * percentage;
-            //Debug.Log(actualTargetRotation);
-            // Mirror the x position for the right hand
-            Vector3 actualRightHandPosition = actualTargetPosition;
-            actualRightHandPosition.x *= -1; // Mirror x position for the right hand
 
-            // Initial setup for smooth damp rotation
-            Vector3 initialLeftRotation = leftHand.transform.localEulerAngles;
-            Vector3 initialRightRotation = rightHand.transform.localEulerAngles;
+            Vector3 actualRightHandPosition = actualTargetPosition;
+            actualRightHandPosition.x *= -1;
 
             float elapsedTime = 0f;
 
@@ -88,28 +178,24 @@ public class PlayerHandsComponent : SerializedMonoBehaviour
                 elapsedTime += Time.deltaTime;
                 float t = elapsedTime / transitionDuration;
 
-                // Ease the position and scale
                 leftHand.transform.localPosition = Vector3.Lerp(leftHand.transform.localPosition, actualTargetPosition, Mathf.SmoothStep(0f, 1f, t));
                 leftHand.transform.localScale = Vector3.Lerp(leftHand.transform.localScale, actualTargetScale, Mathf.SmoothStep(0f, 1f, t));
 
                 rightHand.transform.localPosition = Vector3.Lerp(rightHand.transform.localPosition, actualRightHandPosition, Mathf.SmoothStep(0f, 1f, t));
                 rightHand.transform.localScale = Vector3.Lerp(rightHand.transform.localScale, actualTargetScale, Mathf.SmoothStep(0f, 1f, t));
 
-                // Smoothly transition the y and z rotations for both hands using Mathf.SmoothDampAngle
                 float currentLeftRotationY = Mathf.SmoothDampAngle(leftHand.transform.localEulerAngles.y, actualTargetRotation.y, ref leftHandRotationYVelocity, transitionDuration);
                 float currentLeftRotationZ = Mathf.SmoothDampAngle(leftHand.transform.localEulerAngles.z, actualTargetRotation.z, ref leftHandRotationZVelocity, transitionDuration);
 
                 float currentRightRotationY = Mathf.SmoothDampAngle(rightHand.transform.localEulerAngles.y, -actualTargetRotation.y, ref rightHandRotationYVelocity, transitionDuration);
                 float currentRightRotationZ = Mathf.SmoothDampAngle(rightHand.transform.localEulerAngles.z, actualTargetRotation.z, ref rightHandRotationZVelocity, transitionDuration);
 
-                // Apply the calculated rotations
                 leftHand.transform.localEulerAngles = new Vector3(leftHand.transform.localEulerAngles.x, currentLeftRotationY, currentLeftRotationZ);
                 rightHand.transform.localEulerAngles = new Vector3(rightHand.transform.localEulerAngles.x, currentRightRotationY, currentRightRotationZ);
 
                 yield return null;
             }
 
-            // Ensure final values are set for both hands
             leftHand.transform.localPosition = actualTargetPosition;
             leftHand.transform.localScale = actualTargetScale;
             leftHand.transform.localEulerAngles = new Vector3(leftHand.transform.localEulerAngles.x, actualTargetRotation.y, actualTargetRotation.z);
@@ -118,12 +204,15 @@ public class PlayerHandsComponent : SerializedMonoBehaviour
             rightHand.transform.localScale = actualTargetScale;
             rightHand.transform.localEulerAngles = new Vector3(rightHand.transform.localEulerAngles.x, -actualTargetRotation.y, actualTargetRotation.z);
 
-            lastState = targetState; // Update the last state to the new state
+            if(currentState==HandState.Raised)
+            {
+                Debug.Log("Raise Hand Sequence Finished");
+                ChangeState(HandState.Pushed);
+            }
         }
         else
         {
             Debug.LogWarning($"No transform data assigned for {targetState} or {lastState} state.");
         }
     }
-
 }

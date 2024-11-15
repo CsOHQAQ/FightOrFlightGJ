@@ -164,7 +164,7 @@ public class Door : MonoBehaviour, IInteractable
                 OnDoorFullyClosed -= character.OnDoorFullyClosed;
             }
 
-            Debug.Log($"Door Input: {moveInput}, Target Openess: {targetOpenness}, Target Door Angle: {TargetDoorAngle}");
+            //Debug.Log($"Door Input: {moveInput}, Target Openess: {targetOpenness}, Target Door Angle: {TargetDoorAngle}");
         }
     }
 
