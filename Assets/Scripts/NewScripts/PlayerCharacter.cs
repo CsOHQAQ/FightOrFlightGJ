@@ -6,6 +6,7 @@ public class PlayerCharacter : MonoBehaviour
 {
     private bool isMoving = false;
     private InteractComponent interactComponent;
+    private PlayerHandsComponent hand;
     
     [SerializeField, Tooltip("Duration of the movement forward or backward in seconds.")]
     private float moveDuration = 1.0f;
@@ -22,6 +23,8 @@ public class PlayerCharacter : MonoBehaviour
     [SerializeField, Tooltip("Duration of the bump animation in seconds.")]
     private float bumpDuration = 0.1f;
 
+    private Door currentDoor;
+
     public enum PlayerState
     {
         MovementState,
@@ -33,6 +36,7 @@ public class PlayerCharacter : MonoBehaviour
 
     private void Awake()
     {
+        hand = GetComponentInChildren<PlayerHandsComponent>();
         interactComponent = GetComponentInChildren<InteractComponent>();
         if (interactComponent == null)
         {
@@ -208,6 +212,7 @@ public class PlayerCharacter : MonoBehaviour
     }
     public void OnInteractDoor(Door door)
     {
+        currentDoor = door;
         ChangeState(PlayerState.DoorOpeningState);
     }
 

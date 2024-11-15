@@ -29,8 +29,7 @@ public class Door : MonoBehaviour, IInteractable
     [SerializeField]
     private float doorOpenSpeed = 2f;
 
-    [SerializeField]
-    private PlayerHandsComponent hand;
+
 
     public float CurrentDoorAngle
     {
