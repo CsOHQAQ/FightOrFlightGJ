@@ -84,57 +84,60 @@ public class Door : MonoBehaviour, IInteractable
     }
 
     public void DoorUpdate()
+{
+    if (LeftPart != null && RightPart != null)
     {
-        if (LeftPart != null && RightPart != null)
+        float currentAngle = this.CurrentDoorAngle;
+        float targetAngle = this.TargetDoorAngle;
+        float tempOpenness = this.CurrentOpenness;
+
+        if (isClosed && tempOpenness > 0f)
         {
-            float currentAngle = this.CurrentDoorAngle;
-            float targetAngle = this.TargetDoorAngle;
-            float tempOpenness = this.CurrentOpenness;
-            if (isClosed&&tempOpenness>0f)
-            {
-                isClosed = false;
-            }
+            isClosed = false;
+        }
 
-            if (Mathf.Abs(Mathf.Abs(currentAngle)-Mathf.Abs(targetAngle))>0.2f)
-            {
-                float newAngle = Mathf.LerpAngle(currentAngle, targetAngle, Time.fixedDeltaTime * doorOpenSpeed);
-                Vector3 leftLocalEulerAngles = LeftPart.transform.localEulerAngles;
-                leftLocalEulerAngles.y = newAngle;
-                LeftPart.transform.localEulerAngles = leftLocalEulerAngles;
+        // Calculate the gap between current and target openness
+        float opennessGap = Mathf.Abs(tempOpenness - targetOpenness);
 
-                Vector3 rightLocalEulerAngles = RightPart.transform.localEulerAngles;
-                rightLocalEulerAngles.y = -newAngle;
-                RightPart.transform.localEulerAngles = rightLocalEulerAngles;
+        // Adjust door speed based on the gap (use a multiplier)
+        float dynamicSpeed = doorOpenSpeed * (1f + opennessGap); // Larger gap increases speed
 
-                //Debug.Log("current angle approaching target angle");
-            }
-            else
-            {
-                //Debug.Log("current angle reach target angle");
-                //Debug.Log(tempOpenness);
-                // Trigger events if door is fully opened or fully closed
-                //if (tempOpenness>= 1f- 0.02f)
-                if (targetOpenness>= 1f- 0.02f)
-                {
-                    playerInput.actions["Movement"].performed -= OnMovementPerformed;
-                    doorCollider.enabled = false;
-                    OnDoorFullyOpened?.Invoke();
-                    OnDoorFullyOpened -= character.OnDoorFullyOpened;
-                    OnDoorFullyClosed -= character.OnDoorFullyClosed;
-                }
-                else if (!isClosed && tempOpenness<=0.02f)
-                {
-                    isClosed = true;
+        if (Mathf.Abs(Mathf.Abs(currentAngle) - Mathf.Abs(targetAngle)) > 0.2f)
+        {
+            // Smoothly interpolate the angle with dynamic speed
+            float newAngle = Mathf.LerpAngle(currentAngle, targetAngle, Time.fixedDeltaTime * dynamicSpeed);
+            Vector3 leftLocalEulerAngles = LeftPart.transform.localEulerAngles;
+            leftLocalEulerAngles.y = newAngle;
+            LeftPart.transform.localEulerAngles = leftLocalEulerAngles;
 
-                    Debug.Log("Door Fully Closed");
-                }
-            }
+            Vector3 rightLocalEulerAngles = RightPart.transform.localEulerAngles;
+            rightLocalEulerAngles.y = -newAngle;
+            RightPart.transform.localEulerAngles = rightLocalEulerAngles;
         }
         else
         {
-            Debug.LogWarning("LeftPart or RightPart GameObject is not assigned.");
+            // Trigger events if door is fully opened or fully closed
+            if (targetOpenness >= 1f - 0.02f)
+            {
+                playerInput.actions["Movement"].performed -= OnMovementPerformed;
+                doorCollider.enabled = false;
+                OnDoorFullyOpened?.Invoke();
+                OnDoorFullyOpened -= character.OnDoorFullyOpened;
+                OnDoorFullyClosed -= character.OnDoorFullyClosed;
+            }
+            else if (!isClosed && tempOpenness <= 0.02f)
+            {
+                isClosed = true;
+                Debug.Log("Door Fully Closed");
+            }
         }
     }
+    else
+    {
+        Debug.LogWarning("LeftPart or RightPart GameObject is not assigned.");
+    }
+}
+
 
     public void Interact(object args = null)
     {
