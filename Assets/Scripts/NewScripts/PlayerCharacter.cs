@@ -23,6 +23,9 @@ public class PlayerCharacter : MonoBehaviour
     [SerializeField, Tooltip("Duration of the bump animation in seconds.")]
     private float bumpDuration = 0.1f;
 
+    [SerializeField, Tooltip("Movement script uses the forward of this transform to determine where forward is for the character.")]
+    private Transform bodyTransform;
+
     private Door currentDoor;
     public Door CurrentDoor{get{return currentDoor;}}
 
@@ -39,6 +42,12 @@ public class PlayerCharacter : MonoBehaviour
     {
         hand = GetComponentInChildren<PlayerHandsComponent>();
         interactComponent = GetComponentInChildren<InteractComponent>();
+        if(bodyTransform==null)
+        {
+            Debug.LogError("No Transform Set for Rotation");
+            bodyTransform=gameObject.transform;
+        }
+
         if (interactComponent == null)
         {
             Debug.LogError("Could not detect Interact Component on Character");
@@ -121,7 +130,7 @@ public class PlayerCharacter : MonoBehaviour
     {
         if (inputDirection.y != 0) // Forward or backward
         {
-            InteractInfo interactInfo = interactComponent.PerformInteractionCheck(gameObject.transform.forward * inputDirection.y);
+            InteractInfo interactInfo = interactComponent.PerformInteractionCheck(GetClosestDirection(bodyTransform.forward) * inputDirection.y);
             if (interactInfo.InteractableObject == null)
             {
                 StartCoroutine(Move(inputDirection.y));
@@ -136,7 +145,7 @@ public class PlayerCharacter : MonoBehaviour
         }
         else if (inputDirection.x != 0) // Turning left or right
         {
-            StartCoroutine(Turn(inputDirection.x));
+            //StartCoroutine(Turn(inputDirection.x));
         }
     }
 
@@ -156,9 +165,24 @@ public class PlayerCharacter : MonoBehaviour
     {
         isMoving = true;
 
+        // Define the cardinal directions on the XZ plane
+        Vector3 forward = Vector3.forward;  // Global forward
+        Vector3 backward = Vector3.back;   // Global backward
+        Vector3 left = Vector3.left;       // Global left
+        Vector3 right = Vector3.right;     // Global right
+
+        // Get the forward vector of the transform, projected onto the XZ plane
+        Vector3 currentForward = new Vector3(bodyTransform.forward.x, 0, bodyTransform.forward.z).normalized;
+
+        // Compare transform.forward to the cardinal directions and find the closest one
+        Vector3 closestDirection = GetClosestDirection(currentForward, forward, backward, left, right);
+
+        // Determine the target direction based on user input (forward or backward)
+        Vector3 moveDirection = closestDirection * Mathf.Sign(direction);
+
         float elapsedTime = 0f;
         Vector3 startPosition = transform.position;
-        Vector3 targetPosition = startPosition + transform.forward * Mathf.Sign(direction) * moveDistance;
+        Vector3 targetPosition = startPosition + moveDirection * moveDistance;
 
         while (elapsedTime < moveDuration)
         {
@@ -170,6 +194,56 @@ public class PlayerCharacter : MonoBehaviour
         transform.position = targetPosition;
         isMoving = false;
     }
+    
+    private Vector3 GetClosestDirection(Vector3 currentForward, params Vector3[] directions)
+    {
+        float maxDot = float.MinValue;
+        Vector3 closestDirection = Vector3.zero;
+
+        foreach (var direction in directions)
+        {
+            // Compute the dot product between the current forward vector and the candidate direction
+            float dot = Vector3.Dot(currentForward, direction);
+
+            if (dot > maxDot)
+            {
+                maxDot = dot;
+                closestDirection = direction;
+            }
+        }
+
+        return closestDirection;
+    }
+    //The version that assumes the global directions. 
+    private Vector3 GetClosestDirection(Vector3 currentForward)
+    {
+        // Define the cardinal directions on the XZ plane
+        Vector3 forward = Vector3.forward;  // Global forward
+        Vector3 backward = Vector3.back;   // Global backward
+        Vector3 left = Vector3.left;       // Global left
+        Vector3 right = Vector3.right;     // Global right
+
+        // Initialize variables for tracking the closest direction
+        float maxDot = float.MinValue;
+        Vector3 closestDirection = Vector3.zero;
+
+        // Iterate through the cardinal directions
+        Vector3[] directions = { forward, backward, left, right };
+        foreach (var direction in directions)
+        {
+            // Compute the dot product between the current forward vector and the candidate direction
+            float dot = Vector3.Dot(currentForward, direction);
+
+            if (dot > maxDot)
+            {
+                maxDot = dot;
+                closestDirection = direction;
+            }
+        }
+
+        return closestDirection;
+    }
+
 
     private IEnumerator Turn(float direction)
     {
@@ -194,8 +268,8 @@ public class PlayerCharacter : MonoBehaviour
     {
         isMoving = true;
 
-        Vector3 originalPosition = transform.position;
-        Vector3 bumpPosition = originalPosition + transform.forward * Mathf.Sign(direction) * bumpDistance;
+        Vector3 originalPosition = bodyTransform.position;
+        Vector3 bumpPosition = originalPosition + bodyTransform.forward * Mathf.Sign(direction) * bumpDistance;
 
         float elapsedTime = 0f;
 

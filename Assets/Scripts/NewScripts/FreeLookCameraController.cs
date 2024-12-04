@@ -47,7 +47,7 @@ public class FreeLookCameraController : MonoBehaviour
 
         // Horizontal rotation (rotate around Y-axis globally, on the parent object)
         horizontalRotation += scaledInput.x;
-        transform.rotation = Quaternion.Euler(0f, horizontalRotation, 0f);
+        transform.localRotation = Quaternion.Euler(0f, horizontalRotation, 0f);
 
         // Vertical rotation (rotate around X-axis locally, on the camera)
         verticalRotation -= scaledInput.y;
