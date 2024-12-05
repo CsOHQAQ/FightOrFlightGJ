@@ -129,7 +129,7 @@ public class PlayerHandsComponent : SerializedMonoBehaviour
         if (handStateTransforms.TryGetValue(HandState.Raised, out HandTransformData raisedTransform) &&
             handStateTransforms.TryGetValue(HandState.Pushed, out HandTransformData pushedTransform))
         {
-            Debug.LogWarning(openness);
+            //Debug.LogWarning(openness);
             // Interpolate the position, scale, and rotation based on openness
             Vector3 interpolatedPosition = Vector3.Lerp(raisedTransform.position, pushedTransform.position, openness);
             Vector3 interpolatedScale = Vector3.Lerp(raisedTransform.scale, pushedTransform.scale, openness);

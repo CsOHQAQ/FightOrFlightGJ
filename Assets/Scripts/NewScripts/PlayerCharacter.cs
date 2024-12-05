@@ -1,6 +1,14 @@
-using System.Collections;
+using System;
 using UnityEngine;
+using System.Collections;
 using UnityEngine.InputSystem;
+
+public enum PlayerState
+{
+    MovementState,
+    DoorOpeningState,
+    MenuState
+}
 
 public class PlayerCharacter : MonoBehaviour
 {
@@ -27,25 +35,24 @@ public class PlayerCharacter : MonoBehaviour
     private Transform bodyTransform;
 
     private Door currentDoor;
-    public Door CurrentDoor{get{return currentDoor;}}
-
-    public enum PlayerState
-    {
-        MovementState,
-        DoorOpeningState,
-        MenuState
-    }
+    public Door CurrentDoor { get { return currentDoor; } }
 
     private PlayerState currentState;
+    public PlayerState CurrentState { get { return currentState; } }
+
+    // Define delegates for entering and exiting states
+    public delegate void StateChangeHandler(PlayerState newState);
+    public event StateChangeHandler OnStateEnter;
+    public event StateChangeHandler OnStateExit;
 
     private void Awake()
     {
         hand = GetComponentInChildren<PlayerHandsComponent>();
         interactComponent = GetComponentInChildren<InteractComponent>();
-        if(bodyTransform==null)
+        if (bodyTransform == null)
         {
             Debug.LogError("No Transform Set for Rotation");
-            bodyTransform=gameObject.transform;
+            bodyTransform = gameObject.transform;
         }
 
         if (interactComponent == null)
@@ -64,24 +71,24 @@ public class PlayerCharacter : MonoBehaviour
 
     public void ChangeState(PlayerState newState)
     {
-        // Call OnStateExit for the current state
-        OnStateExit(currentState);
-
+        
+        OnStateExitInternal(currentState);
         // Change to the new state
         currentState = newState;
 
-        // Call OnStateEnter for the new state
-        OnStateEnter(currentState);
+        // Call OnStateEnter for the new stateW
+        // Enter the new state
+        OnStateEnterInternal(currentState);
     }
 
-    private void OnStateEnter(PlayerState state)
+    private void OnStateEnterInternal(PlayerState state)
     {
+        OnStateEnter?.Invoke(state);
         switch (state)
         {
             case PlayerState.MovementState:
                 Debug.Log("Entering Movement State");
                 hand.ChangeState(HandState.Lowered);
-                // Any initialization logic specific to MovementState
                 break;
 
             case PlayerState.DoorOpeningState:
@@ -91,28 +98,26 @@ public class PlayerCharacter : MonoBehaviour
 
             case PlayerState.MenuState:
                 Debug.Log("Entering Menu State");
-                // Disable player movement or display a menu
                 break;
         }
     }
 
-    private void OnStateExit(PlayerState state)
+    private void OnStateExitInternal(PlayerState state)
     {
+        // Call OnStateExit for the current state
+        OnStateExit?.Invoke(state);
         switch (state)
         {
             case PlayerState.MovementState:
                 Debug.Log("Exiting Movement State");
-                // Clean up or finalize logic for MovementState if needed
                 break;
 
             case PlayerState.DoorOpeningState:
                 Debug.Log("Exiting Door Opening State");
-                // Logic to finalize or reset after DoorOpeningState
                 break;
 
             case PlayerState.MenuState:
                 Debug.Log("Exiting Menu State");
-                // Logic to hide menu or re-enable movement
                 break;
         }
     }
@@ -120,16 +125,17 @@ public class PlayerCharacter : MonoBehaviour
     public void OnMovementPerformed(InputAction.CallbackContext context)
     {
         if (currentState != PlayerState.MovementState || isMoving)
-            return; // Only allow movement in MovementState and when not moving
+            return;
 
         Vector2 inputDirection = context.ReadValue<Vector2>();
         HandleMovement(inputDirection);
-
     }
+
     private void HandleMovement(Vector2 inputDirection)
     {
-        if (inputDirection.y != 0) // Forward or backward
+        if (inputDirection.y != 0)
         {
+            Debug.Log(GetClosestDirection(bodyTransform.forward));
             InteractInfo interactInfo = interactComponent.PerformInteractionCheck(GetClosestDirection(bodyTransform.forward) * inputDirection.y);
             if (interactInfo.InteractableObject == null)
             {
@@ -143,16 +149,14 @@ public class PlayerCharacter : MonoBehaviour
                 }
             }
         }
-        else if (inputDirection.x != 0) // Turning left or right
+        else if (inputDirection.x != 0)
         {
-            //StartCoroutine(Turn(inputDirection.x));
+            // StartCoroutine(Turn(inputDirection.x));
         }
     }
 
-
     public void OnDoorFullyOpened()
     {
-        //Need to transit to Combat not movement state in the future. 
         ChangeState(PlayerState.MovementState);
     }
 
@@ -164,20 +168,15 @@ public class PlayerCharacter : MonoBehaviour
     private IEnumerator Move(float direction)
     {
         isMoving = true;
+        Vector3 forward = Vector3.forward;
+        Vector3 backward = Vector3.back;
+        Vector3 left = Vector3.left;
+        Vector3 right = Vector3.right;
 
-        // Define the cardinal directions on the XZ plane
-        Vector3 forward = Vector3.forward;  // Global forward
-        Vector3 backward = Vector3.back;   // Global backward
-        Vector3 left = Vector3.left;       // Global left
-        Vector3 right = Vector3.right;     // Global right
-
-        // Get the forward vector of the transform, projected onto the XZ plane
         Vector3 currentForward = new Vector3(bodyTransform.forward.x, 0, bodyTransform.forward.z).normalized;
 
-        // Compare transform.forward to the cardinal directions and find the closest one
         Vector3 closestDirection = GetClosestDirection(currentForward, forward, backward, left, right);
 
-        // Determine the target direction based on user input (forward or backward)
         Vector3 moveDirection = closestDirection * Mathf.Sign(direction);
 
         float elapsedTime = 0f;
@@ -194,17 +193,15 @@ public class PlayerCharacter : MonoBehaviour
         transform.position = targetPosition;
         isMoving = false;
     }
-    
-    private Vector3 GetClosestDirection(Vector3 currentForward, params Vector3[] directions)
+
+    public Vector3 GetClosestDirection(Vector3 currentForward, params Vector3[] directions)
     {
         float maxDot = float.MinValue;
         Vector3 closestDirection = Vector3.zero;
 
         foreach (var direction in directions)
         {
-            // Compute the dot product between the current forward vector and the candidate direction
             float dot = Vector3.Dot(currentForward, direction);
-
             if (dot > maxDot)
             {
                 maxDot = dot;
@@ -214,7 +211,8 @@ public class PlayerCharacter : MonoBehaviour
 
         return closestDirection;
     }
-    //The version that assumes the global directions. 
+
+     //The version that assumes the global directions. 
     private Vector3 GetClosestDirection(Vector3 currentForward)
     {
         // Define the cardinal directions on the XZ plane
@@ -243,7 +241,6 @@ public class PlayerCharacter : MonoBehaviour
 
         return closestDirection;
     }
-
 
     private IEnumerator Turn(float direction)
     {
@@ -291,10 +288,10 @@ public class PlayerCharacter : MonoBehaviour
         transform.position = originalPosition;
         isMoving = false;
     }
+
     public void OnInteractDoor(Door door)
     {
         currentDoor = door;
         ChangeState(PlayerState.DoorOpeningState);
     }
-
 }

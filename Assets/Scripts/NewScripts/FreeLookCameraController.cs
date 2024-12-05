@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 using UnityEngine.InputSystem;
 
 public class FreeLookCameraController : MonoBehaviour
@@ -14,13 +15,21 @@ public class FreeLookCameraController : MonoBehaviour
     private Vector2 lookInput; // Stores the current input for looking
     private float verticalRotation = 0f; // Tracks the vertical rotation of the camera
     private float horizontalRotation = 0f; // Tracks the horizontal rotation of the player object
-
+    
+    private PlayerCharacter player;
     private void Start()
     {
+        player = gameObject.transform.parent.GetComponent<PlayerCharacter>();
+        if (player == null)
+        {
+            Debug.LogError("NO PLAYERCHARACTER FOUND on CameraController");
+        }
+        player.OnStateEnter += HandleStateEnter;
+        //player.OnStateExit += HandleStateExit;
         // Lock and hide the cursor
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-
+        
         // If no cameraTransform is assigned, use the camera on this GameObject
         if (cameraTransform == null)
         {
@@ -37,7 +46,11 @@ public class FreeLookCameraController : MonoBehaviour
     private void Update()
     {
         // Process the camera movement
-        RotateCamera();
+        if(player.CurrentState!=PlayerState.DoorOpeningState)
+        {
+            RotateCamera(); 
+        }
+        
     }
 
     private void RotateCamera()
@@ -54,4 +67,53 @@ public class FreeLookCameraController : MonoBehaviour
         verticalRotation = Mathf.Clamp(verticalRotation, minVerticalAngle, maxVerticalAngle);
         cameraTransform.localRotation = Quaternion.Euler(verticalRotation, 0f, 0f);
     }
+
+    public void HandleStateEnter(PlayerState state)
+    {
+        
+        if(state == PlayerState.DoorOpeningState)
+        {
+            //Debug.Log("HEREEeeEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
+            //Don't like im calling the function from here but imma just do it real quick. 
+            StartCoroutine(ShiftCamera(player.GetClosestDirection(transform.forward),0.3f));
+        }
+    }
+
+
+    public IEnumerator ShiftCamera(Vector3 targetDirection, float duration)
+    {
+        // Cache the initial rotation of the camera and the player
+        Quaternion startCameraRotation = cameraTransform.localRotation;
+        Quaternion startPlayerRotation = transform.localRotation;
+
+        // Calculate the target horizontal rotation based on the target direction
+        float targetHorizontalRotation = Mathf.Atan2(targetDirection.x, targetDirection.z) * Mathf.Rad2Deg;
+        // The vertical rotation will remain the same since it's handled separately
+
+        float elapsedTime = 0f;
+
+        while (elapsedTime < duration)
+        {
+            // Interpolate the horizontal rotation for the player object (Y-axis)
+            float horizontalRotation = Mathf.LerpAngle(startPlayerRotation.eulerAngles.y, targetHorizontalRotation, elapsedTime / duration);
+            transform.localRotation = Quaternion.Euler(0f, horizontalRotation, 0f);
+
+            // Interpolate the vertical rotation for the camera (X-axis)
+            float verticalRotation = Mathf.LerpAngle(startCameraRotation.eulerAngles.x, 0f, elapsedTime / duration);  // Keeping it upright
+            cameraTransform.localRotation = Quaternion.Euler(verticalRotation, 0f, 0f);
+
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        // Ensure the final rotation is precisely set
+        transform.localRotation = Quaternion.Euler(0f, targetHorizontalRotation, 0f);
+        cameraTransform.localRotation = Quaternion.Euler(0f, 0f, 0f);
+    }
+
+    private void OnDestroy() {
+        player.OnStateEnter -= HandleStateEnter;
+        //player.OnStateExit -= HandleStateExit;
+    }
+    
 }
