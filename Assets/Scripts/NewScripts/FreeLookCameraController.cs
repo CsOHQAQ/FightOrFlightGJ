@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using UnityEngine.InputSystem;
+using UnityEngine.Events;
 
 public class FreeLookCameraController : MonoBehaviour
 {
@@ -12,11 +13,17 @@ public class FreeLookCameraController : MonoBehaviour
     [Header("Control Settings")]
     [SerializeField] private Transform cameraTransform; // Assign the camera Transform explicitly if not on the same GameObject
 
+    [Header("Events")]
+    [SerializeField] private UnityEvent onLookedToBottom; // Event to notify when the camera looks downward beyond the threshold
+    [SerializeField] private UnityEvent onExitLookedToBottom; // Event to notify when the camera exits looking downward
+
     private Vector2 lookInput; // Stores the current input for looking
     private float verticalRotation = 0f; // Tracks the vertical rotation of the camera
     private float horizontalRotation = 0f; // Tracks the horizontal rotation of the player object
-    
+
     private PlayerCharacter player;
+    private bool hasLookedToBottom = false; // To prevent multiple triggers for the same downward movement
+
     private void Start()
     {
         player = gameObject.transform.parent.GetComponent<PlayerCharacter>();
@@ -25,11 +32,11 @@ public class FreeLookCameraController : MonoBehaviour
             Debug.LogError("NO PLAYERCHARACTER FOUND on CameraController");
         }
         player.OnStateEnter += HandleStateEnter;
-        //player.OnStateExit += HandleStateExit;
+
         // Lock and hide the cursor
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-        
+
         // If no cameraTransform is assigned, use the camera on this GameObject
         if (cameraTransform == null)
         {
@@ -46,11 +53,10 @@ public class FreeLookCameraController : MonoBehaviour
     private void Update()
     {
         // Process the camera movement
-        if(player.CurrentState!=PlayerState.DoorOpeningState)
+        if (player.CurrentState != PlayerState.DoorOpeningState)
         {
-            RotateCamera(); 
+            RotateCamera();
         }
-        
     }
 
     private void RotateCamera()
@@ -66,19 +72,38 @@ public class FreeLookCameraController : MonoBehaviour
         verticalRotation -= scaledInput.y;
         verticalRotation = Mathf.Clamp(verticalRotation, minVerticalAngle, maxVerticalAngle);
         cameraTransform.localRotation = Quaternion.Euler(verticalRotation, 0f, 0f);
+
+        // Check if the camera is looking down and invoke the event if needed
+        CheckLookedToBottom();
+    }
+
+    private void CheckLookedToBottom()
+    {
+        float downwardThreshold = 70f; // Positive value for downward threshold
+
+        // Check if the camera is now looking downward beyond the threshold
+        if (verticalRotation >= downwardThreshold && !hasLookedToBottom)
+        {
+            hasLookedToBottom = true;
+            Debug.Log("LOOKING AT BOTTOM");
+            onLookedToBottom?.Invoke(); // Invoke the event when the camera looks down beyond the threshold
+        }
+        // Check if the camera moved up beyond the threshold, exiting the downward look
+        else if (verticalRotation < downwardThreshold && hasLookedToBottom)
+        {
+            hasLookedToBottom = false;
+            Debug.Log("EXIT LOOKING AT BOTTOM");
+            onExitLookedToBottom?.Invoke(); // Invoke the event when the camera exits looking down beyond the threshold
+        }
     }
 
     public void HandleStateEnter(PlayerState state)
     {
-        
-        if(state == PlayerState.DoorOpeningState)
+        if (state == PlayerState.DoorOpeningState)
         {
-            //Debug.Log("HEREEeeEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
-            //Don't like im calling the function from here but imma just do it real quick. 
-            StartCoroutine(ShiftCamera(player.GetClosestDirection(transform.forward),0.3f));
+            StartCoroutine(ShiftCamera(player.GetClosestDirection(transform.forward), 0.3f));
         }
     }
-
 
     public IEnumerator ShiftCamera(Vector3 targetDirection, float duration)
     {
@@ -88,7 +113,6 @@ public class FreeLookCameraController : MonoBehaviour
 
         // Calculate the target horizontal rotation based on the target direction
         float targetHorizontalRotation = Mathf.Atan2(targetDirection.x, targetDirection.z) * Mathf.Rad2Deg;
-        // The vertical rotation will remain the same since it's handled separately
 
         float elapsedTime = 0f;
 
@@ -99,7 +123,7 @@ public class FreeLookCameraController : MonoBehaviour
             transform.localRotation = Quaternion.Euler(0f, horizontalRotation, 0f);
 
             // Interpolate the vertical rotation for the camera (X-axis)
-            float verticalRotation = Mathf.LerpAngle(startCameraRotation.eulerAngles.x, 0f, elapsedTime / duration);  // Keeping it upright
+            float verticalRotation = Mathf.LerpAngle(startCameraRotation.eulerAngles.x, 0f, elapsedTime / duration); // Keeping it upright
             cameraTransform.localRotation = Quaternion.Euler(verticalRotation, 0f, 0f);
 
             elapsedTime += Time.deltaTime;
@@ -111,9 +135,8 @@ public class FreeLookCameraController : MonoBehaviour
         cameraTransform.localRotation = Quaternion.Euler(0f, 0f, 0f);
     }
 
-    private void OnDestroy() {
+    private void OnDestroy()
+    {
         player.OnStateEnter -= HandleStateEnter;
-        //player.OnStateExit -= HandleStateExit;
     }
-    
 }
