@@ -154,6 +154,7 @@ public class PlayerCharacter : MonoBehaviour
             // StartCoroutine(Turn(inputDirection.x));
         }
     }
+    
 
     public void OnDoorFullyOpened()
     {
