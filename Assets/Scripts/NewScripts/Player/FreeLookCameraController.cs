@@ -11,6 +11,8 @@ public class FreeLookCameraController : MonoBehaviour
     [SerializeField] private float maxVerticalAngle = 80f; // Maximum upward/downward angle
     [SerializeField] private float minVerticalAngle = -80f; // Minimum downward/upward angle
 
+    [SerializeField] private float centerCameraDuration = 0.6f;
+
     [Header("Horizontal Rotation Settings")]
     [SerializeField] private bool limitHorizontalRotation = false; // Whether or not to limit horizontal rotation
     [SerializeField] private float horizontalLimit = 90f; // Total horizontal rotation limit (same value for both directions)
@@ -33,7 +35,6 @@ public class FreeLookCameraController : MonoBehaviour
     private PlayerCharacter player;
     private bool hasLookedToBottom = false; // To prevent multiple triggers for the same downward movement
     private bool canRotateCamera = true;
-
 
     private void Start()
     {
@@ -78,8 +79,6 @@ public class FreeLookCameraController : MonoBehaviour
                     break;
             }
         }
-
-
     }
 
     public void OnLook(InputAction.CallbackContext context)
@@ -113,9 +112,9 @@ public class FreeLookCameraController : MonoBehaviour
 
     private void RotateCameraWithCameraRotation()
     {
-        if(player.CurrentDoor.CurrentOpenness<=0.5)
+        if(player.CurrentDoor.CurrentOpenness <= 0.5f)
         {
-            StartCoroutine(ShiftCamera(player.GetClosestDirection(transform.forward), 0.3f));
+            StartCoroutine(ShiftCamera(player.GetClosestDirection(transform.forward), centerCameraDuration));
             return;
         }
 
@@ -185,7 +184,7 @@ public class FreeLookCameraController : MonoBehaviour
         if (state == PlayerState.DoorOpeningState)
         {
             canRotateCamera = false;
-            StartCoroutine(ShiftCamera(player.GetClosestDirection(transform.forward), 0.3f));
+            StartCoroutine(ShiftCamera(player.GetClosestDirection(transform.forward),centerCameraDuration));
             limitHorizontalRotation = true;
         }
     }
@@ -195,9 +194,8 @@ public class FreeLookCameraController : MonoBehaviour
         if (state == PlayerState.DoorOpeningState)
         {
             canRotateCamera = false;
-            StartCoroutine(ShiftCameraLocalPosition(Vector3.zero, 0.3f));
+            StartCoroutine(ShiftCameraLocalPosition(Vector3.zero, centerCameraDuration));
             limitHorizontalRotation = false;
-            
         }
     }
 
@@ -212,11 +210,11 @@ public class FreeLookCameraController : MonoBehaviour
 
         while (elapsedTime < duration)
         {
-            float horizontalRotation = Mathf.LerpAngle(startPlayerRotation.eulerAngles.y, targetHorizontalRotation, elapsedTime / duration);
-            transform.localRotation = Quaternion.Euler(0f, horizontalRotation, 0f);
+            float newHorizontalRotation = Mathf.LerpAngle(startPlayerRotation.eulerAngles.y, targetHorizontalRotation, elapsedTime / duration);
+            transform.localRotation = Quaternion.Euler(0f, newHorizontalRotation, 0f);
 
-            float verticalRotation = Mathf.LerpAngle(startCameraRotation.eulerAngles.x, 0f, elapsedTime / duration);
-            cameraTransform.localRotation = Quaternion.Euler(verticalRotation, 0f, 0f);
+            float newVerticalRotation = Mathf.LerpAngle(startCameraRotation.eulerAngles.x, 0f, elapsedTime / duration);
+            cameraTransform.localRotation = Quaternion.Euler(newVerticalRotation, 0f, 0f);
 
             elapsedTime += Time.deltaTime;
             yield return null;
@@ -224,6 +222,11 @@ public class FreeLookCameraController : MonoBehaviour
 
         transform.localRotation = Quaternion.Euler(0f, targetHorizontalRotation, 0f);
         cameraTransform.localRotation = Quaternion.Euler(0f, 0f, 0f);
+
+        // 同步内部变量 (新增)
+        horizontalRotation = transform.localEulerAngles.y;
+        verticalRotation = cameraTransform.localEulerAngles.x;
+
         canRotateCamera = true;
     }
 
@@ -246,9 +249,14 @@ public class FreeLookCameraController : MonoBehaviour
 
         // Ensure the final local position is set to the target
         cameraTransform.localPosition = targetLocalPosition;
-        canRotateCamera=true;
-    }
+        
+        // 同步内部变量 (新增)
+        // 在位置还原后，确保内部rotation变量也与当前Transform一致
+        horizontalRotation = transform.localEulerAngles.y;
+        verticalRotation = cameraTransform.localEulerAngles.x;
 
+        canRotateCamera = true;
+    }
 
     private void OnDestroy()
     {
