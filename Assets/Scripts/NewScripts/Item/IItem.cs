@@ -1,13 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using System;
 public enum ActivationTrigger {
     LeftMouse,
     RightMouse,
     MiddleMouse,
     KeyboardKey,
-    // 将来可扩展更多输入类型
+
 }
 
 public interface IItem

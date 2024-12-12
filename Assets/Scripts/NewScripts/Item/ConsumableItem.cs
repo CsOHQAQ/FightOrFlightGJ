@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class ConsumableItem : BaseItem, IStackable, IActivatable {
     
@@ -20,24 +21,24 @@ public class ConsumableItem : BaseItem, IStackable, IActivatable {
         return other is ConsumableItem c && c.data.ID == this.data.ID;
     }
 
-    // IActivatable实现
+    // Implementation of IActivatable
     public void BeginUse(ICharacter user, ActivationTrigger trigger) {
-        // 消耗品的使用可能只需要在按下瞬间触发即可
-        // 减少一单位堆叠
+        // The usage of consumables might only need to be triggered instantly upon pressing.
+        // Decrease the stack count by one.
         CurrentStackCount--;
-        // 触发事件或效果（可用事件系统或直接调用user.AddHealth(...)）
-        // 如果要事件化，可使用OnUsed事件（在此设计中可新增IEventItem接口或直接在此调用）
+        // Trigger an event or effect (use an event system or directly call methods like user.AddHealth(...)).
+        // If event-based behavior is needed, you can use an OnUsed event (in this design, you could add an IEventItem interface or directly invoke it here).
     }
 
     public void HoldUse(ICharacter user, ActivationTrigger trigger) {
-        // 对消耗品或许不需要实现长按逻辑，留空即可
+        // Consumables may not need to implement a hold logic; leave empty if not required.
     }
 
     public void EndUse(ICharacter user, ActivationTrigger trigger) {
-        // 不需要特殊结束逻辑
+        // No special logic required for ending usage.
     }
 
     public void OnScroll(ICharacter user, float scrollDelta) {
-        // 若此消耗品不需滚轮操作，可以不实现或留空
+        // If this consumable doesn't require scroll wheel functionality, this can remain unimplemented or empty.
     }
 }
