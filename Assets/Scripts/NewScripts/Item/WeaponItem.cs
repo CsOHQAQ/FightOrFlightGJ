@@ -10,7 +10,7 @@ public class WeaponItem : BaseItem, IEquipable, IActivatable {
     public EquipmentSlot SlotType { get; private set; }
     public string AmmoType { get; private set; }
 
-    // 可加上AttackPower、ReloadTime等属性
+    // Additional properties like AttackPower and ReloadTime can be added
     private bool isCharging = false;
 
     public WeaponItem(ItemData data, EquipmentSlot slotType, string ammoType) : base(data) {
@@ -26,34 +26,34 @@ public class WeaponItem : BaseItem, IEquipable, IActivatable {
         OnUnequipped?.Invoke(this, character);
     }
 
-    // IActivatable实现：根据输入进行攻击或模式切换
+    // Implementation of IActivatable: Perform attack or mode switching based on input
     public void BeginUse(ICharacter user, ActivationTrigger trigger) {
         if (trigger == ActivationTrigger.LeftMouse) {
-            // 左键按下开始蓄力或准备射击
+            // Pressing the left mouse button starts charging or prepares to shoot
             isCharging = true;
         } else if (trigger == ActivationTrigger.RightMouse) {
-            // 右键可能是开镜或切换射击模式
+            // The right mouse button might be for aiming or switching firing modes
         }
     }
 
     public void HoldUse(ICharacter user, ActivationTrigger trigger) {
         if (trigger == ActivationTrigger.LeftMouse && isCharging) {
-            // 蓄力中（如果是蓄力武器），增加蓄力数值
+            // While charging (if it's a charge-based weapon), increase the charge value
         }
     }
 
     public void EndUse(ICharacter user, ActivationTrigger trigger) {
         if (trigger == ActivationTrigger.LeftMouse && isCharging) {
-            // 蓄力完毕，松开左键发射子弹
+            // Charging is complete, release the left mouse button to fire a bullet
             isCharging = false;
-            // 检查AmmoType在角色背包中是否有弹药
-            // 消耗一发子弹并对目标或准星方向进行伤害计算
+            // Check if there is ammunition of AmmoType in the character's inventory
+            // Consume one bullet and calculate damage to the target or in the direction of the crosshair
         } 
-        // 如果是右键结束则是关闭瞄准
+        // If ending the right mouse button action, disable aiming
     }
 
     public void OnScroll(ICharacter user, float scrollDelta) {
-        // 滚轮操作可以用于调节射击角度、切换武器模式，或调整蓄力等
-        // 例如根据scrollDelta改变武器的某个内部参数
+        // The scroll wheel operation can be used to adjust the firing angle, switch weapon modes, or adjust charge, etc.
+        // For example, modify an internal parameter of the weapon based on scrollDelta
     }
 }
