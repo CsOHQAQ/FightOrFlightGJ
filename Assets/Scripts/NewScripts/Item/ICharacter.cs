@@ -24,6 +24,15 @@ public interface ICharacter {
     void EndUseItem(IActivatable item, ActivationTrigger trigger);
     void ScrollUseItem(IActivatable item, float scrollDelta);
 
+    public int GetAmmoCount(string ammoType)
+    {
+        return 1;
+    }
+
+    public void ConsumeAmmo(string ammoType, int ammountToLoad)
+    {
+        //deduct the corresponding ammo amount from inventory
+    }
     // Additional character attributes and methods can be extended as needed, such as:
     // - Character stats (e.g., strength, agility, intelligence)
     // - Movement methods (e.g., Move, Rotate)
