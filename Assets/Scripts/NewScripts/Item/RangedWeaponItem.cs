@@ -28,13 +28,17 @@ public class RangedWeaponItem : WeaponItem {
         if (Time.time < nextFireTime) return; // Prevent firing if we haven't reached the cooldown time
 
         if (trigger == ActivationTrigger.LeftMouse) {
-            // Check if we have ammo before starting to fire
+            // Immediately attempt to fire when the button is pressed
             if (CurrentMagazineAmmo > 0) {
-                // Begin firing logic; actual firing will occur on EndUse
-                // For some weapons (like charge-based), you might charge here.
-                // For simple weapons, you could consider firing immediately, but we'll stick to firing on EndUse.
+                CurrentMagazineAmmo--;
+                PerformHitscanOrProjectileShot(user);
+
+                // Set the next allowed fire time
+                nextFireTime = Time.time + FireCooldown;
             } else {
-                // No ammo in magazine, consider starting a reload or notify the player
+                // No ammo in magazine, try reloading or notify the player
+                // If you want to initiate reload automatically here, you can:
+                // StartReload(user);
             }
         } else if (trigger == ActivationTrigger.KeyboardKey) {
             // Assume this trigger initiates reload
@@ -43,30 +47,17 @@ public class RangedWeaponItem : WeaponItem {
     }
 
     public override void HoldUse(ICharacter user, ActivationTrigger trigger) {
-        // If the weapon requires charge mechanics, they can be handled here
+        // If the weapon requires charge mechanics or continuous fire while holding, implement it here.
+        // For a simple one-shot weapon, this may remain empty.
     }
 
     public override void EndUse(ICharacter user, ActivationTrigger trigger) {
-        if (IsReloading) return;
-
-        if (trigger == ActivationTrigger.LeftMouse) {
-            // Attempt to fire upon release of the mouse button
-            float currentTime = Time.time;
-            if (currentTime >= nextFireTime && CurrentMagazineAmmo > 0) {
-                // Fire the shot
-                CurrentMagazineAmmo--;
-                PerformHitscanOrProjectileShot(user);
-
-                // Set the next allowed fire time
-                nextFireTime = currentTime + FireCooldown;
-            } else {
-                // Either no ammo or still in cooldown
-            }
-        }
+        // If you previously relied on firing at release, this can now remain empty or be used for cleanup.
+        // For continuous fire weapons, you might stop firing logic here when the user releases the button.
     }
 
     public override void OnScroll(ICharacter user, float scrollDelta) {
-        // Scroll could be used to switch firing modes or adjust other parameters if needed
+        // Scroll can be used to switch firing modes or zoom levels if needed.
     }
 
     private void StartReload(ICharacter user) {
@@ -79,8 +70,6 @@ public class RangedWeaponItem : WeaponItem {
         }
 
         IsReloading = true;
-
-        // Use a delayed action to simulate the reload time
         DelayedAction(() => FinishReload(user), ReloadTime);
     }
 
@@ -96,9 +85,43 @@ public class RangedWeaponItem : WeaponItem {
     }
 
     private void PerformHitscanOrProjectileShot(ICharacter user) {
-        // Implement hitscan or projectile logic here
-        // For hitscan: Raycast forward, find target, apply damage if hit
-        // For projectile: Instantiate a projectile and apply physics
+        // Example hitscan logic:
+        Vector3 muzzlePos = GetMuzzleLocation(user);
+        Vector3 forwardDir = GetMuzzleForwardDirection(user);
+
+        // Example: if you have a max range for hitscan:
+        float range = 100f; // Adjust as needed
+        if (Physics.Raycast(muzzlePos, forwardDir, out RaycastHit hit, range)) {
+            IHitReceiver hitReceiver = hit.collider.GetComponent<IHitReceiver>();
+            if (hitReceiver != null) {
+                HitInfo hitInfo = new HitInfo {
+                    Damage = this.Damage,
+                    HitPoint = hit.point,
+                    HitNormal = hit.normal,
+                    Attacker = user,
+                    AdditionalData = null
+                };
+                hitReceiver.OnHit(hitInfo);
+            }
+        }
+
+        Debug.Log("Current Ammo Left: " + CurrentMagazineAmmo);
+    }
+
+    /// <summary>
+    /// Gets the "muzzle" location from where we start the ray.
+    /// In this implementation, it uses the player's main camera.
+    /// </summary>
+    private Vector3 GetMuzzleLocation(ICharacter user) {
+        // For a real game, avoid calling Camera.main repeatedly for performance; instead, store a reference.
+        return Camera.main.transform.position;
+    }
+
+    /// <summary>
+    /// Gets the forward direction from the camera, so the raycast aligns with the player's view.
+    /// </summary>
+    private Vector3 GetMuzzleForwardDirection(ICharacter user) {
+        return Camera.main.transform.forward;
     }
 
     private void DelayedAction(Action action, float delayTime) {

@@ -10,12 +10,12 @@ public enum PlayerState
     MenuState
 }
 
-public class PlayerCharacter : MonoBehaviour
+public class PlayerCharacter : MonoBehaviour, ICharacter
 {
     private bool isMoving = false;
     private InteractComponent interactComponent;
     private PlayerHandsComponent hand;
-    
+
     [SerializeField, Tooltip("Duration of the movement forward or backward in seconds.")]
     private float moveDuration = 1.0f;
 
@@ -45,8 +45,46 @@ public class PlayerCharacter : MonoBehaviour
     public event StateChangeHandler OnStateEnter;
     public event StateChangeHandler OnStateExit;
 
+    // ICharacter properties and fields
+    private float health = 100f; // Default health
+    public float Health
+    {
+        get => health;
+        set
+        {
+            health = Mathf.Clamp(value, 0f, MaxHealth);
+        }
+    }
+
+    public float MaxHealth => 100f;
+
+    private IActivatable currentActivatable;
+
     private void Awake()
     {
+        ItemData testData = new ItemData {
+            ID = "test_gun",
+            Name = "Test Gun",
+            Description = "A test ranged weapon",
+            IconPath = "",
+            Weight = 1.0f,
+            Value = 100,
+            MaxStackCount = 1
+        };
+
+        // Create a ranged weapon with basic parameters
+        RangedWeaponItem testWeapon = new RangedWeaponItem(
+            data: testData,
+            slotType: EquipmentSlot.Hands,
+            damage: 25f,
+            ammoType: "9mm",
+            maxMagazineAmmo: 12,
+            reloadTime: 2.0f,
+            fireCooldown: 0.5f
+        );
+
+        // Equip the weapon
+        EquipItem(testWeapon);
         hand = GetComponentInChildren<PlayerHandsComponent>();
         interactComponent = GetComponentInChildren<InteractComponent>();
         if (bodyTransform == null)
@@ -71,13 +109,8 @@ public class PlayerCharacter : MonoBehaviour
 
     public void ChangeState(PlayerState newState)
     {
-        
         OnStateExitInternal(currentState);
-        // Change to the new state
         currentState = newState;
-
-        // Call OnStateEnter for the new stateW
-        // Enter the new state
         OnStateEnterInternal(currentState);
     }
 
@@ -104,7 +137,6 @@ public class PlayerCharacter : MonoBehaviour
 
     private void OnStateExitInternal(PlayerState state)
     {
-        // Call OnStateExit for the current state
         OnStateExit?.Invoke(state);
         switch (state)
         {
@@ -122,6 +154,28 @@ public class PlayerCharacter : MonoBehaviour
         }
     }
 
+    public void OnLeftClickPerformed(InputAction.CallbackContext context)
+    {
+        if (currentState != PlayerState.MovementState || isMoving)
+            return;
+        if(currentActivatable == null)
+            return;
+        if (context.phase == InputActionPhase.Started)
+        {
+            
+            BeginUseItem(currentActivatable, ActivationTrigger.LeftMouse);
+
+        }
+        else if (context.phase == InputActionPhase.Performed)
+        {
+            HoldUseItem(currentActivatable, ActivationTrigger.LeftMouse);
+        }
+        else if (context.phase == InputActionPhase.Canceled)
+        {
+            EndUseItem(currentActivatable, ActivationTrigger.LeftMouse);
+        }
+    }
+
     public void OnMovementPerformed(InputAction.CallbackContext context)
     {
         if (currentState != PlayerState.MovementState || isMoving)
@@ -135,7 +189,6 @@ public class PlayerCharacter : MonoBehaviour
     {
         if (inputDirection.y != 0)
         {
-            Debug.Log(GetClosestDirection(bodyTransform.forward));
             InteractInfo interactInfo = interactComponent.PerformInteractionCheck(GetClosestDirection(bodyTransform.forward) * inputDirection.y);
             if (interactInfo.InteractableObject == null)
             {
@@ -151,10 +204,10 @@ public class PlayerCharacter : MonoBehaviour
         }
         else if (inputDirection.x != 0)
         {
+            // For turning, uncomment and use as needed:
             // StartCoroutine(Turn(inputDirection.x));
         }
     }
-    
 
     public void OnDoorFullyOpened()
     {
@@ -175,9 +228,7 @@ public class PlayerCharacter : MonoBehaviour
         Vector3 right = Vector3.right;
 
         Vector3 currentForward = new Vector3(bodyTransform.forward.x, 0, bodyTransform.forward.z).normalized;
-
         Vector3 closestDirection = GetClosestDirection(currentForward, forward, backward, left, right);
-
         Vector3 moveDirection = closestDirection * Mathf.Sign(direction);
 
         float elapsedTime = 0f;
@@ -213,26 +264,20 @@ public class PlayerCharacter : MonoBehaviour
         return closestDirection;
     }
 
-     //The version that assumes the global directions. 
     private Vector3 GetClosestDirection(Vector3 currentForward)
     {
-        // Define the cardinal directions on the XZ plane
-        Vector3 forward = Vector3.forward;  // Global forward
-        Vector3 backward = Vector3.back;   // Global backward
-        Vector3 left = Vector3.left;       // Global left
-        Vector3 right = Vector3.right;     // Global right
+        Vector3 forward = Vector3.forward;
+        Vector3 backward = Vector3.back;
+        Vector3 left = Vector3.left;
+        Vector3 right = Vector3.right;
 
-        // Initialize variables for tracking the closest direction
         float maxDot = float.MinValue;
         Vector3 closestDirection = Vector3.zero;
-
-        // Iterate through the cardinal directions
         Vector3[] directions = { forward, backward, left, right };
+
         foreach (var direction in directions)
         {
-            // Compute the dot product between the current forward vector and the candidate direction
             float dot = Vector3.Dot(currentForward, direction);
-
             if (dot > maxDot)
             {
                 maxDot = dot;
@@ -294,5 +339,83 @@ public class PlayerCharacter : MonoBehaviour
     {
         currentDoor = door;
         ChangeState(PlayerState.DoorOpeningState);
+    }
+
+    // ICharacter Implementation
+    public void AddHealth(float amount)
+    {
+        Health += amount;
+    }
+
+    public void TakeDamage(float amount)
+    {
+        Health -= amount;
+        if (Health < 0f) Health = 0f;
+    }
+
+    public bool AddItem(IItem item)
+    {
+        // For now, always return true.
+        // In a real game, you would add item to inventory.
+        return true;
+    }
+
+    public bool RemoveItem(IItem item)
+    {
+        // For now, always return true.
+        // In a real game, you would remove the item from inventory.
+        return true;
+    }
+
+    public bool EquipItem(IEquipable item)
+    {
+        // Call Equip on the item. 
+        // Optionally store a reference to the equipped item if you need to track it.
+        var activatableItem = item as IActivatable;
+        if (activatableItem != null)
+        {
+            currentActivatable = activatableItem;
+        }
+        item.Equip(this);
+        return true;
+    }
+
+    public bool UnequipItem(IEquipable item)
+    {
+        // Call Unequip on the item.
+        item.Unequip(this);
+        return true;
+    }
+
+    public void BeginUseItem(IActivatable item, ActivationTrigger trigger)
+    {
+        item.BeginUse(this, trigger);
+    }
+
+    public void HoldUseItem(IActivatable item, ActivationTrigger trigger)
+    {
+        item.HoldUse(this, trigger);
+    }
+
+    public void EndUseItem(IActivatable item, ActivationTrigger trigger)
+    {
+        item.EndUse(this, trigger);
+    }
+
+    public void ScrollUseItem(IActivatable item, float scrollDelta)
+    {
+        item.OnScroll(this, scrollDelta);
+    }
+
+    public int GetAmmoCount(string ammoType)
+    {
+        // For testing, return a large number
+        return 50;
+    }
+
+    public void ConsumeAmmo(string ammoType, int amountToLoad)
+    {
+        // For testing, just log ammo consumption.
+        Debug.Log($"Consumed {amountToLoad} rounds of {ammoType}.");
     }
 }

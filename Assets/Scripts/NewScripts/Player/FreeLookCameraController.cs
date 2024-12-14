@@ -55,6 +55,9 @@ public class FreeLookCameraController : MonoBehaviour
         {
             cameraTransform = Camera.main.transform;
         }
+        else{
+            
+        }
     }
 
     private void Update()
@@ -79,6 +82,7 @@ public class FreeLookCameraController : MonoBehaviour
                     break;
             }
         }
+        
     }
 
     public void OnLook(InputAction.CallbackContext context)
