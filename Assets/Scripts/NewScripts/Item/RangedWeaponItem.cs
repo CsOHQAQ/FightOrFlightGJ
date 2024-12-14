@@ -86,11 +86,16 @@ public class RangedWeaponItem : WeaponItem {
 
     private void PerformHitscanOrProjectileShot(ICharacter user) {
         // Example hitscan logic:
-        Vector3 muzzlePos = GetMuzzleLocation(user);
-        Vector3 forwardDir = GetMuzzleForwardDirection(user);
+        Vector3 muzzlePos = GetMuzzleLocation();
+        Vector3 forwardDir = GetMuzzleForwardDirection();
 
         // Example: if you have a max range for hitscan:
         float range = 100f; // Adjust as needed
+
+        // Visualize the hitscan ray (from muzzle position in forward direction)
+        Debug.DrawRay(muzzlePos, forwardDir * range, Color.red, 1.0f); // Duration = 1 second
+
+        // Perform the actual hitscan raycast
         if (Physics.Raycast(muzzlePos, forwardDir, out RaycastHit hit, range)) {
             IHitReceiver hitReceiver = hit.collider.GetComponent<IHitReceiver>();
             if (hitReceiver != null) {
@@ -103,16 +108,23 @@ public class RangedWeaponItem : WeaponItem {
                 };
                 hitReceiver.OnHit(hitInfo);
             }
+
+            // Optionally, draw a line to the hit point for visualization
+            Debug.DrawLine(muzzlePos, hit.point, Color.green, 1.0f); // Green line to the hit point
+        } else {
+            // Optionally, draw the full range ray when no hit is detected
+            Debug.DrawRay(muzzlePos, forwardDir * range, Color.yellow, 1.0f); // Yellow ray if no hit
         }
 
         Debug.Log("Current Ammo Left: " + CurrentMagazineAmmo);
     }
 
+
     /// <summary>
     /// Gets the "muzzle" location from where we start the ray.
     /// In this implementation, it uses the player's main camera.
     /// </summary>
-    private Vector3 GetMuzzleLocation(ICharacter user) {
+    private Vector3 GetMuzzleLocation() {
         // For a real game, avoid calling Camera.main repeatedly for performance; instead, store a reference.
         return Camera.main.transform.position;
     }
@@ -120,7 +132,7 @@ public class RangedWeaponItem : WeaponItem {
     /// <summary>
     /// Gets the forward direction from the camera, so the raycast aligns with the player's view.
     /// </summary>
-    private Vector3 GetMuzzleForwardDirection(ICharacter user) {
+    private Vector3 GetMuzzleForwardDirection() {
         return Camera.main.transform.forward;
     }
 
@@ -128,4 +140,7 @@ public class RangedWeaponItem : WeaponItem {
         // In Unity, implement using a coroutine:
         // StartCoroutine(ReloadCoroutine(action, delayTime));
     }
+
 }
+
+
