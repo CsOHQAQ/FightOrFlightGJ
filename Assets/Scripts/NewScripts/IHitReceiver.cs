@@ -7,9 +7,8 @@ public interface IHitReceiver {
 }
 
 public struct HitInfo {
-    public float Damage;
+    
     public Vector3 HitPoint;
     public Vector3 HitNormal;
-    public ICharacter Attacker; // Who caused this hit
     public object AdditionalData; // Optional field for special cases, or use specialized fields
 }

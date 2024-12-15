@@ -88,25 +88,40 @@ public class RangedWeaponItem : WeaponItem {
         // Example hitscan logic:
         Vector3 muzzlePos = GetMuzzleLocation();
         Vector3 forwardDir = GetMuzzleForwardDirection();
-
         // Example: if you have a max range for hitscan:
         float range = 100f; // Adjust as needed
 
         // Visualize the hitscan ray (from muzzle position in forward direction)
         Debug.DrawRay(muzzlePos, forwardDir * range, Color.red, 1.0f); // Duration = 1 second
 
+        //Prepare EventContext
+        EventContext context = new EventContext {
+                Attacker = user,
+                AttackInfo = new AttackData {
+                    BaseDamage = this.Damage,
+                    AmmoType = this.AmmoType,
+                }
+            };
+        EventChainManager.Instance.ExecuteAttackChain(context);
+
         // Perform the actual hitscan raycast
         if (Physics.Raycast(muzzlePos, forwardDir, out RaycastHit hit, range)) {
             IHitReceiver hitReceiver = hit.collider.GetComponent<IHitReceiver>();
             if (hitReceiver != null) {
                 HitInfo hitInfo = new HitInfo {
-                    Damage = this.Damage,
                     HitPoint = hit.point,
                     HitNormal = hit.normal,
-                    Attacker = user,
                     AdditionalData = null
                 };
-                hitReceiver.OnHit(hitInfo);
+            context.HitData = new HitData {
+                HitInfo = hitInfo,
+                FinalDamage = 0f, // start from 0;
+                WasCrit = false,
+                IsLethalHit = false
+            };
+            context.Target = hitReceiver;
+            EventChainManager.Instance.ExecuteHitChain(context);
+                //hitReceiver.OnHit(hitInfo);
             }
 
             // Optionally, draw a line to the hit point for visualization

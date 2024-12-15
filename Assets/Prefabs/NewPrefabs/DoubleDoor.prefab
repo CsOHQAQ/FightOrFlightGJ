@@ -654,6 +654,7 @@ GameObject:
   - component: {fileID: 5508698199826336777}
   - component: {fileID: 1230278393046082895}
   - component: {fileID: 8858306534722491980}
+  - component: {fileID: 8544551074928417566}
   m_Layer: 6
   m_Name: DoubleDoor
   m_TagString: Untagged
@@ -720,3 +721,15 @@ MonoBehaviour:
   doorOpenessPerInput: 0.05
   MaxDoorAngle: 120
   doorOpenSpeed: 2
+--- !u!114 &8544551074928417566
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8934210863750477405}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50d1d849c8532634e9bc093320afa8b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

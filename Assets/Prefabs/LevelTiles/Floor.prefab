@@ -10,6 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 4143864069711054353}
   - component: {fileID: 2202216862285227881}
+  - component: {fileID: 2040667544687741987}
+  - component: {fileID: 6990160341431686901}
   m_Layer: 0
   m_Name: Floor
   m_TagString: Untagged
@@ -84,3 +86,36 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!65 &2040667544687741987
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2582467057710363736}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 2, y: 2.0000005, z: 0.20000005}
+  m_Center: {x: 0, y: 0, z: 0.1}
+--- !u!114 &6990160341431686901
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2582467057710363736}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50d1d849c8532634e9bc093320afa8b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
