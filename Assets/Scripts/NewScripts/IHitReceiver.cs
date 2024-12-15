@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public interface IHitReceiver {
-    void OnHit(HitInfo hitInfo);
+    void OnHit(HitData hitData);
+    //changed type from HitInfo to HitData so there's more info passed here to be used. 
 }
 
 public struct HitInfo {

@@ -10,21 +10,21 @@ public class MeleeWeaponItem : WeaponItem {
         this.SwingCooldown = swingCooldown;
     }
 
-    public override void BeginUse(ICharacter user, ActivationTrigger trigger) {
+    public override void BeginUse(IPlayerCharacter user, ActivationTrigger trigger) {
         if (trigger == ActivationTrigger.LeftMouse) {
             
         }
     }
 
-    public override void HoldUse(ICharacter user, ActivationTrigger trigger) {
+    public override void HoldUse(IPlayerCharacter user, ActivationTrigger trigger) {
        
     }
 
-    public override void EndUse(ICharacter user, ActivationTrigger trigger) {
+    public override void EndUse(IPlayerCharacter user, ActivationTrigger trigger) {
         
     }
 
-    public override void OnScroll(ICharacter user, float scrollDelta) {
+    public override void OnScroll(IPlayerCharacter user, float scrollDelta) {
         
     }
 }

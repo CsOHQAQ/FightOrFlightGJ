@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 1132428098696798354}
   - component: {fileID: 5703518474040746598}
   - component: {fileID: 1071538573366919943}
+  - component: {fileID: 1292104481838379837}
   m_Layer: 0
   m_Name: NewSlime
   m_TagString: Untagged
@@ -125,6 +126,18 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.625, y: 0.5, z: 0.2}
   m_Center: {x: 0, y: 0.25, z: 0}
+--- !u!114 &1292104481838379837
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4428409925227449014}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9129c540df7d2b9438fbe293195b2d64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &3531503291843658088
 PrefabInstance:
   m_ObjectHideFlags: 0

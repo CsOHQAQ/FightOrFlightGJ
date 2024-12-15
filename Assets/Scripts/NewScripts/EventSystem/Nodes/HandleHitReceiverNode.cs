@@ -15,6 +15,7 @@ public class HandleHitReceiverNode : IEventNode
         if (context.Target is not ICharacter character) {
             context.ShouldContinue = false; // Break the event chain
             Debug.Log("HitReceiver does not implement ICharacter or other valid types. Breaking the event chain.");
+            context.Target.OnHit(context.HitData);
         }
     }
 }

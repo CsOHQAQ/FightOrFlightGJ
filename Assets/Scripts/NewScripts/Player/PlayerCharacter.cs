@@ -10,7 +10,7 @@ public enum PlayerState
     MenuState
 }
 
-public class PlayerCharacter : MonoBehaviour, ICharacter
+public class PlayerCharacter : MonoBehaviour, IPlayerCharacter
 {
     private bool isMoving = false;
     private InteractComponent interactComponent;

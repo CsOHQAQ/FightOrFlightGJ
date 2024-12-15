@@ -36,18 +36,18 @@ public enum EquipmentSlot {
 
 public interface IEquipable {
     EquipmentSlot SlotType { get; }
-    event Action<IItem, ICharacter> OnEquipped;
-    event Action<IItem, ICharacter> OnUnequipped;
+    event Action<IItem, IPlayerCharacter> OnEquipped;
+    event Action<IItem, IPlayerCharacter> OnUnequipped;
 
-    void Equip(ICharacter character);
-    void Unequip(ICharacter character);
+    void Equip(IPlayerCharacter character);
+    void Unequip(IPlayerCharacter character);
 }
 
 public interface IActivatable {
-    void BeginUse(ICharacter user, ActivationTrigger trigger);
-    void HoldUse(ICharacter user, ActivationTrigger trigger);
-    void EndUse(ICharacter user, ActivationTrigger trigger);
-    void OnScroll(ICharacter user, float scrollDelta);
+    void BeginUse(IPlayerCharacter user, ActivationTrigger trigger);
+    void HoldUse(IPlayerCharacter user, ActivationTrigger trigger);
+    void EndUse(IPlayerCharacter user, ActivationTrigger trigger);
+    void OnScroll(IPlayerCharacter user, float scrollDelta);
 }
 
 public interface IAmmo : IItem, IStackable 

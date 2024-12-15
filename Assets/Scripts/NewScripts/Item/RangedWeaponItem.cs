@@ -23,7 +23,7 @@ public class RangedWeaponItem : WeaponItem {
         this.CurrentMagazineAmmo = maxMagazineAmmo; 
     }
 
-    public override void BeginUse(ICharacter user, ActivationTrigger trigger) {
+    public override void BeginUse(IPlayerCharacter user, ActivationTrigger trigger) {
         if (IsReloading) return; 
         if (Time.time < nextFireTime) return; // Prevent firing if we haven't reached the cooldown time
 
@@ -46,21 +46,21 @@ public class RangedWeaponItem : WeaponItem {
         }
     }
 
-    public override void HoldUse(ICharacter user, ActivationTrigger trigger) {
+    public override void HoldUse(IPlayerCharacter user, ActivationTrigger trigger) {
         // If the weapon requires charge mechanics or continuous fire while holding, implement it here.
         // For a simple one-shot weapon, this may remain empty.
     }
 
-    public override void EndUse(ICharacter user, ActivationTrigger trigger) {
+    public override void EndUse(IPlayerCharacter user, ActivationTrigger trigger) {
         // If you previously relied on firing at release, this can now remain empty or be used for cleanup.
         // For continuous fire weapons, you might stop firing logic here when the user releases the button.
     }
 
-    public override void OnScroll(ICharacter user, float scrollDelta) {
+    public override void OnScroll(IPlayerCharacter user, float scrollDelta) {
         // Scroll can be used to switch firing modes or zoom levels if needed.
     }
 
-    private void StartReload(ICharacter user) {
+    private void StartReload(IPlayerCharacter user) {
         if (CurrentMagazineAmmo == MaxMagazineAmmo) return; // Already full
 
         int ammoInInventory = user.GetAmmoCount(AmmoType);
@@ -73,7 +73,7 @@ public class RangedWeaponItem : WeaponItem {
         DelayedAction(() => FinishReload(user), ReloadTime);
     }
 
-    private void FinishReload(ICharacter user) {
+    private void FinishReload(IPlayerCharacter user) {
         int needed = MaxMagazineAmmo - CurrentMagazineAmmo;
         int ammoInInventory = user.GetAmmoCount(AmmoType);
 
@@ -84,7 +84,7 @@ public class RangedWeaponItem : WeaponItem {
         IsReloading = false;
     }
 
-    private void PerformHitscanOrProjectileShot(ICharacter user) {
+    private void PerformHitscanOrProjectileShot(IPlayerCharacter user) {
         // Example hitscan logic:
         Vector3 muzzlePos = GetMuzzleLocation();
         Vector3 forwardDir = GetMuzzleForwardDirection();
