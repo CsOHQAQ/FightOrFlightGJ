@@ -25,17 +25,22 @@ public class BaseMonster : MonoBehaviour, ICharacter, IHitReceiver
     public void TakeDamage(float amount)
     {
         Health -= amount;
-        if (Health < 0f) 
+        Debug.Log("Monster current health: " + Health);
+        if (Health <= 0f) 
         {
             Health = 0f;
-
+            
+            Die();
         }
-        Debug.Log("Monster current health: " + Health);
+        
     }
 
     public void Die()
     {
         Debug.Log("MONSTER DIED");
+        //TODO: Trigger Event Chain for death
+        //TODO: Play Death Animation and show corpse
+        Destroy(gameObject);
     }
 
     public void OnHit(HitData hitData)
