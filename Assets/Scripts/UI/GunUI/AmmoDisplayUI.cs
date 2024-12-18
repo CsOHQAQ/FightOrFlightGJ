@@ -11,6 +11,9 @@ public class AmmoDisplayUI : MonoBehaviour
     private Transform ammoImageGroup;
 
     [SerializeField]
+    private Transform reticle;
+
+    [SerializeField]
     private Sprite ammoIconSprite; // Icon for filled ammo
 
     [SerializeField]
@@ -19,13 +22,14 @@ public class AmmoDisplayUI : MonoBehaviour
     [SerializeField]
     private GameObject ammoImagePrefab; // Prefab for ammo image UI object
 
+    private ReloadDisplayUI reloadDisplayUI;
     private IEquipable equipment;
     private int lastAmmoCount = -1; // Tracks the previous ammo count
     void Awake()
     {
         // Get PlayerCharacter reference from GameManager
         playerCharacter = GameManager.Instance.PlayerCharacter;
-
+        reloadDisplayUI = GetComponentInChildren<ReloadDisplayUI>();
         // Subscribe to player events
         playerCharacter.OnPlayerEquipped += OnPlayerEquipped;
         playerCharacter.OnPlayerUnEquipped += OnPlayerUnEquipped;
@@ -55,6 +59,8 @@ public class AmmoDisplayUI : MonoBehaviour
         
         if (item != null)
         {
+            
+            reticle.gameObject.SetActive(item.ShowCrosshair);
             if (item.ShowAmmoInfo)
             {
                 ammoImageGroup.gameObject.SetActive(true);
@@ -62,11 +68,16 @@ public class AmmoDisplayUI : MonoBehaviour
             }else{
                 ammoImageGroup.gameObject.SetActive(false);
             }
-            
+            bool reloading = item.IsReloading;
+            reloadDisplayUI.gameObject.SetActive(reloading);
+            if (reloading)
+            {
+                reloadDisplayUI.UpdateReloadProgress(item.CurrentLoadingPercentage);
+            }
         }
     }
 
-    
+
 
     void OnPlayerEquipped(IEquipable equipable)
     {
