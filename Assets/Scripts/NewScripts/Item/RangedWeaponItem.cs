@@ -1,10 +1,8 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment
-{
+public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment {
     public string AmmoType { get; private set; }
     public int MaxMagazineAmmo { get; private set; }
     public int CurrentMagazineAmmo { get; private set; }
@@ -15,6 +13,14 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment
     private float nextFireTime = 0f;                 
     private float reloadTimer = 0f;
 
+    // Overload window: for example, if ReloadTime = 2s,
+    // OverloadWindowStart = 0.8f and OverloadWindowEnd = 1.0f
+    // means between 0.8s and 1.0s into reload, pressing fire grants instant reload.
+    private float OverloadWindowStart;
+    private float OverloadWindowEnd;
+    public float OverloadWindowRatio{ get {return overloadWindowRatio;} }// Set this via constructor or data
+    private bool canOverload=false;
+    private float overloadWindowRatio;
     public bool ShowAmmoInfo { get { return !IsReloading; } }
     public bool ShowCrosshair { get { return !IsReloading; } }
 
@@ -26,37 +32,56 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment
     }
 
     public RangedWeaponItem(ItemData data, EquipmentSlot slotType, float damage,
-                            string ammoType, int maxMagazineAmmo, float reloadTime, float fireCooldown)
+                            string ammoType, int maxMagazineAmmo, float reloadTime, float fireCooldown,
+                            float overloadWindowRatio = 0.3f)
         : base(data, slotType, damage) {
         this.AmmoType = ammoType;
         this.MaxMagazineAmmo = maxMagazineAmmo;
         this.ReloadTime = reloadTime;
         this.FireCooldown = fireCooldown;
-        this.CurrentMagazineAmmo = maxMagazineAmmo; 
+        this.CurrentMagazineAmmo = maxMagazineAmmo;
+        this.overloadWindowRatio = overloadWindowRatio;
+         // Calculate window based on ratio
+        // Overload window is centered around ReloadTime/2
+        // Window length = ReloadTime * OverloadWindowRatio
+        // Half window length = (ReloadTime * OverloadWindowRatio) / 2
+        float halfWindow = (ReloadTime * overloadWindowRatio) / 2f;
+        float midpoint = ReloadTime / 2f;
+
+        OverloadWindowStart = midpoint - halfWindow;
+        OverloadWindowEnd = midpoint + halfWindow;
     }
 
     public override void BeginUse(IPlayerCharacter user, ActivationTrigger trigger) {
-        if (IsReloading) return; 
-        if (Time.time < nextFireTime) return; 
-
-        if (trigger == ActivationTrigger.LeftMouse) {
-            // Attempt to fire immediately
-            FireShot(user);
+        if (IsReloading) {
+            // Attempt Overload check if currently in reload
+            if(canOverload)
+            {
+                TryOverload();
+            }
+            
+            return;
         } 
-    }
-
-    public override void HoldUse(IPlayerCharacter user, ActivationTrigger trigger) {
-        if (IsReloading) return; 
         if (Time.time < nextFireTime) return;
-        
+
         if (trigger == ActivationTrigger.LeftMouse) {
-            // Continuous firing if desired
             FireShot(user);
         }
     }
-    
+
+    public override void HoldUse(IPlayerCharacter user, ActivationTrigger trigger) {
+        if (IsReloading) {
+            return;
+        }
+        if (Time.time < nextFireTime) return;
+
+        if (trigger == ActivationTrigger.LeftMouse) {
+            FireShot(user);
+        }
+    }
+
     public override void EndUse(IPlayerCharacter user, ActivationTrigger trigger) {
-        // No-op here unless needed for future logic
+        // No special logic here unless needed
     }
 
     public override void OnScroll(IPlayerCharacter user, float scrollDelta) {
@@ -67,16 +92,14 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment
         if (CurrentMagazineAmmo > 0) {
             CurrentMagazineAmmo--;
             PerformHitscanOrProjectileShot(user);
-
             nextFireTime = Time.time + FireCooldown;
 
-            // After firing, check if mag is empty
+            // Check if magazine is empty, start reload if so
             if (CurrentMagazineAmmo == 0) {
-                StartReload(); // Automatically start reload if empty
+                StartReload();
             }
-
         } else {
-            // If somehow tried to fire with no ammo
+            // If tried to fire with no ammo and not already reloading, start reload
             if (!IsReloading) {
                 StartReload();
             }
@@ -87,25 +110,49 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment
         if (IsReloading) return;
         IsReloading = true;
         reloadTimer = 0f;
-
-        //Need some monobehavior to run the coroutine for it. 
         GameManager.Instance.StartCoroutine(ReloadCoroutine());
     }
 
     private IEnumerator ReloadCoroutine() {
-        
+        canOverload = true;
         while (reloadTimer < ReloadTime) {
             reloadTimer += Time.deltaTime;
+            if (reloadTimer > OverloadWindowEnd) {
+                canOverload = false;
+            }
             yield return null;
         }
 
-        FinishReload();
+        // If we reached here without Overload success, finish normal reload
+        FinishReload(normalReload: true);
     }
 
-    private void FinishReload() {
+    private void FinishReload(bool normalReload) {
         CurrentMagazineAmmo = MaxMagazineAmmo;
         IsReloading = false;
         reloadTimer = 0f;
+
+        if (!normalReload) {
+            // Overload success feedback (e.g. sound, animation)
+            Debug.Log("Overload Successful! Instant Reload.");
+        } else {
+            // Normal reload finished
+            Debug.Log("Normal Reload Completed.");
+        }
+    }
+
+    private void TryOverload() {
+        if (!IsReloading) return;
+
+        // Check if the current reloadTimer is within the overload window
+        if (reloadTimer >= OverloadWindowStart && reloadTimer <= OverloadWindowEnd) {
+            // Overload success: finish reload immediately
+            GameManager.Instance.StopAllCoroutines(); // Stop the normal reload coroutine
+            FinishReload(normalReload: false);
+        } else {
+            canOverload=false;
+            Debug.Log("Overload Failed: Pressed outside the window.");
+        }
     }
 
     private void PerformHitscanOrProjectileShot(IPlayerCharacter user) {
@@ -156,9 +203,5 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment
 
     private Vector3 GetMuzzleForwardDirection() {
         return Camera.main.transform.forward;
-    }
-
-    private void DelayedAction(Action action, float delayTime) {
-        // Not used now since we switched to coroutine-based reload
     }
 }

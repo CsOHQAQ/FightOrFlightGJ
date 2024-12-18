@@ -11,4 +11,5 @@ public interface IAmmoDisplayEquipment
     int MaxMagazineAmmo { get; }
     bool IsReloading { get; }
     float CurrentLoadingPercentage{get;}
+    float OverloadWindowRatio{get;}
 }

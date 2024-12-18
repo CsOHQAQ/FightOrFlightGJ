@@ -175,7 +175,7 @@ public partial class @InputControls: IInputActionCollection2, IDisposable
                     ""name"": """",
                     ""id"": ""4608e742-a810-4890-ba25-459538930366"",
                     ""path"": ""<Mouse>/leftButton"",
-                    ""interactions"": ""Hold"",
+                    ""interactions"": ""Hold(duration=0.15)"",
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Confirm"",

@@ -111,9 +111,9 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter
             slotType: EquipmentSlot.Hands,
             damage: 25f,
             ammoType: "9mm",
-            maxMagazineAmmo: 12,
-            reloadTime: 2.0f,
-            fireCooldown: 0.5f
+            maxMagazineAmmo: 10,
+            reloadTime: 1.5f,
+            fireCooldown: 0.4f
         );
         // Equip the weapon
         EquipItem(testWeapon);

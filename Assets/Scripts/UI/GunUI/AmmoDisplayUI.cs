@@ -73,6 +73,7 @@ public class AmmoDisplayUI : MonoBehaviour
             if (reloading)
             {
                 reloadDisplayUI.UpdateReloadProgress(item.CurrentLoadingPercentage);
+                reloadDisplayUI.InitializeOverloadWindowUI(item.OverloadWindowRatio);
             }
         }
     }
