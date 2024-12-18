@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public class RangedWeaponItem : WeaponItem {
+public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment
+{
     public string AmmoType { get; private set; }
     public int MaxMagazineAmmo { get; private set; }
     public int CurrentMagazineAmmo { get; private set; }
@@ -12,6 +13,14 @@ public class RangedWeaponItem : WeaponItem {
 
     public float FireCooldown { get; private set; } // The time interval between shots
     private float nextFireTime = 0f;                 // The next time at which the weapon can fire
+    
+    private float reloadTimer=0f;
+
+    //Can add function to disable showing info and crosshair during states like opening doors
+    public bool ShowAmmoInfo {get{return true;}}
+    public bool ShowCrosshair {get{return true;}}
+
+    public float CurrentLoadingPercentage { get {return reloadTimer/this.ReloadTime;}}
 
     public RangedWeaponItem(ItemData data, EquipmentSlot slotType, float damage,
                             string ammoType, int maxMagazineAmmo, float reloadTime, float fireCooldown)
@@ -47,8 +56,24 @@ public class RangedWeaponItem : WeaponItem {
     }
 
     public override void HoldUse(IPlayerCharacter user, ActivationTrigger trigger) {
-        // If the weapon requires charge mechanics or continuous fire while holding, implement it here.
-        // For a simple one-shot weapon, this may remain empty.
+        Debug.Log(nextFireTime);
+
+        if (IsReloading) return; 
+        if (Time.time < nextFireTime) return; // Prevent firing if we haven't reached the cooldown time
+        if (trigger == ActivationTrigger.LeftMouse) {
+            // Immediately attempt to fire when the button is pressed
+            if (CurrentMagazineAmmo > 0) {
+                CurrentMagazineAmmo--;
+                PerformHitscanOrProjectileShot(user);
+
+                // Set the next allowed fire time
+                nextFireTime = Time.time + FireCooldown;
+            } else {
+                // No ammo in magazine, try reloading or notify the player
+                // If you want to initiate reload automatically here, you can:
+                // StartReload(user);
+            }
+        }
     }
 
     public override void EndUse(IPlayerCharacter user, ActivationTrigger trigger) {
@@ -155,6 +180,8 @@ public class RangedWeaponItem : WeaponItem {
         // In Unity, implement using a coroutine:
         // StartCoroutine(ReloadCoroutine(action, delayTime));
     }
+
+    
 
 }
 

@@ -11,6 +11,8 @@ public abstract class WeaponItem : BaseItem, IEquipable, IActivatable {
     public EquipmentSlot SlotType { get; protected set; }
     public float Damage { get; protected set; }
 
+    
+
     public WeaponItem(ItemData data, EquipmentSlot slotType, float damage) : base(data) {
         this.SlotType = slotType;
         this.Damage = damage;

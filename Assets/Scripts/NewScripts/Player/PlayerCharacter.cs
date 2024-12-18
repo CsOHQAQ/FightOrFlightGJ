@@ -13,6 +13,7 @@ public enum PlayerState
 public class PlayerCharacter : MonoBehaviour, IPlayerCharacter
 {
     private bool isMoving = false;
+    
     private InteractComponent interactComponent;
     private PlayerHandsComponent hand;
 
@@ -45,6 +46,11 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter
     public event StateChangeHandler OnStateEnter;
     public event StateChangeHandler OnStateExit;
 
+    public event Action<IEquipable> OnPlayerEquipped;
+    public event Action<IEquipable> OnPlayerUnEquipped;
+
+    private PlayerInput playerInputAction;
+
     // ICharacter properties and fields
     private float health = 100f; // Default health
     public float Health
@@ -61,6 +67,33 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter
     private IActivatable currentActivatable;
 
     private void Awake()
+    {
+        playerInputAction = GetComponent<PlayerInput>();
+
+        
+        hand = GetComponentInChildren<PlayerHandsComponent>();
+        interactComponent = GetComponentInChildren<InteractComponent>();
+        if (bodyTransform == null)
+        {
+            Debug.LogError("No Transform Set for Rotation");
+            bodyTransform = gameObject.transform;
+        }
+
+        if (interactComponent == null)
+        {
+            Debug.LogError("Could not detect Interact Component on Character");
+        }
+        if (hand == null)
+        {
+            Debug.LogError("Could not detect Hand Movement Component on Character");
+        }
+        hand.Initialize(this);
+
+        // Initialize to MovementState
+        ChangeState(PlayerState.MovementState);
+    }
+
+    private void Start()
     {
         ItemData testData = new ItemData {
             ID = "test_gun",
@@ -82,29 +115,18 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter
             reloadTime: 2.0f,
             fireCooldown: 0.5f
         );
-
         // Equip the weapon
         EquipItem(testWeapon);
-        hand = GetComponentInChildren<PlayerHandsComponent>();
-        interactComponent = GetComponentInChildren<InteractComponent>();
-        if (bodyTransform == null)
-        {
-            Debug.LogError("No Transform Set for Rotation");
-            bodyTransform = gameObject.transform;
-        }
+    }
 
-        if (interactComponent == null)
+    private void Update()
+    {
+        var confirmAction = playerInputAction.actions["Confirm"]; 
+        if (confirmAction != null && confirmAction.phase == InputActionPhase.Performed)
         {
-            Debug.LogError("Could not detect Interact Component on Character");
+            Debug.Log("Key is being held down.");
+            HoldUseItem(currentActivatable, ActivationTrigger.LeftMouse);
         }
-        if (hand == null)
-        {
-            Debug.LogError("Could not detect Hand Movement Component on Character");
-        }
-        hand.Initialize(this);
-
-        // Initialize to MovementState
-        ChangeState(PlayerState.MovementState);
     }
 
     public void ChangeState(PlayerState newState)
@@ -168,13 +190,14 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter
         }
         else if (context.phase == InputActionPhase.Performed)
         {
-            HoldUseItem(currentActivatable, ActivationTrigger.LeftMouse);
+            //HoldUseItem(currentActivatable, ActivationTrigger.LeftMouse);
         }
         else if (context.phase == InputActionPhase.Canceled)
         {
             EndUseItem(currentActivatable, ActivationTrigger.LeftMouse);
         }
     }
+
 
     public void OnMovementPerformed(InputAction.CallbackContext context)
     {
@@ -377,6 +400,7 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter
             currentActivatable = activatableItem;
         }
         item.Equip(this);
+        OnPlayerEquipped?.Invoke(item);
         return true;
     }
 
@@ -384,6 +408,7 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter
     {
         // Call Unequip on the item.
         item.Unequip(this);
+        OnPlayerUnEquipped?.Invoke(item);
         return true;
     }
 

@@ -48,6 +48,8 @@ public interface IActivatable {
     void HoldUse(IPlayerCharacter user, ActivationTrigger trigger);
     void EndUse(IPlayerCharacter user, ActivationTrigger trigger);
     void OnScroll(IPlayerCharacter user, float scrollDelta);
+
+
 }
 
 public interface IAmmo : IItem, IStackable 

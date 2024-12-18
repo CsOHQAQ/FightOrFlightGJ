@@ -29,7 +29,8 @@ public class Door : MonoBehaviour, IInteractable
     [SerializeField]
     private float doorOpenSpeed = 2f;
 
-
+    Vector3 leftStartingLocalEulerAngles;
+    Vector3 rightStartingLocalEulerAngles;
 
     public float CurrentDoorAngle
     {
@@ -129,6 +130,9 @@ public class Door : MonoBehaviour, IInteractable
             {
                 isClosed = true;
                 Debug.Log("Door Fully Closed");
+                LeftPart.transform.localEulerAngles = leftStartingLocalEulerAngles;
+                RightPart.transform.localEulerAngles = rightStartingLocalEulerAngles;
+                
             }
         }
     }
@@ -175,6 +179,9 @@ public class Door : MonoBehaviour, IInteractable
     {
         if (LeftPart != null && RightPart != null)
         {
+            leftStartingLocalEulerAngles = LeftPart.transform.localEulerAngles;
+            rightStartingLocalEulerAngles = RightPart.transform.localEulerAngles;
+            
             Vector3 leftPartPosition = LeftPart.transform.position;
             Vector3 rightPartPosition = RightPart.transform.position;
 
