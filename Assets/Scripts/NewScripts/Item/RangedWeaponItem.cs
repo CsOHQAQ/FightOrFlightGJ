@@ -12,6 +12,9 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment {
     public float FireCooldown { get; private set; } 
     private float nextFireTime = 0f;                 
     private float reloadTimer = 0f;
+    private float lastShotTime = 0f;
+    private float autoReloadThreshold = 2f; // for example, wait 3 seconds of inactivity before auto-recover starts
+    private Coroutine autoRecoverCoroutine;
 
     // Overload window: for example, if ReloadTime = 2s,
     // OverloadWindowStart = 0.8f and OverloadWindowEnd = 1.0f
@@ -54,12 +57,7 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment {
 
     public override void BeginUse(IPlayerCharacter user, ActivationTrigger trigger) {
         if (IsReloading) {
-            // Attempt Overload check if currently in reload
-            if(canOverload)
-            {
-                TryOverload();
-            }
-            
+            if (canOverload) TryOverload();
             return;
         } 
         if (Time.time < nextFireTime) return;
@@ -70,9 +68,7 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment {
     }
 
     public override void HoldUse(IPlayerCharacter user, ActivationTrigger trigger) {
-        if (IsReloading) {
-            return;
-        }
+        if (IsReloading) return;
         if (Time.time < nextFireTime) return;
 
         if (trigger == ActivationTrigger.LeftMouse) {
@@ -80,26 +76,31 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment {
         }
     }
 
-    public override void EndUse(IPlayerCharacter user, ActivationTrigger trigger) {
-        // No special logic here unless needed
-    }
+    public override void OnScroll(IPlayerCharacter user, float delta) {}
 
-    public override void OnScroll(IPlayerCharacter user, float scrollDelta) {
-        // If needed for changing fire mode, etc.
+
+    public override void EndUse(IPlayerCharacter user, ActivationTrigger trigger)
+    {
+
     }
 
     private void FireShot(IPlayerCharacter user) {
+        // Cancel auto-recover if running
+        StopAutoRecoverIfActive();
+
         if (CurrentMagazineAmmo > 0) {
             CurrentMagazineAmmo--;
+            lastShotTime = Time.time; // Update last shot time
             PerformHitscanOrProjectileShot(user);
             nextFireTime = Time.time + FireCooldown;
 
-            // Check if magazine is empty, start reload if so
             if (CurrentMagazineAmmo == 0) {
                 StartReload();
+            } else {
+                // If not empty, schedule auto-recover after inactivity
+                ScheduleAutoRecover();
             }
         } else {
-            // If tried to fire with no ammo and not already reloading, start reload
             if (!IsReloading) {
                 StartReload();
             }
@@ -110,11 +111,12 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment {
         if (IsReloading) return;
         IsReloading = true;
         reloadTimer = 0f;
+        canOverload = true;
+        StopAutoRecoverIfActive();
         GameManager.Instance.StartCoroutine(ReloadCoroutine());
     }
 
     private IEnumerator ReloadCoroutine() {
-        canOverload = true;
         while (reloadTimer < ReloadTime) {
             reloadTimer += Time.deltaTime;
             if (reloadTimer > OverloadWindowEnd) {
@@ -122,8 +124,6 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment {
             }
             yield return null;
         }
-
-        // If we reached here without Overload success, finish normal reload
         FinishReload(normalReload: true);
     }
 
@@ -133,24 +133,22 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment {
         reloadTimer = 0f;
 
         if (!normalReload) {
-            // Overload success feedback (e.g. sound, animation)
             Debug.Log("Overload Successful! Instant Reload.");
         } else {
-            // Normal reload finished
             Debug.Log("Normal Reload Completed.");
         }
+
+        // Once reloaded, can start auto-recover after inactivity if player doesn't shoot
+        ScheduleAutoRecover();
     }
 
     private void TryOverload() {
         if (!IsReloading) return;
-
-        // Check if the current reloadTimer is within the overload window
         if (reloadTimer >= OverloadWindowStart && reloadTimer <= OverloadWindowEnd) {
-            // Overload success: finish reload immediately
-            GameManager.Instance.StopAllCoroutines(); // Stop the normal reload coroutine
+            GameManager.Instance.StopAllCoroutines();
             FinishReload(normalReload: false);
         } else {
-            canOverload=false;
+            canOverload = false;
             Debug.Log("Overload Failed: Pressed outside the window.");
         }
     }
@@ -159,7 +157,6 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment {
         Vector3 muzzlePos = GetMuzzleLocation();
         Vector3 forwardDir = GetMuzzleForwardDirection();
         float range = 100f; 
-
         Debug.DrawRay(muzzlePos, forwardDir * range, Color.red, 1.0f);
 
         EventContext context = new EventContext {
@@ -188,7 +185,6 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment {
                 context.Target = hitReceiver;
                 EventChainManager.Instance.ExecuteHitChain(context);
             }
-
             Debug.DrawLine(muzzlePos, hit.point, Color.green, 1.0f);
         } else {
             Debug.DrawRay(muzzlePos, forwardDir * range, Color.yellow, 1.0f);
@@ -203,5 +199,49 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment {
 
     private Vector3 GetMuzzleForwardDirection() {
         return Camera.main.transform.forward;
+    }
+
+    private void StopAutoRecoverIfActive() {
+        if (autoRecoverCoroutine != null) {
+            GameManager.Instance.StopCoroutine(autoRecoverCoroutine);
+            autoRecoverCoroutine = null;
+        }
+    }
+
+    private void ScheduleAutoRecover() {
+        // Schedule after inactivity threshold only if not reloading and not empty
+        if (!IsReloading && CurrentMagazineAmmo < MaxMagazineAmmo) {
+            // Start a coroutine that waits for inactivity then recovers ammo
+            StopAutoRecoverIfActive(); // ensure only one instance
+            autoRecoverCoroutine = GameManager.Instance.StartCoroutine(AutoRecoverCoroutine());
+        }
+    }
+
+    private IEnumerator AutoRecoverCoroutine() {
+        // Wait until player is inactive for autoReloadThreshold
+        float startWaitTime = Time.time;
+        while (Time.time - lastShotTime < autoReloadThreshold) {
+            // If at any point we start reloading or overload, break
+            if (IsReloading) yield break;
+            yield return null;
+        }
+
+        // Now start recovering ammo over time
+        float timePerAmmo = ReloadTime / MaxMagazineAmmo; 
+        while (CurrentMagazineAmmo < MaxMagazineAmmo) {
+            if (IsReloading) yield break; // If start reloading, stop
+            // Add one ammo after timePerAmmo seconds
+            yield return new WaitForSeconds(timePerAmmo);
+            CurrentMagazineAmmo++;
+
+            Debug.Log($"Auto recovered 1 ammo. Current Ammo: {CurrentMagazineAmmo}");
+
+            // If player shoots again, break
+            if (Time.time - lastShotTime < autoReloadThreshold) {
+                yield break;
+            }
+        }
+
+        autoRecoverCoroutine = null;
     }
 }
