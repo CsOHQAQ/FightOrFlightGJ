@@ -55,9 +55,18 @@ public class AmmoDisplayUI : MonoBehaviour
         
         if (item != null)
         {
-            UpdateAmmoUI(item.MaxMagazineAmmo, item.CurrentMagazineAmmo);
+            if (item.ShowAmmoInfo)
+            {
+                ammoImageGroup.gameObject.SetActive(true);
+                UpdateAmmoUI(item.MaxMagazineAmmo, item.CurrentMagazineAmmo);
+            }else{
+                ammoImageGroup.gameObject.SetActive(false);
+            }
+            
         }
     }
+
+    
 
     void OnPlayerEquipped(IEquipable equipable)
     {
@@ -101,6 +110,7 @@ public class AmmoDisplayUI : MonoBehaviour
 
     public void UpdateAmmoUI(int maxMagazineAmmo, int currentMagazineAmmo)
     {
+        
         // If maxMagazineAmmo has changed, rebuild the UI
         if (ammoImageGroup.childCount != maxMagazineAmmo)
         {

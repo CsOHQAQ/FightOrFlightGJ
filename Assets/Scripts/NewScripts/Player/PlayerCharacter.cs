@@ -124,7 +124,7 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter
         var confirmAction = playerInputAction.actions["Confirm"]; 
         if (confirmAction != null && confirmAction.phase == InputActionPhase.Performed)
         {
-            Debug.Log("Key is being held down.");
+            //Debug.Log("Key is being held down.");
             HoldUseItem(currentActivatable, ActivationTrigger.LeftMouse);
         }
     }

@@ -11,16 +11,19 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment
     public float ReloadTime { get; private set; }
     public bool IsReloading { get; private set; }
 
-    public float FireCooldown { get; private set; } // The time interval between shots
-    private float nextFireTime = 0f;                 // The next time at which the weapon can fire
-    
-    private float reloadTimer=0f;
+    public float FireCooldown { get; private set; } 
+    private float nextFireTime = 0f;                 
+    private float reloadTimer = 0f;
 
-    //Can add function to disable showing info and crosshair during states like opening doors
-    public bool ShowAmmoInfo {get{return true;}}
-    public bool ShowCrosshair {get{return true;}}
+    public bool ShowAmmoInfo { get { return !IsReloading; } }
+    public bool ShowCrosshair { get { return !IsReloading; } }
 
-    public float CurrentLoadingPercentage { get {return reloadTimer/this.ReloadTime;}}
+    public float CurrentLoadingPercentage {
+        get {
+            if (!IsReloading) return 0f;
+            return Mathf.Clamp01(reloadTimer / ReloadTime);
+        }
+    }
 
     public RangedWeaponItem(ItemData data, EquipmentSlot slotType, float damage,
                             string ammoType, int maxMagazineAmmo, float reloadTime, float fireCooldown)
@@ -34,102 +37,93 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment
 
     public override void BeginUse(IPlayerCharacter user, ActivationTrigger trigger) {
         if (IsReloading) return; 
-        if (Time.time < nextFireTime) return; // Prevent firing if we haven't reached the cooldown time
+        if (Time.time < nextFireTime) return; 
 
         if (trigger == ActivationTrigger.LeftMouse) {
-            // Immediately attempt to fire when the button is pressed
-            if (CurrentMagazineAmmo > 0) {
-                CurrentMagazineAmmo--;
-                PerformHitscanOrProjectileShot(user);
-
-                // Set the next allowed fire time
-                nextFireTime = Time.time + FireCooldown;
-            } else {
-                // No ammo in magazine, try reloading or notify the player
-                // If you want to initiate reload automatically here, you can:
-                // StartReload(user);
-            }
-        } else if (trigger == ActivationTrigger.KeyboardKey) {
-            // Assume this trigger initiates reload
-            StartReload(user);
-        }
+            // Attempt to fire immediately
+            FireShot(user);
+        } 
     }
 
     public override void HoldUse(IPlayerCharacter user, ActivationTrigger trigger) {
-        Debug.Log(nextFireTime);
-
         if (IsReloading) return; 
-        if (Time.time < nextFireTime) return; // Prevent firing if we haven't reached the cooldown time
+        if (Time.time < nextFireTime) return;
+        
         if (trigger == ActivationTrigger.LeftMouse) {
-            // Immediately attempt to fire when the button is pressed
-            if (CurrentMagazineAmmo > 0) {
-                CurrentMagazineAmmo--;
-                PerformHitscanOrProjectileShot(user);
+            // Continuous firing if desired
+            FireShot(user);
+        }
+    }
+    
+    public override void EndUse(IPlayerCharacter user, ActivationTrigger trigger) {
+        // No-op here unless needed for future logic
+    }
 
-                // Set the next allowed fire time
-                nextFireTime = Time.time + FireCooldown;
-            } else {
-                // No ammo in magazine, try reloading or notify the player
-                // If you want to initiate reload automatically here, you can:
-                // StartReload(user);
+    public override void OnScroll(IPlayerCharacter user, float scrollDelta) {
+        // If needed for changing fire mode, etc.
+    }
+
+    private void FireShot(IPlayerCharacter user) {
+        if (CurrentMagazineAmmo > 0) {
+            CurrentMagazineAmmo--;
+            PerformHitscanOrProjectileShot(user);
+
+            nextFireTime = Time.time + FireCooldown;
+
+            // After firing, check if mag is empty
+            if (CurrentMagazineAmmo == 0) {
+                StartReload(); // Automatically start reload if empty
+            }
+
+        } else {
+            // If somehow tried to fire with no ammo
+            if (!IsReloading) {
+                StartReload();
             }
         }
     }
 
-    public override void EndUse(IPlayerCharacter user, ActivationTrigger trigger) {
-        // If you previously relied on firing at release, this can now remain empty or be used for cleanup.
-        // For continuous fire weapons, you might stop firing logic here when the user releases the button.
+    private void StartReload() {
+        if (IsReloading) return;
+        IsReloading = true;
+        reloadTimer = 0f;
+
+        //Need some monobehavior to run the coroutine for it. 
+        GameManager.Instance.StartCoroutine(ReloadCoroutine());
     }
 
-    public override void OnScroll(IPlayerCharacter user, float scrollDelta) {
-        // Scroll can be used to switch firing modes or zoom levels if needed.
-    }
-
-    private void StartReload(IPlayerCharacter user) {
-        if (CurrentMagazineAmmo == MaxMagazineAmmo) return; // Already full
-
-        int ammoInInventory = user.GetAmmoCount(AmmoType);
-        if (ammoInInventory <= 0) {
-            // No reserve ammo available
-            return;
+    private IEnumerator ReloadCoroutine() {
+        
+        while (reloadTimer < ReloadTime) {
+            reloadTimer += Time.deltaTime;
+            yield return null;
         }
 
-        IsReloading = true;
-        DelayedAction(() => FinishReload(user), ReloadTime);
+        FinishReload();
     }
 
-    private void FinishReload(IPlayerCharacter user) {
-        int needed = MaxMagazineAmmo - CurrentMagazineAmmo;
-        int ammoInInventory = user.GetAmmoCount(AmmoType);
-
-        int toLoad = Math.Min(needed, ammoInInventory);
-        user.ConsumeAmmo(AmmoType, toLoad);
-        CurrentMagazineAmmo += toLoad;
-
+    private void FinishReload() {
+        CurrentMagazineAmmo = MaxMagazineAmmo;
         IsReloading = false;
+        reloadTimer = 0f;
     }
 
     private void PerformHitscanOrProjectileShot(IPlayerCharacter user) {
-        // Example hitscan logic:
         Vector3 muzzlePos = GetMuzzleLocation();
         Vector3 forwardDir = GetMuzzleForwardDirection();
-        // Example: if you have a max range for hitscan:
-        float range = 100f; // Adjust as needed
+        float range = 100f; 
 
-        // Visualize the hitscan ray (from muzzle position in forward direction)
-        Debug.DrawRay(muzzlePos, forwardDir * range, Color.red, 1.0f); // Duration = 1 second
+        Debug.DrawRay(muzzlePos, forwardDir * range, Color.red, 1.0f);
 
-        //Prepare EventContext
         EventContext context = new EventContext {
-                Attacker = user,
-                AttackInfo = new AttackData {
-                    BaseDamage = this.Damage,
-                    AmmoType = this.AmmoType,
-                }
-            };
+            Attacker = user,
+            AttackInfo = new AttackData {
+                BaseDamage = this.Damage,
+                AmmoType = this.AmmoType,
+            }
+        };
         EventChainManager.Instance.ExecuteAttackChain(context);
 
-        // Perform the actual hitscan raycast
         if (Physics.Raycast(muzzlePos, forwardDir, out RaycastHit hit, range)) {
             IHitReceiver hitReceiver = hit.collider.GetComponent<IHitReceiver>();
             if (hitReceiver != null) {
@@ -138,51 +132,33 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment
                     HitNormal = hit.normal,
                     AdditionalData = null
                 };
-            context.HitData = new HitData {
-                HitInfo = hitInfo,
-                FinalDamage = 0f, // start from 0;
-                WasCrit = false,
-                IsLethalHit = false
-            };
-            context.Target = hitReceiver;
-            EventChainManager.Instance.ExecuteHitChain(context);
-                //hitReceiver.OnHit(hitInfo);
+                context.HitData = new HitData {
+                    HitInfo = hitInfo,
+                    FinalDamage = 0f,
+                    WasCrit = false,
+                    IsLethalHit = false
+                };
+                context.Target = hitReceiver;
+                EventChainManager.Instance.ExecuteHitChain(context);
             }
 
-            // Optionally, draw a line to the hit point for visualization
-            Debug.DrawLine(muzzlePos, hit.point, Color.green, 1.0f); // Green line to the hit point
+            Debug.DrawLine(muzzlePos, hit.point, Color.green, 1.0f);
         } else {
-            // Optionally, draw the full range ray when no hit is detected
-            Debug.DrawRay(muzzlePos, forwardDir * range, Color.yellow, 1.0f); // Yellow ray if no hit
+            Debug.DrawRay(muzzlePos, forwardDir * range, Color.yellow, 1.0f);
         }
 
         Debug.Log("Current Ammo Left: " + CurrentMagazineAmmo);
     }
 
-
-    /// <summary>
-    /// Gets the "muzzle" location from where we start the ray.
-    /// In this implementation, it uses the player's main camera.
-    /// </summary>
     private Vector3 GetMuzzleLocation() {
-        // For a real game, avoid calling Camera.main repeatedly for performance; instead, store a reference.
         return Camera.main.transform.position;
     }
 
-    /// <summary>
-    /// Gets the forward direction from the camera, so the raycast aligns with the player's view.
-    /// </summary>
     private Vector3 GetMuzzleForwardDirection() {
         return Camera.main.transform.forward;
     }
 
     private void DelayedAction(Action action, float delayTime) {
-        // In Unity, implement using a coroutine:
-        // StartCoroutine(ReloadCoroutine(action, delayTime));
+        // Not used now since we switched to coroutine-based reload
     }
-
-    
-
 }
-
-
