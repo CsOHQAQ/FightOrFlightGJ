@@ -134,6 +134,7 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment {
 
         if (!normalReload) {
             Debug.Log("Overload Successful! Instant Reload.");
+            //can add event chain for overload later. 
         } else {
             Debug.Log("Normal Reload Completed.");
         }
