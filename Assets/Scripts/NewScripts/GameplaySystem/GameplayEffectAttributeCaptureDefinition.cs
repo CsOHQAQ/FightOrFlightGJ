@@ -26,7 +26,7 @@ public class GameplayEffectAttributeCaptureDefinition
     /// <summary>
     /// Gameplay attribute to capture.
     /// </summary>
-    [SerializeField] private GameplayAttribute attributeToCapture;
+    [SerializeField] private AttributeReference attributeToCapture;
 
     /// <summary>
     /// Source of the gameplay attribute.
@@ -46,11 +46,26 @@ public class GameplayEffectAttributeCaptureDefinition
     }
 
     // Parameterized constructor
-    public GameplayEffectAttributeCaptureDefinition(GameplayAttribute inAttribute, GameplayEffectAttributeCaptureSource inSource, bool inSnapshot)
+    public GameplayEffectAttributeCaptureDefinition(AttributeReference inAttribute, GameplayEffectAttributeCaptureSource inSource, bool inSnapshot)
     {
         attributeToCapture = inAttribute;
         attributeSource = inSource;
         bSnapshot = inSnapshot;
+    }
+
+    public AttributeReference GetGameplayAttributeReference()
+    {
+        return attributeToCapture;
+    }
+
+    public GameplayEffectAttributeCaptureSource GetAttributeSource()
+    {
+        return attributeSource;
+    }
+
+    public bool IsSnapshot()
+    {
+        return bSnapshot;
     }
 
     /// <summary>

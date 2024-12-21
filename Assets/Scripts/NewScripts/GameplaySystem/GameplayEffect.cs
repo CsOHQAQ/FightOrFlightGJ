@@ -101,7 +101,7 @@ public enum GameplayEffectMagnitudeCalculation
     /** Perform a calculation based upon an attribute. */
     AttributeBased,
     /** Perform a custom calculation, capable of capturing and acting on multiple attributes, in either BP or native. */
-    //CustomCalculationClass,	
+    //CustomCalculationClass,    
     /** This magnitude will be set explicitly by the code/blueprint that creates the spec. */
     //SetByCaller,
 }
@@ -113,9 +113,7 @@ public enum AttributeBasedFloatCalculationType
     /** Use the base value of the attribute. */
     AttributeBaseValue,
     /** Use the "bonus" evaluated magnitude of the attribute: Equivalent to (FinalMag - BaseValue). */
-    AttributeBonusMagnitude,
-    /** Use a calculated magnitude stopping with the evaluation of the specified "Final Channel" */
-    //AttributeMagnitudeEvaluatedUpToChannel
+    AttributeBonusMagnitude
 }
 
 [Serializable]
@@ -125,11 +123,6 @@ public struct GameplayEffectModifierMagnitude
     private GameplayEffectMagnitudeCalculation MagnitudeCalculationType;
     [SerializeField]
     float magnitude;
-
-
-    
-
-
 }
 
 public class GameplayEffectSpec
@@ -137,24 +130,119 @@ public class GameplayEffectSpec
     public GameplayEffect Effect;
     public float Level;
     public float StartTime;
-    
-    //public Dictionary<GameplayAttribute, float> CalculatedModifiers;
-    public List<GameplayEffectModifiedAttribute> ModifiedAttributes;
-    public GameplayEffectSpec(GameplayEffect effect, float level)
+
+    // Might store the references to source / target here:
+    private GameObject sourceActor;
+    private GameObject targetActor;
+
+    // Optional: Store snapshot data if needed
+    private Dictionary<GameplayEffectAttributeCaptureDefinition, float> snapshotData 
+        = new Dictionary<GameplayEffectAttributeCaptureDefinition, float>();
+
+    // A list of attributes that were actually modified
+    public List<GameplayEffectModifiedAttribute> ModifiedAttributes = new List<GameplayEffectModifiedAttribute>();
+
+    // Constructor
+    public GameplayEffectSpec(GameplayEffect effect, float level, GameObject inSource, GameObject inTarget)
     {
         Effect = effect;
         Level = level;
         StartTime = Time.time;
-        //CalculatedModifiers = new Dictionary<string, float>();
+
+        sourceActor = inSource;
+        targetActor = inTarget;
+
+        // If we want to snapshot attributes (like in Unreal),
+        // we search for all capture definitions in the effect (if any),
+        // capture them once, and store them in snapshotData if bSnapshot = true.
+        if (Effect != null)
+        {
+            foreach (var modInfo in Effect.Modifiers)
+            {
+                // If using an advanced system that might have multiple capture definitions, you’d read them from somewhere else
+                // But in your code, FGameplayModifierInfo has only one “TargetAttribute” (AttributeReference).
+                // This is quite simplified. If you have additional data for capturing attribute, you can incorporate that logic here.
+            }
+        }
     }
 
-    public float GetCapturedAttributeValue(GameplayEffectAttributeCaptureDefinition captureDefinition)
+    /// <summary>
+    /// Retrieves the attribute value from either the Source or Target based on captureDef.
+    /// If bSnapshot is true, returns the stored snapshot value. Otherwise, dynamically fetches current value.
+    /// </summary>
+    public float GetCapturedAttributeValue(GameplayEffectAttributeCaptureDefinition captureDef, out bool foundAttribute)
     {
-        // Placeholder: Implement logic to retrieve the attribute value from the spec.
-        // This might involve looking up the attribute based on the source or target specified in captureDefinition.
-        return 0f;
+        foundAttribute = false;
+
+        // 1. If snapshot is used and we have it cached, return that
+        if (captureDef.IsSnapshot() && snapshotData.ContainsKey(captureDef))
+        {
+            foundAttribute = true;
+            return snapshotData[captureDef];
+        }
+
+        // 2. Otherwise we fetch it at runtime
+        GameObject relevantActor = 
+            (captureDef.GetAttributeSource() == GameplayEffectAttributeCaptureSource.Source) 
+            ? sourceActor 
+            : targetActor;
+
+        if (relevantActor == null)
+        {
+            // If we have no actor for this source/target, default to 0
+            // or handle as needed
+            return 0f;
+        }
+
+        // 3. Access the attribute from relevantActor
+        return FetchAttributeValueFromActor(relevantActor, captureDef.GetGameplayAttributeReference(), out foundAttribute);
     }
 
+    /// <summary>
+    /// Example function to snapshot attributes at spec creation
+    /// </summary>
+    private void SnapshotAttribute(GameplayEffectAttributeCaptureDefinition captureDef)
+    {
+        bool foundAttribute;
+        float currentValue = GetCapturedAttributeValueDynamic(captureDef, out foundAttribute);
+        if (foundAttribute)
+        {
+            snapshotData[captureDef] = currentValue;
+        }
+    }
+
+    /// <summary>
+    /// If no snapshot, fetches the attribute dynamically each call.
+    /// </summary>
+    private float GetCapturedAttributeValueDynamic(GameplayEffectAttributeCaptureDefinition captureDef, out bool foundAttribute)
+    {
+        foundAttribute = false;
+        GameObject relevantActor = 
+            (captureDef.GetAttributeSource() == GameplayEffectAttributeCaptureSource.Source) 
+            ? sourceActor 
+            : targetActor;
+        if (relevantActor == null)
+            return 0f;
+
+        return FetchAttributeValueFromActor(relevantActor, captureDef.GetGameplayAttributeReference(), out foundAttribute);
+    }
+
+    /// <summary>
+    /// This is where you implement how to read from attribute sets or components. 
+    /// For example, if your actor has a AttributeSet component with a method to read the attribute.
+    /// </summary>
+    private float FetchAttributeValueFromActor(GameObject actor, AttributeReference attributeRef, out bool foundAttribute)
+    {
+        foundAttribute = false;
+        // Example approach:
+        // 1. Get the attribute set component from the actor
+        AbilitySystemComponent asc = actor.GetComponent<AbilitySystemComponent>();
+        if (asc == null) return 0f;
+        AttributeSet attributeSet = actor.GetComponent<AttributeSet>();
+        if (attributeSet == null) return 0f;
+
+        return asc.GetAttributeValue(attributeRef, out foundAttribute);
+    }
 }
 
 public struct GameplayEffectModifiedAttribute
@@ -185,15 +273,16 @@ public class AttributeBasedFloat
         attributeCalculationType = AttributeBasedFloatCalculationType.AttributeMagnitude;
     }
 
-    public float CalculateMagnitude(GameplayEffectSpec relevantSpec)
+    public float CalculateMagnitude(GameplayEffectSpec relevantSpec, out bool foundAttribute)
     {
-        float attributeValue = relevantSpec.GetCapturedAttributeValue(backingAttribute);
+        float attributeValue = relevantSpec.GetCapturedAttributeValue(backingAttribute, out foundAttribute);
 
-        if (attributeCalculationType == AttributeBasedFloatCalculationType.AttributeBaseValue)
+        if (!foundAttribute)
         {
-            return attributeValue;
+            return 0f; // Return default if attribute not found
         }
 
+        // Then apply the coefficient, pre-mult, post-mult, curve, etc.
         float preAdd = attributeValue + preMultiplyAdditiveValue;
         float scaledValue = preAdd * coefficient;
         float finalValue = scaledValue + postMultiplyAdditiveValue;
