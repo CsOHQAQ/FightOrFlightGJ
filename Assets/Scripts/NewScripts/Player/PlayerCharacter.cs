@@ -12,6 +12,13 @@ public enum PlayerState
 
 public class PlayerCharacter : MonoBehaviour, IPlayerCharacter
 {
+    [SerializeField]
+    AttributeReference targetAttribute;
+    [SerializeField]
+    float effectMagnitude = 10f;
+
+
+
     private bool isMoving = false;
     
     private InteractComponent interactComponent;
@@ -95,6 +102,21 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter
 
     private void Start()
     {
+        WeaponAttributeSet weaponAttributeSet = GetComponent<WeaponAttributeSet>();
+        if (!targetAttribute.IsValid()) return ;
+
+        // 获取目标属性的 FieldInfo
+        var fieldInfo = targetAttribute.GetFieldInfo();
+        if (fieldInfo == null) return ;
+
+        // 获取 GameplayAttribute 实例
+        var attributeData = fieldInfo.GetValue(weaponAttributeSet) as GameplayAttribute;
+        if (attributeData == null) return ;
+
+        // 修改属性的 baseValue
+        float baseValue = attributeData.BaseValue;
+        attributeData.BaseValue = baseValue + effectMagnitude;  
+
         ItemData testData = new ItemData {
             ID = "test_gun",
             Name = "Test Gun",
@@ -109,9 +131,9 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter
         RangedWeaponItem testWeapon = new RangedWeaponItem(
             data: testData,
             slotType: EquipmentSlot.Hands,
-            damage: 25f,
+            damage: weaponAttributeSet.BaseWeaponDamage.BaseValue,
             ammoType: "9mm",
-            maxMagazineAmmo: 10,
+            maxMagazineAmmo: (int)weaponAttributeSet.MaxAmmo.BaseValue,
             reloadTime: 1.5f,
             fireCooldown: 0.4f
         );
