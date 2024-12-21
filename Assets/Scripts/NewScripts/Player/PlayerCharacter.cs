@@ -17,7 +17,8 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter
     [SerializeField]
     float effectMagnitude = 10f;
 
-
+    [SerializeField] private GameplayTagContainer tagContainer;
+    [SerializeField] private GameplayTag someTag; 
 
     private bool isMoving = false;
     

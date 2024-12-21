@@ -148,6 +148,13 @@ public class GameplayEffectSpec
         //CalculatedModifiers = new Dictionary<string, float>();
     }
 
+    public float GetCapturedAttributeValue(GameplayEffectAttributeCaptureDefinition captureDefinition)
+    {
+        // Placeholder: Implement logic to retrieve the attribute value from the spec.
+        // This might involve looking up the attribute based on the source or target specified in captureDefinition.
+        return 0f;
+    }
+
 }
 
 public struct GameplayEffectModifiedAttribute
@@ -160,31 +167,15 @@ public struct GameplayEffectModifiedAttribute
 [Serializable]
 public class AttributeBasedFloat
 {
-    // Coefficient to the attribute calculation
     [SerializeField] private float coefficient = 1f;
-
-    // Additive value to the attribute calculation, added in before the coefficient applies
     [SerializeField] private float preMultiplyAdditiveValue = 0f;
-
-    // Additive value to the attribute calculation, added in after the coefficient applies
     [SerializeField] private float postMultiplyAdditiveValue = 0f;
-
-    // Attribute backing the calculation
     [SerializeField] private GameplayEffectAttributeCaptureDefinition backingAttribute;
-
-    // If a curve table entry is specified, the attribute will be used as a lookup into the curve instead of using the attribute directly
     [SerializeField] private AnimationCurve attributeCurve;
-
-    // Calculation policy in regards to the attribute
     [SerializeField] private AttributeBasedFloatCalculationType attributeCalculationType = AttributeBasedFloatCalculationType.AttributeMagnitude;
-
-    // Filter to use on source tags
     [SerializeField] private GameplayTagContainer sourceTagFilter;
-
-    // Filter to use on target tags
     [SerializeField] private GameplayTagContainer targetTagFilter;
 
-    // Constructor
     public AttributeBasedFloat()
     {
         coefficient = 1f;
@@ -194,18 +185,16 @@ public class AttributeBasedFloat
         attributeCalculationType = AttributeBasedFloatCalculationType.AttributeMagnitude;
     }
 
-    /// <summary>
-    /// Calculate and return the magnitude of the float based on the specified gameplay effect spec.
-    /// Assumes the existence of the required captured attribute within the spec.
-    /// </summary>
-    /// <param name="relevantSpec">Gameplay effect spec providing the backing attribute capture.</param>
-    /// <returns>Evaluated magnitude based upon the spec and calculation policy.</returns>
     public float CalculateMagnitude(GameplayEffectSpec relevantSpec)
     {
-        // Placeholder implementation. Replace with your actual calculation logic.
-        float baseValue = backingAttribute.GetAttributeValue(relevantSpec);
+        float attributeValue = relevantSpec.GetCapturedAttributeValue(backingAttribute);
 
-        float preAdd = baseValue + preMultiplyAdditiveValue;
+        if (attributeCalculationType == AttributeBasedFloatCalculationType.AttributeBaseValue)
+        {
+            return attributeValue;
+        }
+
+        float preAdd = attributeValue + preMultiplyAdditiveValue;
         float scaledValue = preAdd * coefficient;
         float finalValue = scaledValue + postMultiplyAdditiveValue;
 
@@ -217,7 +206,6 @@ public class AttributeBasedFloat
         return finalValue;
     }
 
-    // Equality and inequality operators
     public override bool Equals(object obj)
     {
         if (obj is AttributeBasedFloat other)
