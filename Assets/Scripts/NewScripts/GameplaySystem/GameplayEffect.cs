@@ -90,8 +90,10 @@ public struct GameplayEffectHandle
 public struct FGameplayModifierInfo
 {
     public AttributeReference TargetAttribute;
-    public ModifierType ModifierOperation; // Add, Multiply, Override
-    public float Magnitude; // Or could be replaced by a Calculation Class later
+    public ModifierType ModifierOperation;
+
+    // Instead of float Magnitude, we store a more flexible data structure:
+    public GameplayEffectModifierMagnitude ModifierMagnitude;
 }
 
 public enum GameplayEffectMagnitudeCalculation
@@ -119,11 +121,48 @@ public enum AttributeBasedFloatCalculationType
 [Serializable]
 public struct GameplayEffectModifierMagnitude
 {
-    [SerializeField]
-    private GameplayEffectMagnitudeCalculation MagnitudeCalculationType;
-    [SerializeField]
-    float magnitude;
+    [SerializeField] public GameplayEffectMagnitudeCalculation magnitudeCalculationType;
+
+    // We'll keep a base float for simple or "ScalableFloat" usage
+    [SerializeField] public float flatMagnitude;
+
+    // If it's attribute-based, we'll use an embedded AttributeBasedFloat
+    [SerializeField] public AttributeBasedFloat attributeBased;
+
+    // Additional fields for custom or set-by-caller logic could go here.
+
+    public float CalculateMagnitude(GameplayEffectSpec spec, out bool foundAttribute)
+    {
+        foundAttribute = true;
+
+        switch (magnitudeCalculationType)
+        {
+            case GameplayEffectMagnitudeCalculation.ScalableFloat:
+                // For simplicity, treat flatMagnitude as a direct float or a curve-based logic
+                return flatMagnitude;
+
+            case GameplayEffectMagnitudeCalculation.AttributeBased:
+                if (attributeBased != null)
+                {
+                    return attributeBased.CalculateMagnitude(spec, out foundAttribute);
+                }
+                // If not assigned, fallback
+                foundAttribute = false;
+                return 0f;
+
+            // case GameplayEffectMagnitudeCalculation.CustomCalculationClass:
+            //     // Potentially instantiate or call a custom class
+            //     break;
+            // case GameplayEffectMagnitudeCalculation.SetByCaller:
+            //     // Logic for code or blueprint setting magnitude at runtime
+            //     break;
+
+            default:
+                return flatMagnitude;
+        }
+    }
 }
+
 
 public class GameplayEffectSpec
 {
@@ -148,23 +187,30 @@ public class GameplayEffectSpec
         Effect = effect;
         Level = level;
         StartTime = Time.time;
-
         sourceActor = inSource;
         targetActor = inTarget;
 
-        // If we want to snapshot attributes (like in Unreal),
-        // we search for all capture definitions in the effect (if any),
-        // capture them once, and store them in snapshotData if bSnapshot = true.
+        // Step 1: If effect is non-null, we iterate each modifier. We check if it uses an attribute-based approach and bSnapshot = true.
         if (Effect != null)
         {
             foreach (var modInfo in Effect.Modifiers)
             {
-                // If using an advanced system that might have multiple capture definitions, you’d read them from somewhere else
-                // But in your code, FGameplayModifierInfo has only one “TargetAttribute” (AttributeReference).
-                // This is quite simplified. If you have additional data for capturing attribute, you can incorporate that logic here.
+                // If the magnitude calculation is attribute-based, we might check:
+                if (modInfo.ModifierMagnitude.magnitudeCalculationType == GameplayEffectMagnitudeCalculation.AttributeBased)
+                {
+                    var backing = modInfo.ModifierMagnitude.attributeBased;
+                    var captureDef = backing.backingAttribute;
+
+                    // If that captureDef says bSnapshot = true, do one-time capture
+                    if (captureDef.IsSnapshot())
+                    {
+                        SnapshotAttribute(captureDef);
+                    }
+                }
             }
         }
     }
+
 
     /// <summary>
     /// Retrieves the attribute value from either the Source or Target based on captureDef.
@@ -258,7 +304,7 @@ public class AttributeBasedFloat
     [SerializeField] private float coefficient = 1f;
     [SerializeField] private float preMultiplyAdditiveValue = 0f;
     [SerializeField] private float postMultiplyAdditiveValue = 0f;
-    [SerializeField] private GameplayEffectAttributeCaptureDefinition backingAttribute;
+    [SerializeField] public GameplayEffectAttributeCaptureDefinition backingAttribute;
     [SerializeField] private AnimationCurve attributeCurve;
     [SerializeField] private AttributeBasedFloatCalculationType attributeCalculationType = AttributeBasedFloatCalculationType.AttributeMagnitude;
     [SerializeField] private GameplayTagContainer sourceTagFilter;
