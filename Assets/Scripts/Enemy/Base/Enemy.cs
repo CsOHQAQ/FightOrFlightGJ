@@ -9,11 +9,51 @@ public class Enemy : MonoBehaviour, IDamageable, IEnemyMoveable
     public Rigidbody RB { get; set; }
     [field: SerializeField] public float RotationSpeed { get; set; } = 5.0f;
 
+    #region State Machine Variables
+
+    public EnemyStateMachine StateMachine { get; set; }
+
+    public EnemyIdleState IdleState { get; set; }
+
+    public EnemyChaseState ChaseState { get; set; }
+
+    public EnemyAttackState AttackState { get; set; }
+
+    #endregion
+
+    #region Idle Variables
+
+    public float RandomMovementRange = 5f;
+    public float RandomMovementSpeed = 1f;
+
+    #endregion
+
+    private void Awake()
+    {
+        StateMachine = new EnemyStateMachine();
+
+        IdleState = new EnemyIdleState(this, StateMachine);
+        ChaseState = new EnemyChaseState(this, StateMachine);
+        AttackState = new EnemyAttackState(this, StateMachine);
+    }
+
     private void Start()
     {
         CurrentHealth = MaxHealth;
 
         RB = GetComponent<Rigidbody>();
+
+        StateMachine.Initialize(IdleState);
+    }
+
+    private void Update()
+    {
+        StateMachine.CurrentEnemyState.FrameUpdate();
+    }
+
+    private void FixedUpdate()
+    {
+        StateMachine.CurrentEnemyState.PhysicsUpdate();
     }
 
     #region Health/ / Die Functions
@@ -41,14 +81,15 @@ public class Enemy : MonoBehaviour, IDamageable, IEnemyMoveable
     public void MoveEnemy(Vector3 velocity)
     {
         RB.velocity = velocity;
+        RotateEnemy(velocity);
     }
 
     public void RotateEnemy(Vector3 velocity)
     {
 
-        if (velocity.sqrMagnitude > 0.01f)
+        if (RB.velocity.sqrMagnitude > 0.01f)
         {
-            Vector3 dirction = velocity.normalized;
+            Vector3 dirction = new Vector3(RB.velocity.x, 0f, RB.velocity.z).normalized;
 
             Quaternion targetRotation = Quaternion.LookRotation(dirction);
 
@@ -63,7 +104,7 @@ public class Enemy : MonoBehaviour, IDamageable, IEnemyMoveable
 
     private void AnimationTriggerEvent(AnimationTriggerType triggerType)
     {
-        //TODO: fill in once Statemachine is created
+        StateMachine.CurrentEnemyState.AnimationTriggerEvent(triggerType);
     }
 
     public enum AnimationTriggerType
