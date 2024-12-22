@@ -17,14 +17,3 @@ public class DamageCalculationNode : IEventNode {
     }
 }
 
-
-[CreateAssetMenu(fileName = "DamageCalculationNode", menuName = "EventNodes/DamageCalculationNode")]
-public class DamageCalculationNodeAsset : ScriptableEventNode
-{
-
-
-    public override IEventNode CreateNodeInstance()
-    {
-        return new DamageCalculationNode();
-    }
-}
