@@ -34,7 +34,10 @@ public class EnemyIdleState : EnemyState
     {
         base.FrameUpdate();
 
-        Debug.Log($"This is the target POsition {_targetPosition}");
+        if (enemy.IsAggroed)
+        {
+            enemy.StateMachine.ChangeState(enemy.ChaseState);
+        }
 
         _direction = (_targetPosition - enemy.transform.position).normalized;
 

@@ -2,12 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Enemy : MonoBehaviour, IDamageable, IEnemyMoveable
+public class Enemy : MonoBehaviour, IDamageable, IEnemyMoveable, ITriggerCheckable
 {
     [field: SerializeField] public float MaxHealth { get; set; }
     public float CurrentHealth { get; set; }
     public Rigidbody RB { get; set; }
     [field: SerializeField] public float RotationSpeed { get; set; } = 5.0f;
+
+    public bool IsAggroed { get; set; }
+    public bool IsWithinStrikingDistance { get; set; }
 
     #region State Machine Variables
 
@@ -23,6 +26,7 @@ public class Enemy : MonoBehaviour, IDamageable, IEnemyMoveable
 
     #region Idle Variables
 
+    public Rigidbody FireBlastPrefab;
     public float RandomMovementRange = 5f;
     public float RandomMovementSpeed = 1f;
 
@@ -96,6 +100,20 @@ public class Enemy : MonoBehaviour, IDamageable, IEnemyMoveable
             transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, RotationSpeed * Time.deltaTime);
         }
         
+    }
+
+    #endregion
+
+    #region Distance Checks
+
+    public void SetAggroStatus(bool isAggroed)
+    {
+        IsAggroed = isAggroed;
+    }
+
+    public void SetStrikingDistanceBool(bool isWithinStrikingDistance)
+    {
+        IsWithinStrikingDistance = isWithinStrikingDistance;
     }
 
     #endregion

@@ -10,6 +10,9 @@ public class InteractComponent : MonoBehaviour
     [SerializeField]
     private float MaxLineCastDistance = 3f;
 
+    [SerializeField] private LayerMask enemyLayer;
+
+
     private void Awake()
     {
         playerInput = GetComponent<PlayerInput>();
@@ -32,17 +35,26 @@ public class InteractComponent : MonoBehaviour
         // Draw the line in the Scene view for debugging
         Debug.DrawLine(start, end, Color.red, 100f); // Draws a red line for 0.1 seconds
 
-        // Perform the raycast from this object's position in the specified direction
-        if (Physics.Raycast(start, direction, out hit, MaxLineCastDistance))
+        
+        // Quick Cringe Fix, Should be updated later
+        if (Physics.Raycast(start, direction, out hit, MaxLineCastDistance, enemyLayer))
         {
-            // Check if the object hit has a component that implements IInteractable
-            IInteractable interactable = hit.collider.GetComponent<IInteractable>();
-            if (interactable != null)
+            // Nothing Happens 
+        }
+        else
+        {
+            // Perform the raycast from this object's position in the specified direction
+            if (Physics.Raycast(start, direction, out hit, MaxLineCastDistance))
             {
-                interactable.Interact(this.gameObject);
-                
+                // Check if the object hit has a component that implements IInteractable
+                IInteractable interactable = hit.collider.GetComponent<IInteractable>();
+                if (interactable != null)
+                {
+                    interactable.Interact(this.gameObject);
+
+                }
+                return new InteractInfo(hit.collider.gameObject, interactable, hit);
             }
-            return new InteractInfo(hit.collider.gameObject,interactable,hit);
         }
 
         // Return null if no IInteractable was hit

@@ -20,7 +20,7 @@ TagManager:
   - SearchHint
   - AwaredHint
   - WeaponLayer
-  - 
+  - Enemy
   - 
   - 
   - 
@@ -40,6 +40,9 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: Enemy
+    uniqueID: 4192135507
+    locked: 0
   - name: Default
     uniqueID: 0
     locked: 0
