@@ -10,15 +10,14 @@ public enum PlayerState
     MenuState
 }
 
-public class PlayerCharacter : MonoBehaviour, IPlayerCharacter
+public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemComponent
 {
-    [SerializeField]
-    AttributeReference targetAttribute;
-    [SerializeField]
-    float effectMagnitude = 10f;
 
-    [SerializeField] private GameplayTagContainer tagContainer;
-    [SerializeField] private GameplayTag someTag; 
+
+    [SerializeField]
+    GameplayEffect effectToApply;
+
+    AbilitySystemComponent abilitySystemComponent;
 
     private bool isMoving = false;
     
@@ -77,8 +76,8 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter
     private void Awake()
     {
         playerInputAction = GetComponent<PlayerInput>();
-
         
+        abilitySystemComponent = GetComponent<AbilitySystemComponent>();
         hand = GetComponentInChildren<PlayerHandsComponent>();
         interactComponent = GetComponentInChildren<InteractComponent>();
         if (bodyTransform == null)
@@ -104,20 +103,10 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter
     private void Start()
     {
         WeaponAttributeSet weaponAttributeSet = GetComponent<WeaponAttributeSet>();
-        if (!targetAttribute.IsValid()) return ;
-
-        // 获取目标属性的 FieldInfo
-        var fieldInfo = targetAttribute.GetFieldInfo();
-        if (fieldInfo == null) return ;
-
-        // 获取 GameplayAttribute 实例
-        var attributeData = fieldInfo.GetValue(weaponAttributeSet) as GameplayAttribute;
-        if (attributeData == null) return ;
-
-        // 修改属性的 baseValue
-        float baseValue = attributeData.BaseValue;
-        attributeData.BaseValue = baseValue + effectMagnitude;  
-
+        
+        abilitySystemComponent.ApplyEffectToSelf(effectToApply,1);
+        
+        
         ItemData testData = new ItemData {
             ID = "test_gun",
             Name = "Test Gun",
@@ -140,6 +129,8 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter
         );
         // Equip the weapon
         EquipItem(testWeapon);
+
+        abilitySystemComponent.ApplyEffectToSelf(effectToApply,1);
     }
 
     private void Update()
@@ -465,5 +456,10 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter
     {
         // For testing, just log ammo consumption.
         Debug.Log($"Consumed {amountToLoad} rounds of {ammoType}.");
+    }
+
+    public AbilitySystemComponent GetAbilitySystemComponent()
+    {
+        return abilitySystemComponent;
     }
 }

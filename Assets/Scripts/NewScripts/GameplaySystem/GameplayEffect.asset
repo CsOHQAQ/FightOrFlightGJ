@@ -12,7 +12,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0945cac534b586489c2ebf0d0ba1d84, type: 3}
   m_Name: GameplayEffect
   m_EditorClassIdentifier: 
-  Modifiers: []
+  Modifiers:
+  - TargetAttribute: {fileID: 11400000, guid: 003a55527608e8845a180e73dc39207d, type: 2}
+    ModifierOperation: 0
+    ModifierMagnitude:
+      magnitudeCalculationType: 0
+      flatMagnitude: 10
+      attributeBased:
+        coefficient: 1
+        preMultiplyAdditiveValue: 0
+        postMultiplyAdditiveValue: 0
+        backingAttribute:
+          attributeToCapture: {fileID: 0}
+          attributeSource: 0
+          bSnapshot: 0
+        attributeCurve:
+          serializedVersion: 2
+          m_Curve: []
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        attributeCalculationType: 0
   DurationPolicy: 0
   Duration: 0
   Period: 0

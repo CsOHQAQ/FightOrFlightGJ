@@ -81,7 +81,7 @@ public class GameplayEffect : ScriptableObject
 }
 
 [Serializable]
-public struct GameplayEffectHandle
+public struct GameplayEffectSpecHandle
 {
     public int HandleID; // This could be a unique ID assigned when the effect is applied.
 }
@@ -209,8 +209,34 @@ public class GameplayEffectSpec
                 }
             }
         }
-    }
 
+
+    }
+    
+        public void CalculateAllModifiers()
+        {
+            ModifiedAttributes.Clear();
+
+            foreach (var modInfo in Effect.Modifiers)
+            {
+                bool foundAttribute;
+                float magnitudeValue = modInfo.ModifierMagnitude.CalculateMagnitude(this, out foundAttribute);
+
+                if (!foundAttribute)
+                {
+                    // skip or warn
+                    continue;
+                }
+
+                // store the result
+                GameplayEffectModifiedAttribute modified = new GameplayEffectModifiedAttribute
+                {
+                    TargetAttributeRef = modInfo.TargetAttribute,
+                    TotalMagnitude = magnitudeValue
+                };
+                ModifiedAttributes.Add(modified);
+            }
+        }
 
     /// <summary>
     /// Retrieves the attribute value from either the Source or Target based on captureDef.
@@ -291,11 +317,25 @@ public class GameplayEffectSpec
     }
 }
 
+[Serializable]
 public struct GameplayEffectModifiedAttribute
 {
-    public GameplayAttribute Attribute;
+    /// <summary>
+    /// The AttributeReference identifying which attribute to modify (via reflection).
+    /// </summary>
+    public AttributeReference TargetAttributeRef;
+
+    /// <summary>
+    /// The final computed "magnitude" for the effect's change (e.g. +10).
+    /// </summary>
     public float TotalMagnitude;
+
+    /// <summary>
+    /// The ModifierType (AddBase, MultiplyAdditive, etc.) that tells the attribute how to incorporate this magnitude.
+    /// </summary>
+    public ModifierType ModifierType;
 }
+
 
 
 [Serializable]
