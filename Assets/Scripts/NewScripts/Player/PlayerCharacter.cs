@@ -14,9 +14,6 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
 {
 
 
-    [SerializeField]
-    GameplayEffect effectToApply;
-
     AbilitySystemComponent abilitySystemComponent;
 
     private bool isMoving = false;
@@ -128,7 +125,6 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
         // Equip the weapon
         EquipItem(testWeapon);
 
-        abilitySystemComponent.ApplyEffectToSelf(effectToApply,1);
     }
 
     private void Update()

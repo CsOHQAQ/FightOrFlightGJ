@@ -36,13 +36,13 @@ public class GameplayEffectAttributeCaptureDefinition
     /// <summary>
     /// Whether the attribute should be snapshotted or not.
     /// </summary>
-    [SerializeField] private bool bSnapshot = false;
+    [SerializeField] private bool isSnapshot = false;
 
     // Default constructor
     public GameplayEffectAttributeCaptureDefinition()
     {
         attributeSource = GameplayEffectAttributeCaptureSource.Source;
-        bSnapshot = false;
+        isSnapshot = false;
     }
 
     // Parameterized constructor
@@ -50,7 +50,7 @@ public class GameplayEffectAttributeCaptureDefinition
     {
         attributeToCapture = inAttribute;
         attributeSource = inSource;
-        bSnapshot = inSnapshot;
+        isSnapshot = inSnapshot;
     }
 
     public AttributeReference GetGameplayAttributeReference()
@@ -65,7 +65,7 @@ public class GameplayEffectAttributeCaptureDefinition
 
     public bool IsSnapshot()
     {
-        return bSnapshot;
+        return isSnapshot;
     }
 
     /// <summary>
@@ -77,7 +77,7 @@ public class GameplayEffectAttributeCaptureDefinition
         {
             return attributeToCapture.Equals(other.attributeToCapture) &&
                    attributeSource == other.attributeSource &&
-                   bSnapshot == other.bSnapshot;
+                   isSnapshot == other.isSnapshot;
         }
         return false;
     }
@@ -105,7 +105,7 @@ public class GameplayEffectAttributeCaptureDefinition
     /// </summary>
     public override int GetHashCode()
     {
-        return HashCode.Combine(attributeToCapture, attributeSource, bSnapshot);
+        return HashCode.Combine(attributeToCapture, attributeSource, isSnapshot);
     }
 
     /// <summary>
@@ -113,6 +113,6 @@ public class GameplayEffectAttributeCaptureDefinition
     /// </summary>
     public override string ToString()
     {
-        return $"Attribute: {attributeToCapture}, Source: {attributeSource}, Snapshot: {bSnapshot}";
+        return $"Attribute: {attributeToCapture}, Source: {attributeSource}, Snapshot: {isSnapshot}";
     }
 }

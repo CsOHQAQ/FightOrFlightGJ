@@ -163,7 +163,7 @@ public struct GameplayEffectModifierMagnitude
     }
 }
 
-
+    // Constructor
 public class GameplayEffectSpec
 {
     public GameplayEffect Effect;
@@ -171,22 +171,19 @@ public class GameplayEffectSpec
     public float StartTime;
     public float NextTickTime; // Tracks the next time the periodic effect should tick
 
-    // Might store the references to source / target here:
     private GameObject sourceActor;
-    public GameObject SourceActor{get{return sourceActor;}}
+    public GameObject SourceActor { get { return sourceActor; } }
+
     private GameObject targetActor;
-    public GameObject TargetActor{get{return targetActor;}}
+    public GameObject TargetActor { get { return targetActor; } }
 
-    public int StackCount { get; private set; } = 1; // Default to 1 stack
+    public int StackCount { get; private set; } = 1;
 
-    // Optional: Store snapshot data if needed
     private Dictionary<GameplayEffectAttributeCaptureDefinition, float> snapshotData 
         = new Dictionary<GameplayEffectAttributeCaptureDefinition, float>();
 
-    // A list of attributes that were actually modified
     public List<GameplayEffectModifiedAttribute> ModifiedAttributes = new List<GameplayEffectModifiedAttribute>();
 
-    // Constructor
     public GameplayEffectSpec(GameplayEffect effect, float level, GameObject inSource, GameObject inTarget)
     {
         Effect = effect;
@@ -195,20 +192,16 @@ public class GameplayEffectSpec
         sourceActor = inSource;
         targetActor = inTarget;
 
-        
-
-        // Step 1: If effect is non-null, we iterate each modifier. We check if it uses an attribute-based approach and bSnapshot = true.
         if (Effect != null)
         {
+            // If effect has attribute-based captures and snapshot is required, store them
             foreach (var modInfo in Effect.Modifiers)
             {
-                // If the magnitude calculation is attribute-based, we might check:
                 if (modInfo.ModifierMagnitude.magnitudeCalculationType == GameplayEffectMagnitudeCalculation.AttributeBased)
                 {
                     var backing = modInfo.ModifierMagnitude.attributeBased;
                     var captureDef = backing.backingAttribute;
 
-                    // If that captureDef says bSnapshot = true, do one-time capture
                     if (captureDef.IsSnapshot())
                     {
                         SnapshotAttribute(captureDef);
@@ -221,9 +214,9 @@ public class GameplayEffectSpec
         {
             NextTickTime = StartTime + Effect.Period;
         }
-
-
     }
+
+    // Example stack logic:
     public void AddStack()
     {
         if (Effect.StackingPolicy == StackingPolicy.AddStack && StackCount < Effect.MaxStackCount)
@@ -231,7 +224,6 @@ public class GameplayEffectSpec
             StackCount++;
         }
     }
-
     public void RemoveStack()
     {
         if (StackCount > 0)
@@ -239,16 +231,15 @@ public class GameplayEffectSpec
             StackCount--;
         }
     }
-
     public void SetStackCount(int count)
     {
         StackCount = Mathf.Clamp(count, 0, Effect.MaxStackCount);
     }
-
     public bool IsAtMaxStacks()
     {
         return StackCount >= Effect.MaxStackCount;
     }
+
     public void CalculateAllModifiers()
     {
         ModifiedAttributes.Clear();
@@ -259,139 +250,111 @@ public class GameplayEffectSpec
             float magnitudeValue = modInfo.ModifierMagnitude.CalculateMagnitude(this, out foundAttribute);
 
             if (!foundAttribute)
-            {
-                // skip or warn
                 continue;
-            }
 
-            // store the result
             GameplayEffectModifiedAttribute modified = new GameplayEffectModifiedAttribute
             {
                 TargetAttributeRef = modInfo.TargetAttribute,
-                TotalMagnitude = magnitudeValue
+                TotalMagnitude = magnitudeValue,
+                ModifierType = modInfo.ModifierOperation
             };
             ModifiedAttributes.Add(modified);
         }
     }
 
     /// <summary>
-    /// Retrieves the attribute value from either the Source or Target based on captureDef.
-    /// If bSnapshot is true, returns the stored snapshot value. Otherwise, dynamically fetches current value.
+    /// Retrieves the aggregated/current attribute value or snapshot if present.
     /// </summary>
     public float GetCapturedAttributeValue(GameplayEffectAttributeCaptureDefinition captureDef, out bool foundAttribute)
     {
-        foundAttribute = false;
-
-        // 1. If snapshot is used and we have it cached, return that
+        // If snapshot is used...
         if (captureDef.IsSnapshot() && snapshotData.ContainsKey(captureDef))
         {
             foundAttribute = true;
             return snapshotData[captureDef];
         }
 
-        // 2. Otherwise we fetch it at runtime
-        GameObject relevantActor = 
-            (captureDef.GetAttributeSource() == GameplayEffectAttributeCaptureSource.Source) 
-            ? sourceActor 
+        GameObject relevantActor = (captureDef.GetAttributeSource() == GameplayEffectAttributeCaptureSource.Source)
+            ? sourceActor
             : targetActor;
 
+        foundAttribute = false;
         if (relevantActor == null)
         {
-            Debug.LogWarning("Relevant actor is null. Cannot fetch attribute value.");
             return 0f;
         }
 
-        // 3. Access the attribute from relevantActor
-        float value = FetchAttributeValueFromActor(relevantActor, captureDef.GetGameplayAttributeReference(), out foundAttribute);
+        // Acquire final/current aggregated value from ASC
+        var asc = relevantActor.GetComponent<AbilitySystemComponent>();
+        if (asc == null) return 0f;
 
-        if (!foundAttribute)
-        {
-            Debug.LogWarning($"Attribute {captureDef.GetGameplayAttributeReference()} not found on actor {relevantActor.name}.");
-        }
-
-        return value;
+        return asc.GetAttributeValue(captureDef.GetGameplayAttributeReference(), out foundAttribute);
     }
 
-
     /// <summary>
-    /// Example function to snapshot attributes at spec creation
+    /// Similar to GetCapturedAttributeValue, but retrieves the base value rather than the current.
+    /// Useful for AttributeBaseValue or computing bonus.
     /// </summary>
+    public float GetCapturedAttributeBaseValue(GameplayEffectAttributeCaptureDefinition captureDef, out bool foundAttribute)
+    {
+        // If snapshot logic is relevant, do it here as well
+        // For now, we do dynamic fetch
+        GameObject relevantActor = (captureDef.GetAttributeSource() == GameplayEffectAttributeCaptureSource.Source)
+            ? sourceActor
+            : targetActor;
+
+        foundAttribute = false;
+        if (relevantActor == null)
+        {
+            return 0f;
+        }
+
+        var asc = relevantActor.GetComponent<AbilitySystemComponent>();
+        if (asc == null) return 0f;
+
+        return asc.GetAttributeBaseValue(captureDef.GetGameplayAttributeReference(), out foundAttribute);
+    }
+
     private void SnapshotAttribute(GameplayEffectAttributeCaptureDefinition captureDef)
     {
-        bool foundAttribute;
-        float currentValue = GetCapturedAttributeValueDynamic(captureDef, out foundAttribute);
-        if (foundAttribute)
+        bool found;
+        float currentValue = GetCapturedAttributeValueDynamic(captureDef, out found);
+        if (found)
         {
             snapshotData[captureDef] = currentValue;
         }
     }
 
-    /// <summary>
-    /// If no snapshot, fetches the attribute dynamically each call.
-    /// </summary>
     private float GetCapturedAttributeValueDynamic(GameplayEffectAttributeCaptureDefinition captureDef, out bool foundAttribute)
     {
         foundAttribute = false;
-        GameObject relevantActor = 
-            (captureDef.GetAttributeSource() == GameplayEffectAttributeCaptureSource.Source) 
-            ? sourceActor 
+        GameObject relevantActor = (captureDef.GetAttributeSource() == GameplayEffectAttributeCaptureSource.Source)
+            ? sourceActor
             : targetActor;
+
         if (relevantActor == null)
             return 0f;
 
-        return FetchAttributeValueFromActor(relevantActor, captureDef.GetGameplayAttributeReference(), out foundAttribute);
-    }
-
-    /// <summary>
-    /// This is where you implement how to read from attribute sets or components. 
-    /// For example, if your actor has a AttributeSet component with a method to read the attribute.
-    /// </summary>
-    private float FetchAttributeValueFromActor(GameObject actor, AttributeReference attributeRef, out bool foundAttribute)
-    {
-        foundAttribute = false;
-
-        // Example approach:
-        AbilitySystemComponent asc = actor.GetComponent<AbilitySystemComponent>();
+        var asc = relevantActor.GetComponent<AbilitySystemComponent>();
         if (asc == null)
-        {
-            Debug.LogWarning($"No AbilitySystemComponent found on {actor.name}");
             return 0f;
-        }
 
-        AttributeSet attributeSet = actor.GetComponent<AttributeSet>();
-        if (attributeSet == null)
-        {
-            Debug.LogWarning($"No AttributeSet found on {actor.name}");
-            return 0f;
-        }
-
-        float value = asc.GetAttributeValue(attributeRef, out foundAttribute);
-        if (!foundAttribute)
-        {
-            Debug.LogWarning($"Attribute {attributeRef} not found on {actor.name}.");
-        }
-
-        return value;
+        return asc.GetAttributeValue(captureDef.GetGameplayAttributeReference(), out foundAttribute);
     }
 
-
-
-        public void ApplyPeriodicTick()
+    public void ApplyPeriodicTick()
     {
+        // For each modified attr, apply the magnitude as a "one-time" effect to base
+        // or do advanced logic. This is your design choice.
         foreach (var modifiedAttr in ModifiedAttributes)
         {
-            // Periodic ticks apply magnitude as a "one-time" effect
             bool foundAttr;
-            float oldValue = targetActor.GetComponent<AbilitySystemComponent>()
-                .GetAttributeBaseValue(modifiedAttr.TargetAttributeRef, out foundAttr);
-
+            var asc = targetActor.GetComponent<AbilitySystemComponent>();
+            float oldBase = asc.GetAttributeBaseValue(modifiedAttr.TargetAttributeRef, out foundAttr);
             if (!foundAttr) continue;
 
-            float newValue = oldValue + modifiedAttr.TotalMagnitude;
-
-            // Apply the new value
-            targetActor.GetComponent<AbilitySystemComponent>()
-                .SetAttributeBaseValue(modifiedAttr.TargetAttributeRef, newValue);
+            float newBase = oldBase + modifiedAttr.TotalMagnitude;
+            asc.SetAttributeBaseValue(modifiedAttr.TargetAttributeRef, newBase);
         }
     }
 }
@@ -423,9 +386,11 @@ public class AttributeBasedFloat
     [SerializeField] private float coefficient = 1f;
     [SerializeField] private float preMultiplyAdditiveValue = 0f;
     [SerializeField] private float postMultiplyAdditiveValue = 0f;
+
     [SerializeField] public GameplayEffectAttributeCaptureDefinition backingAttribute;
     [SerializeField] private AnimationCurve attributeCurve;
     [SerializeField] private AttributeBasedFloatCalculationType attributeCalculationType = AttributeBasedFloatCalculationType.AttributeMagnitude;
+
     [SerializeField] private GameplayTagContainer sourceTagFilter;
     [SerializeField] private GameplayTagContainer targetTagFilter;
 
@@ -436,40 +401,69 @@ public class AttributeBasedFloat
         postMultiplyAdditiveValue = 0f;
         backingAttribute = new GameplayEffectAttributeCaptureDefinition();
         attributeCalculationType = AttributeBasedFloatCalculationType.AttributeMagnitude;
-        // Default to a linear curve if none is set
         attributeCurve = new AnimationCurve(new Keyframe(0, 0), new Keyframe(1, 1));
     }
 
     public float CalculateMagnitude(GameplayEffectSpec relevantSpec, out bool foundAttribute)
     {
-        float attributeValue = relevantSpec.GetCapturedAttributeValue(backingAttribute, out foundAttribute);
-
+        // We'll fetch the aggregator-based current value from the spec
+        float currentVal = relevantSpec.GetCapturedAttributeValue(backingAttribute, out foundAttribute);
         if (!foundAttribute)
         {
-            Debug.LogWarning($"Attribute {backingAttribute.GetGameplayAttributeReference()} not found.");
-            return 0f; // Return default if attribute not found
+            Debug.LogWarning($"[AttributeBasedFloat] Could not find current attribute for {backingAttribute.GetGameplayAttributeReference()}");
+            return 0f;
         }
 
-        float preAdd = attributeValue + preMultiplyAdditiveValue;
-        //Debug.Log($"PreAdd Value: {preAdd} (AttributeValue: {attributeValue}, PreMultiplyAdditive: {preMultiplyAdditiveValue})");
+        float finalInputValue = currentVal; // default to "AttributeMagnitude" behavior
 
+        switch (attributeCalculationType)
+        {
+            case AttributeBasedFloatCalculationType.AttributeMagnitude:
+            {
+                // We already have the aggregator-based currentVal
+                finalInputValue = currentVal;
+                break;
+            }
+            case AttributeBasedFloatCalculationType.AttributeBaseValue:
+            {
+                // We want to retrieve the base value
+                float baseVal = relevantSpec.GetCapturedAttributeBaseValue(backingAttribute, out bool foundBase);
+                if (!foundBase)
+                {
+                    Debug.LogWarning($"[AttributeBasedFloat] Could not find base attribute for {backingAttribute.GetGameplayAttributeReference()}");
+                    baseVal = 0f;
+                }
+                finalInputValue = baseVal;
+                break;
+            }
+            case AttributeBasedFloatCalculationType.AttributeBonusMagnitude:
+            {
+                // "Bonus" = currentVal - baseVal
+                float baseVal = relevantSpec.GetCapturedAttributeBaseValue(backingAttribute, out bool foundBase2);
+                if (!foundBase2)
+                {
+                    Debug.LogWarning($"[AttributeBasedFloat] Could not find base attribute for {backingAttribute.GetGameplayAttributeReference()}");
+                    baseVal = 0f;
+                }
+                float bonus = currentVal - baseVal;
+                finalInputValue = bonus;
+                break;
+            }
+        }
+
+        // Now apply preMultiplyAdditiveValue, coefficient, postMultiplyAdditiveValue, and curve
+        float preAdd = finalInputValue + preMultiplyAdditiveValue;
         float scaledValue = preAdd * coefficient;
-        //Debug.Log($"Scaled Value: {scaledValue} (PreAdd: {preAdd}, Coefficient: {coefficient})");
-
         float finalValue = scaledValue + postMultiplyAdditiveValue;
-        //Debug.Log($"Final Value Before Curve: {finalValue} (ScaledValue: {scaledValue}, PostAdditive: {postMultiplyAdditiveValue})");
 
         if (attributeCurve != null && attributeCurve.keys.Length > 0)
         {
             finalValue = attributeCurve.Evaluate(finalValue);
-            //Debug.Log($"Final Value After Curve: {finalValue}");
-        }
-        else
-        {
-            //Debug.LogWarning("Skipping attributeCurve as it is null or has no keys.");
         }
 
-        Debug.Log($"CalculateMagnitude Debug - AttributeValue: {attributeValue}, PreAdd: {preMultiplyAdditiveValue}, Coefficient: {coefficient}, PostAdd: {postMultiplyAdditiveValue}");
+        Debug.Log($"[AttributeBasedFloat] CalculationType={attributeCalculationType}, " +
+                  $"CurrentVal={currentVal}, PreAdd={preMultiplyAdditiveValue}, Coefficient={coefficient}, " +
+                  $"PostAdd={postMultiplyAdditiveValue}, FinalValue={finalValue}");
 
         return finalValue;
     }
