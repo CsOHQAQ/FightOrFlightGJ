@@ -43,30 +43,54 @@ public class AbilitySystemComponent : MonoBehaviour
             return new GameplayEffectSpecHandle { HandleID = 0 };
         }
 
-        // 1. Create spec
+        // Check for existing spec with the same effect
+        foreach (var kvp in activeEffectSpecs)
+        {
+            GameplayEffectSpec existingSpec = kvp.Value;
+
+            // Match effect and source for stacking
+            if (existingSpec.Effect == effect && existingSpec.SourceActor == source)
+            {
+                if (effect.StackingPolicy == StackingPolicy.AddStack)
+                {
+                    if (!existingSpec.IsAtMaxStacks())
+                    {
+                        existingSpec.AddStack();
+                        existingSpec.CalculateAllModifiers();
+                    }
+                    return new GameplayEffectSpecHandle { HandleID = kvp.Key };
+                }
+                else if (effect.StackingPolicy == StackingPolicy.RefreshDuration)
+                {
+                    existingSpec.StartTime = Time.time;
+                    return new GameplayEffectSpecHandle { HandleID = kvp.Key };
+                }
+                else if (effect.StackingPolicy == StackingPolicy.AggregateDuration)
+                {
+                    existingSpec.SetStackCount(existingSpec.StackCount + 1);
+                    existingSpec.CalculateAllModifiers();
+                    existingSpec.StartTime = Time.time; // Optional: adjust duration logic
+                    return new GameplayEffectSpecHandle { HandleID = kvp.Key };
+                }
+            }
+        }
+
+        // If no existing spec matches, create a new one
         var spec = new GameplayEffectSpec(effect, effectLevel, source, target);
-        // 2. Calculate all modifiers
         spec.CalculateAllModifiers();
 
-        // 3. Store it with a new handle
         int handleID = nextEffectSpecID++;
         activeEffectSpecs[handleID] = spec;
 
         var handle = new GameplayEffectSpecHandle { HandleID = handleID };
 
-        // 4. If instant, apply base changes directly and optionally remove
-        if (effect.DurationPolicy == EDurationPolicy.Instant)
+        if (effect.DurationPolicy == DurationPolicy.Instant || effect.Duration ==0f)
         {
             ExecuteEffectInstant(spec);
-            // remove from dictionary if truly one-shot
-            if (activeEffectSpecs.ContainsKey(handleID))
-            {
-                activeEffectSpecs.Remove(handleID);
-            }
+            activeEffectSpecs.Remove(handleID);
         }
         else
         {
-            // 5. Duration/Infinite => add modifiers to attributes, store spec for future removal
             ExecuteEffectOngoing(spec);
         }
 
@@ -173,13 +197,21 @@ public class AbilitySystemComponent : MonoBehaviour
             int handleID = kvp.Key;
             GameplayEffectSpec spec = kvp.Value;
 
-            if (spec.Effect.DurationPolicy == EDurationPolicy.HasDuration)
+            if (spec.Effect.DurationPolicy != DurationPolicy.Instant)
             {
                 float elapsed = Time.time - spec.StartTime;
+
+                // Handle periodic logic
+                if (spec.Effect.IsPeriodic && Time.time >= spec.NextTickTime)
+                {
+                    spec.ApplyPeriodicTick();
+                    spec.NextTickTime += spec.Effect.Period; // Schedule the next tick
+                }
+
+                // Check if the effect has expired
                 if (elapsed > spec.Effect.Duration)
                 {
-                    // effect is done, remove from dictionary
-                    if (finishedEffects == null) 
+                    if (finishedEffects == null)
                         finishedEffects = new List<int>();
                     finishedEffects.Add(handleID);
 
@@ -187,23 +219,16 @@ public class AbilitySystemComponent : MonoBehaviour
                     RemoveOngoingModifier(spec);
                     continue;
                 }
-
-                // If periodic, you might recalc or re-apply in certain intervals
-                if (spec.Effect.IsPeriodic)
-                {
-                    // e.g. check nextTickTime, re-calc, re-apply or handle aggregator
-                }
             }
-            else if (spec.Effect.DurationPolicy == EDurationPolicy.Instant)
+            else if (spec.Effect.DurationPolicy == DurationPolicy.Instant)
             {
-                // Typically remove it right away if we haven't
-                if (finishedEffects == null) 
+                if (finishedEffects == null)
                     finishedEffects = new List<int>();
                 finishedEffects.Add(handleID);
             }
-            // if infinite => do nothing, only removed by user
         }
 
+        // Clean up finished effects
         if (finishedEffects != null)
         {
             foreach (int handleId in finishedEffects)
@@ -251,7 +276,7 @@ public class AbilitySystemComponent : MonoBehaviour
         foundAttribute = true;
         return gameplayAttribute.CurrentValue;
     }
-    
+
 
     public float GetAttributeBaseValue(AttributeReference attributeRef, out bool foundAttribute)
     {
@@ -299,4 +324,48 @@ public class AbilitySystemComponent : MonoBehaviour
         }
         return gameplayAttribute;
     }
+
+    public void RemoveActiveGameplayEffectBySourceEffect(GameplayEffect gameplayEffect, AbilitySystemComponent instigator = null, int stacksToRemove = -1)
+    {
+        if (gameplayEffect == null)
+        {
+            Debug.LogWarning("RemoveActiveGameplayEffectBySourceEffect failed: No gameplay effect provided.");
+            return;
+        }
+
+        foreach (var kvp in activeEffectSpecs)
+        {
+            int handleID = kvp.Key;
+            GameplayEffectSpec spec = kvp.Value;
+
+            if (spec.Effect != gameplayEffect)
+                continue;
+
+            if (instigator != null && spec.SourceActor.GetComponent<AbilitySystemComponent>() != instigator)
+                continue;
+
+            if (stacksToRemove == -1 || stacksToRemove >= spec.StackCount)
+            {
+                // Remove all stacks and the effect
+                RemoveOngoingModifier(spec);
+                activeEffectSpecs.Remove(handleID);
+            }
+            else
+            {
+                // Reduce the stack count
+                spec.RemoveStack();
+                spec.CalculateAllModifiers();
+            }
+        }
+    }
+
+    public void DebugPrintActiveEffects()
+    {
+        foreach (var kvp in activeEffectSpecs)
+        {
+            GameplayEffectSpec spec = kvp.Value;
+            Debug.Log($"Effect: {spec.Effect.name}, Stacks: {spec.StackCount}");
+        }
+    }
+
 }

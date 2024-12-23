@@ -33,9 +33,9 @@ MonoBehaviour:
           m_PostInfinity: 2
           m_RotationOrder: 4
         attributeCalculationType: 0
-  DurationPolicy: 1
-  Duration: 20
-  Period: 0
+  DurationPolicy: 2
+  Duration: Infinity
+  Period: 5
   StackingPolicy: 0
   MaxStackCount: 1
   IsInfinite: 0

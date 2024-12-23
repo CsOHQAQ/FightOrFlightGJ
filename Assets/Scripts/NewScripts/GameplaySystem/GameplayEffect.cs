@@ -2,14 +2,14 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 
-public enum EDurationPolicy
+public enum DurationPolicy
 {
     Instant,
     HasDuration,
     Infinite
 }
 
-public enum EStackingPolicy
+public enum StackingPolicy
 {
     None,
     AddStack,
@@ -25,34 +25,34 @@ public class GameplayEffect : ScriptableObject
     public List<FGameplayModifierInfo> Modifiers = new List<FGameplayModifierInfo>();
 
     [Header("Duration & Period")]
-    public EDurationPolicy DurationPolicy = EDurationPolicy.Instant;
+    public DurationPolicy DurationPolicy = DurationPolicy.Instant;
     
     [Tooltip("Used if DurationPolicy is HasDuration. If 0 or negative and policy is HasDuration, treat it as instant.")]
     public float Duration = 0f;
 
-    [Tooltip("If > 0, this effect will tick periodically at this interval (e.g., DOT effects).")]
+    [Tooltip("If > 0, this effect will tick periodically at this interval (e.g., DOT effects). Periodic GameplayEffects are treated like instant GameplayEffects and change the BaseValue.")]
     public float Period = 0f;
 
-    [Tooltip("If true and DurationPolicy is HasDuration, periodic logic applies at periodic intervals.")]
-    public bool IsPeriodic => Period > 0f && DurationPolicy == EDurationPolicy.HasDuration;
+    [Tooltip("If true and DurationPolicy is not Instant, periodic logic applies at periodic intervals.")]
+    public bool IsPeriodic => Period > 0f && DurationPolicy != DurationPolicy.Instant;
 
     [Header("Stacking")]
-    public EStackingPolicy StackingPolicy = EStackingPolicy.None;
+    public StackingPolicy StackingPolicy = StackingPolicy.None;
     public int MaxStackCount = 1; // If stacking is allowed, how many stacks max.
 
     [Tooltip("If true, the effect remains until removed. Overrules DurationPolicy if set incorrectly.")]
-    public bool IsInfinite;  // If this is true, consider DurationPolicy = EDurationPolicy.Infinite internally.
+    public bool IsInfinite;  // If this is true, consider DurationPolicy = DurationPolicy.Infinite internally.
 
     private void OnValidate()
     {
         // Ensure DurationPolicy aligns with IsInfinite
         if (IsInfinite)
         {
-            DurationPolicy = EDurationPolicy.Infinite;
+            DurationPolicy = DurationPolicy.Infinite;
         }
         else
         {
-            if (DurationPolicy == EDurationPolicy.Infinite)
+            if (DurationPolicy == DurationPolicy.Infinite)
             {
                 // If not infinite requested but policy is infinite, revert if needed.
                 // Or do nothing, developer chooses what makes sense.
@@ -60,20 +60,20 @@ public class GameplayEffect : ScriptableObject
         }
 
         // If DurationPolicy is Instant, ignore Duration and Period
-        if (DurationPolicy == EDurationPolicy.Instant)
+        if (DurationPolicy == DurationPolicy.Instant)
         {
             Duration = 0f;
             // Periodic doesn't make sense for Instant effects
         }
 
         // If DurationPolicy is HasDuration but Duration <= 0, treat as Instant
-        if (DurationPolicy == EDurationPolicy.HasDuration && Duration <= 0)
-        {
-            DurationPolicy = EDurationPolicy.Instant;
-        }
+        //if (DurationPolicy == DurationPolicy.HasDuration && Duration <= 0)
+        //{
+        //    DurationPolicy = DurationPolicy.Instant;
+        //}
 
         // If infinite, no need for Duration
-        if (DurationPolicy == EDurationPolicy.Infinite)
+        if (DurationPolicy == DurationPolicy.Infinite)
         {
             Duration = float.PositiveInfinity;
         }
@@ -169,10 +169,15 @@ public class GameplayEffectSpec
     public GameplayEffect Effect;
     public float Level;
     public float StartTime;
+    public float NextTickTime; // Tracks the next time the periodic effect should tick
 
     // Might store the references to source / target here:
     private GameObject sourceActor;
+    public GameObject SourceActor{get{return sourceActor;}}
     private GameObject targetActor;
+    public GameObject TargetActor{get{return targetActor;}}
+
+    public int StackCount { get; private set; } = 1; // Default to 1 stack
 
     // Optional: Store snapshot data if needed
     private Dictionary<GameplayEffectAttributeCaptureDefinition, float> snapshotData 
@@ -189,6 +194,8 @@ public class GameplayEffectSpec
         StartTime = Time.time;
         sourceActor = inSource;
         targetActor = inTarget;
+
+        
 
         // Step 1: If effect is non-null, we iterate each modifier. We check if it uses an attribute-based approach and bSnapshot = true.
         if (Effect != null)
@@ -210,33 +217,62 @@ public class GameplayEffectSpec
             }
         }
 
+        if (Effect.IsPeriodic)
+        {
+            NextTickTime = StartTime + Effect.Period;
+        }
+
 
     }
-    
-        public void CalculateAllModifiers()
+    public void AddStack()
+    {
+        if (Effect.StackingPolicy == StackingPolicy.AddStack && StackCount < Effect.MaxStackCount)
         {
-            ModifiedAttributes.Clear();
-
-            foreach (var modInfo in Effect.Modifiers)
-            {
-                bool foundAttribute;
-                float magnitudeValue = modInfo.ModifierMagnitude.CalculateMagnitude(this, out foundAttribute);
-
-                if (!foundAttribute)
-                {
-                    // skip or warn
-                    continue;
-                }
-
-                // store the result
-                GameplayEffectModifiedAttribute modified = new GameplayEffectModifiedAttribute
-                {
-                    TargetAttributeRef = modInfo.TargetAttribute,
-                    TotalMagnitude = magnitudeValue
-                };
-                ModifiedAttributes.Add(modified);
-            }
+            StackCount++;
         }
+    }
+
+    public void RemoveStack()
+    {
+        if (StackCount > 0)
+        {
+            StackCount--;
+        }
+    }
+
+    public void SetStackCount(int count)
+    {
+        StackCount = Mathf.Clamp(count, 0, Effect.MaxStackCount);
+    }
+
+    public bool IsAtMaxStacks()
+    {
+        return StackCount >= Effect.MaxStackCount;
+    }
+    public void CalculateAllModifiers()
+    {
+        ModifiedAttributes.Clear();
+
+        foreach (var modInfo in Effect.Modifiers)
+        {
+            bool foundAttribute;
+            float magnitudeValue = modInfo.ModifierMagnitude.CalculateMagnitude(this, out foundAttribute);
+
+            if (!foundAttribute)
+            {
+                // skip or warn
+                continue;
+            }
+
+            // store the result
+            GameplayEffectModifiedAttribute modified = new GameplayEffectModifiedAttribute
+            {
+                TargetAttributeRef = modInfo.TargetAttribute,
+                TotalMagnitude = magnitudeValue
+            };
+            ModifiedAttributes.Add(modified);
+        }
+    }
 
     /// <summary>
     /// Retrieves the attribute value from either the Source or Target based on captureDef.
@@ -314,6 +350,26 @@ public class GameplayEffectSpec
         if (attributeSet == null) return 0f;
 
         return asc.GetAttributeValue(attributeRef, out foundAttribute);
+    }
+
+
+        public void ApplyPeriodicTick()
+    {
+        foreach (var modifiedAttr in ModifiedAttributes)
+        {
+            // Periodic ticks apply magnitude as a "one-time" effect
+            bool foundAttr;
+            float oldValue = targetActor.GetComponent<AbilitySystemComponent>()
+                .GetAttributeBaseValue(modifiedAttr.TargetAttributeRef, out foundAttr);
+
+            if (!foundAttr) continue;
+
+            float newValue = oldValue + modifiedAttr.TotalMagnitude;
+
+            // Apply the new value
+            targetActor.GetComponent<AbilitySystemComponent>()
+                .SetAttributeBaseValue(modifiedAttr.TargetAttributeRef, newValue);
+        }
     }
 }
 
