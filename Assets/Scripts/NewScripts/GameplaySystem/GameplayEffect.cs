@@ -297,14 +297,21 @@ public class GameplayEffectSpec
 
         if (relevantActor == null)
         {
-            // If we have no actor for this source/target, default to 0
-            // or handle as needed
+            Debug.LogWarning("Relevant actor is null. Cannot fetch attribute value.");
             return 0f;
         }
 
         // 3. Access the attribute from relevantActor
-        return FetchAttributeValueFromActor(relevantActor, captureDef.GetGameplayAttributeReference(), out foundAttribute);
+        float value = FetchAttributeValueFromActor(relevantActor, captureDef.GetGameplayAttributeReference(), out foundAttribute);
+
+        if (!foundAttribute)
+        {
+            Debug.LogWarning($"Attribute {captureDef.GetGameplayAttributeReference()} not found on actor {relevantActor.name}.");
+        }
+
+        return value;
     }
+
 
     /// <summary>
     /// Example function to snapshot attributes at spec creation
@@ -342,15 +349,31 @@ public class GameplayEffectSpec
     private float FetchAttributeValueFromActor(GameObject actor, AttributeReference attributeRef, out bool foundAttribute)
     {
         foundAttribute = false;
-        // Example approach:
-        // 1. Get the attribute set component from the actor
-        AbilitySystemComponent asc = actor.GetComponent<AbilitySystemComponent>();
-        if (asc == null) return 0f;
-        AttributeSet attributeSet = actor.GetComponent<AttributeSet>();
-        if (attributeSet == null) return 0f;
 
-        return asc.GetAttributeValue(attributeRef, out foundAttribute);
+        // Example approach:
+        AbilitySystemComponent asc = actor.GetComponent<AbilitySystemComponent>();
+        if (asc == null)
+        {
+            Debug.LogWarning($"No AbilitySystemComponent found on {actor.name}");
+            return 0f;
+        }
+
+        AttributeSet attributeSet = actor.GetComponent<AttributeSet>();
+        if (attributeSet == null)
+        {
+            Debug.LogWarning($"No AttributeSet found on {actor.name}");
+            return 0f;
+        }
+
+        float value = asc.GetAttributeValue(attributeRef, out foundAttribute);
+        if (!foundAttribute)
+        {
+            Debug.LogWarning($"Attribute {attributeRef} not found on {actor.name}.");
+        }
+
+        return value;
     }
+
 
 
         public void ApplyPeriodicTick()
@@ -413,6 +436,8 @@ public class AttributeBasedFloat
         postMultiplyAdditiveValue = 0f;
         backingAttribute = new GameplayEffectAttributeCaptureDefinition();
         attributeCalculationType = AttributeBasedFloatCalculationType.AttributeMagnitude;
+        // Default to a linear curve if none is set
+        attributeCurve = new AnimationCurve(new Keyframe(0, 0), new Keyframe(1, 1));
     }
 
     public float CalculateMagnitude(GameplayEffectSpec relevantSpec, out bool foundAttribute)
@@ -421,21 +446,34 @@ public class AttributeBasedFloat
 
         if (!foundAttribute)
         {
+            Debug.LogWarning($"Attribute {backingAttribute.GetGameplayAttributeReference()} not found.");
             return 0f; // Return default if attribute not found
         }
 
-        // Then apply the coefficient, pre-mult, post-mult, curve, etc.
         float preAdd = attributeValue + preMultiplyAdditiveValue;
-        float scaledValue = preAdd * coefficient;
-        float finalValue = scaledValue + postMultiplyAdditiveValue;
+        //Debug.Log($"PreAdd Value: {preAdd} (AttributeValue: {attributeValue}, PreMultiplyAdditive: {preMultiplyAdditiveValue})");
 
-        if (attributeCurve != null)
+        float scaledValue = preAdd * coefficient;
+        //Debug.Log($"Scaled Value: {scaledValue} (PreAdd: {preAdd}, Coefficient: {coefficient})");
+
+        float finalValue = scaledValue + postMultiplyAdditiveValue;
+        //Debug.Log($"Final Value Before Curve: {finalValue} (ScaledValue: {scaledValue}, PostAdditive: {postMultiplyAdditiveValue})");
+
+        if (attributeCurve != null && attributeCurve.keys.Length > 0)
         {
             finalValue = attributeCurve.Evaluate(finalValue);
+            //Debug.Log($"Final Value After Curve: {finalValue}");
         }
+        else
+        {
+            //Debug.LogWarning("Skipping attributeCurve as it is null or has no keys.");
+        }
+
+        Debug.Log($"CalculateMagnitude Debug - AttributeValue: {attributeValue}, PreAdd: {preMultiplyAdditiveValue}, Coefficient: {coefficient}, PostAdd: {postMultiplyAdditiveValue}");
 
         return finalValue;
     }
+
 
     public override bool Equals(object obj)
     {
