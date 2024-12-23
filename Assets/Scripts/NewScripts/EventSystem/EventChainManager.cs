@@ -56,15 +56,16 @@ public class EventChainManager : MonoBehaviour
     /// <summary>
     /// Executes the AttackEventChain when an attack is initiated.
     /// </summary>
-    public void ExecuteAttackChain(EventContext context)
+    public void ExecuteAttackChain(ref EventContext context)
     {
+        
         AttackEventChain.Execute(context);
     }
 
     /// <summary>
     /// Executes the HitEventChain when an attack hits a target.
     /// </summary>
-    public void ExecuteHitChain(EventContext context)
+    public void ExecuteHitChain(ref EventContext context)
     {
         HitEventChain.Execute(context);
     }

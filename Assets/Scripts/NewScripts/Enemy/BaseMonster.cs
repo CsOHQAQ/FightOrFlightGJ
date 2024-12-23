@@ -47,4 +47,8 @@ public class BaseMonster : MonoBehaviour, ICharacter, IHitReceiver
     {
         Debug.Log("Got Hit on " + hitData.HitInfo.HitPoint);
     }
+    public AbilitySystemComponent GetAbilitySystemComponent()
+    {
+        return null;
+    }
 }

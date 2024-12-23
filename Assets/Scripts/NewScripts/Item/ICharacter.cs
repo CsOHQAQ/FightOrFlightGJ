@@ -7,5 +7,5 @@ public interface ICharacter {
     void AddHealth(float amount);
     void TakeDamage(float amount);
     
-    
+    public AbilitySystemComponent GetAbilitySystemComponent();
 }

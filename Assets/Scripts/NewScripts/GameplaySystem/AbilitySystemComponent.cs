@@ -251,7 +251,7 @@ public class AbilitySystemComponent : MonoBehaviour
         foundAttribute = true;
         return gameplayAttribute.CurrentValue;
     }
-
+    
 
     public float GetAttributeBaseValue(AttributeReference attributeRef, out bool foundAttribute)
     {

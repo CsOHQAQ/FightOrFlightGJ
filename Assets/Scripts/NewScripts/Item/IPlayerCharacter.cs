@@ -35,4 +35,6 @@ public interface IPlayerCharacter : ICharacter
     // - Movement methods (e.g., Move, Rotate)
     // - Status effect management (e.g., poisoned, slowed)
     // These depend on the specific design requirements of the game.
+
+   
 }

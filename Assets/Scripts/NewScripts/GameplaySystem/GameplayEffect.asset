@@ -17,7 +17,7 @@ MonoBehaviour:
     ModifierOperation: 0
     ModifierMagnitude:
       magnitudeCalculationType: 0
-      flatMagnitude: 10
+      flatMagnitude: 100
       attributeBased:
         coefficient: 1
         preMultiplyAdditiveValue: 0
@@ -33,8 +33,8 @@ MonoBehaviour:
           m_PostInfinity: 2
           m_RotationOrder: 4
         attributeCalculationType: 0
-  DurationPolicy: 0
-  Duration: 0
+  DurationPolicy: 1
+  Duration: 20
   Period: 0
   StackingPolicy: 0
   MaxStackCount: 1

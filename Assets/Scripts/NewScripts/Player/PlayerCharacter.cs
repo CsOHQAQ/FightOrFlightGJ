@@ -104,8 +104,6 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
     {
         WeaponAttributeSet weaponAttributeSet = GetComponent<WeaponAttributeSet>();
         
-        abilitySystemComponent.ApplyEffectToSelf(effectToApply,1);
-        
         
         ItemData testData = new ItemData {
             ID = "test_gun",
@@ -121,9 +119,9 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
         RangedWeaponItem testWeapon = new RangedWeaponItem(
             data: testData,
             slotType: EquipmentSlot.Hands,
-            damage: weaponAttributeSet.BaseWeaponDamage.BaseValue,
+            damage: weaponAttributeSet.BaseWeaponDamage.CurrentValue,
             ammoType: "9mm",
-            maxMagazineAmmo: (int)weaponAttributeSet.MaxAmmo.BaseValue,
+            maxMagazineAmmo: (int)weaponAttributeSet.MaxAmmo.CurrentValue,
             reloadTime: 1.5f,
             fireCooldown: 0.4f
         );

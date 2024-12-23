@@ -13,7 +13,7 @@ public class GameplayAttribute
         get => baseValue;
         set => baseValue = value;
     }
-
+    
     public float CurrentValue
     {
         get

@@ -159,6 +159,8 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment {
         float range = 100f; 
         Debug.DrawRay(muzzlePos, forwardDir * range, Color.red, 1.0f);
 
+        
+
         EventContext context = new EventContext {
             Attacker = user,
             AttackInfo = new AttackData {
@@ -166,7 +168,8 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment {
                 AmmoType = this.AmmoType,
             }
         };
-        EventChainManager.Instance.ExecuteAttackChain(context);
+        
+        EventChainManager.Instance.ExecuteAttackChain(ref context);
 
         if (Physics.Raycast(muzzlePos, forwardDir, out RaycastHit hit, range)) {
             IHitReceiver hitReceiver = hit.collider.GetComponent<IHitReceiver>();
@@ -183,7 +186,7 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment {
                     IsLethalHit = false
                 };
                 context.Target = hitReceiver;
-                EventChainManager.Instance.ExecuteHitChain(context);
+                EventChainManager.Instance.ExecuteHitChain(ref context);
             }
             Debug.DrawLine(muzzlePos, hit.point, Color.green, 1.0f);
         } else {

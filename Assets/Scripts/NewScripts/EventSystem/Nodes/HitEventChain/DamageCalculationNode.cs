@@ -7,7 +7,7 @@ public class DamageCalculationNode : IEventNode {
 
     public void Process(EventContext context) {
         if (context == null || context.AttackInfo == null || context.HitData == null) return;
-
+        
         //Target should contain ICharacter at this point now
         ICharacter character = context.Target as ICharacter;
         context.HitData.FinalDamage = context.AttackInfo.BaseDamage;
