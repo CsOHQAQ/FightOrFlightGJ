@@ -4,11 +4,11 @@ using UnityEngine;
 
 
 [CreateAssetMenu(fileName = "DamageCalculationNode", menuName = "EventNodes/HitEventChain/DamageCalculationNode")]
-public class DamageCalculationNodeAsset : ScriptableEventNode
+public class DamageCalculationNodeAsset : ScriptableEventNode<EventContext>
 {
 
 
-    public override IEventNode CreateNodeInstance()
+    public override IEventNode<EventContext> CreateNodeInstance()
     {
         return new DamageCalculationNode();
     }

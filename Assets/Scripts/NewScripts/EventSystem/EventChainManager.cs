@@ -9,12 +9,14 @@ public class EventChainManager : MonoBehaviour
     public static EventChainManager Instance { get; private set; }
 
     [Header("Initial Node Configuration (Loadable from ScriptableObjects)")]
-    public ScriptableEventNode[] initialAttackNodes;
-    public ScriptableEventNode[] initialHitNodes;
+    public ScriptableEventNode<EventContext>[] initialAttackNodes;
+    public ScriptableEventNode<EventContext>[] initialHitNodes;
 
-    public EventChain AttackEventChain { get; private set; }
-    public EventChain HitEventChain { get; private set; }
-    
+    public EventChain<EventContext> AttackEventChain { get; private set; }
+    public EventChain<EventContext> HitEventChain { get; private set; }
+
+    public EventChain<CharacterDiedEventContext> CharacterDiedEventChain { get; private set; }
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -26,8 +28,8 @@ public class EventChainManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(this.gameObject);
 
-        AttackEventChain = new EventChain();
-        HitEventChain = new EventChain();
+        AttackEventChain = new EventChain<EventContext>();
+        HitEventChain = new EventChain<EventContext>();
 
         // Load initial nodes from ScriptableObjects
         if (initialAttackNodes != null)
@@ -74,22 +76,22 @@ public class EventChainManager : MonoBehaviour
     /// Dynamically adds a node to the chain, e.g., when the player acquires a new item
     /// to add new effects to the Attack or Hit chains.
     /// </summary>
-    public void AddNodeToAttackChain(IEventNode node)
+    public void AddNodeToAttackChain(IEventNode<EventContext> node)
     {
         AttackEventChain.AddNode(node);
     }
 
-    public void AddNodeToHitChain(IEventNode node)
+    public void AddNodeToHitChain(IEventNode<EventContext> node)
     {
         HitEventChain.AddNode(node);
     }
 
-    public void RemoveNodeFromAttackChain(IEventNode node)
+    public void RemoveNodeFromAttackChain(IEventNode<EventContext> node)
     {
         AttackEventChain.RemoveNode(node);
     }
 
-    public void RemoveNodeFromHitChain(IEventNode node)
+    public void RemoveNodeFromHitChain(IEventNode<EventContext> node)
     {
         HitEventChain.RemoveNode(node);
     }

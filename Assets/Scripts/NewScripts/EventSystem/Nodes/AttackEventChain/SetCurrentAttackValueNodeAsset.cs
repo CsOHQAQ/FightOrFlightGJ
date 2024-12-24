@@ -4,11 +4,11 @@ using UnityEngine;
 
 
 [CreateAssetMenu(fileName = "SetCurrentAttackValueNodeNode", menuName = "EventNodes/AttackEventChain/SetCurrentAttackValueNodeNode")]
-public class SetCurrentAttackValueNodeAsset : ScriptableEventNode
+public class SetCurrentAttackValueNodeAsset : ScriptableEventNode<EventContext>
 {
     public AttributeReference AttackAttributeReference;
 
-    public override IEventNode CreateNodeInstance()
+    public override IEventNode<EventContext> CreateNodeInstance()
     {
         //SetCurrentAttackValueNodeAsset node = ;
         if (AttackAttributeReference == null)

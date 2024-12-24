@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SetCurrentAttackValueNode : IEventNode
+public class SetCurrentAttackValueNode : IEventNode<EventContext>
 {
     public int Priority => 10000;
     public AttributeReference AttackAttributeReference;

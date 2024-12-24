@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class HandleHitReceiverNode : IEventNode
+public class HandleHitReceiverNode : IEventNode<EventContext>
 {
     //This should be the first during hit event chain
     public int Priority => -1000;

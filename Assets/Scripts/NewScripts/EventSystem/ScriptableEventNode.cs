@@ -1,18 +1,19 @@
 using UnityEngine;
 
 /// <summary>
-/// Base definition for ScriptableObject event nodes.
-/// Returns an IEventNode instance through CreateNodeInstance().
-/// Actual logic can be implemented in derived classes.
+/// A generic ScriptableObject base that defines a node for a particular TContext.
+/// 
+/// TContext is the type of event context (e.g. AttackContext, HitContext, EnemyDiedContext).
 /// </summary>
-public abstract class ScriptableEventNode : ScriptableObject
+/// <typeparam name="TContext">The context type for this node (e.g., AttackContext).</typeparam>
+public abstract class ScriptableEventNode<TContext> : ScriptableObject
 {
     [SerializeField] private int priority;
     public int Priority => priority;
 
     /// <summary>
-    /// This method should be implemented by derived classes to generate an IEventNode instance
-    /// based on the internal configuration of the ScriptableObject.
+    /// Derived classes should implement this to generate an IEventNode<TContext> instance
+    /// based on internal configuration.
     /// </summary>
-    public abstract IEventNode CreateNodeInstance();
+    public abstract IEventNode<TContext> CreateNodeInstance();
 }

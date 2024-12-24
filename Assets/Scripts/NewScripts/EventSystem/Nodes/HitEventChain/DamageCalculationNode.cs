@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DamageCalculationNode : IEventNode {
+public class DamageCalculationNode : IEventNode<EventContext> {
     public int Priority => 10;
 
     public void Process(EventContext context) {

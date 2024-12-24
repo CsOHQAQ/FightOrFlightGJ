@@ -6,7 +6,7 @@ using UnityEngine;
 /// In the AttackEventChain, the focus is on AttackInfo, while in the HitEventChain, the focus is on HitInfo.
 /// However, for consistency, EventContext can be shared between Attack and Hit executions.
 /// </summary>
-public class EventContext
+public class EventContext: IStoppableContext
 {
     public ICharacter Source;   // The Source
     public IHitReceiver Target;     // The target being hit
@@ -15,6 +15,11 @@ public class EventContext
     public HitData HitData;       // Data related to the hit (final damage, hit type, status effects, etc.)
 
     public bool ShouldContinue { get; set; } = true; // Flag to control execution of the chain
+}
+
+public interface IStoppableContext
+{
+    bool ShouldContinue { get; set; }
 }
 
 /// <summary>
@@ -44,37 +49,51 @@ public class HitData
 /// <summary>
 /// Interface for EventNode: All event nodes must implement this interface
 /// </summary>
-public interface IEventNode
+public interface IEventNode<TContext>
 {
     int Priority { get; }
-    void Process(EventContext context);
+    void Process(TContext context);
 }
 
 /// <summary>
 /// EventChain class: Contains an ordered list of IEventNode
 /// When executed, calls the Process method of all nodes in order of priority.
 /// </summary>
-public class EventChain
+public class EventChain<TContext>
 {
-    private List<IEventNode> nodes = new List<IEventNode>();
+    private readonly List<IEventNode<TContext>> nodes = new List<IEventNode<TContext>>();
 
-    public void AddNode(IEventNode node)
+    public void AddNode(IEventNode<TContext> node)
     {
         nodes.Add(node);
+        // Sort by priority
         nodes.Sort((a, b) => a.Priority.CompareTo(b.Priority));
     }
 
-    public void RemoveNode(IEventNode node)
+    public void RemoveNode(IEventNode<TContext> node)
     {
         nodes.Remove(node);
     }
 
-    public void Execute(EventContext context)
+    public void Execute(TContext context)
     {
+        // If TContext is known to have a `ShouldContinue` field, we can do:
+        // or if TContext is "EventContext" specifically:
+        EventContext evtCtx = context as EventContext; 
+        // or if you used an interface like IStoppableContext, cast it to that.
+
         foreach (var node in nodes)
         {
-            if (!context.ShouldContinue) break; // Stop if ShouldContinue is false
+            // If TContext is EventContext, do:
+            if (evtCtx != null && !evtCtx.ShouldContinue) 
+                break;
+
             node.Process(context);
         }
     }
+}
+
+public class CharacterDiedEventContext: IStoppableContext
+{
+    public bool ShouldContinue { get; set; } = true; // Flag to control execution of the chain
 }
