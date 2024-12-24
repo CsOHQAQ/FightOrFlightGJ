@@ -8,7 +8,7 @@ using UnityEngine;
 /// </summary>
 public class EventContext
 {
-    public ICharacter Attacker;   // The attacker
+    public ICharacter Source;   // The Source
     public IHitReceiver Target;     // The target being hit
 
     public AttackData AttackInfo; // Data related to the attack (type, base damage, ammo type, etc.)

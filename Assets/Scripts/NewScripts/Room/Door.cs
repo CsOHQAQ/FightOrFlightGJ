@@ -4,13 +4,14 @@ using UnityEngine.InputSystem;
 using UnityEngine.Events;
 using System;
 
-public class Door : MonoBehaviour, IInteractable
+public class Door : MonoBehaviour, IInteractable,IRoomObject
 {
     private PlayerInput playerInput;
     PlayerCharacter character;
     private BoxCollider doorCollider;
 
     public GameObject LeftPart, RightPart;
+    [HideInInspector]
     public GameObject DoorOpener;
     bool isClosed = true;
     public bool IsClosed{get{return isClosed;}}
@@ -61,6 +62,7 @@ public class Door : MonoBehaviour, IInteractable
 
     void Start()
     {
+        DoorOpener = GameManager.Instance.PlayerCharacter.gameObject;
         InitializeDoor();
         SetRelativePosition();
     }
@@ -209,4 +211,14 @@ public class Door : MonoBehaviour, IInteractable
             Debug.LogWarning("LeftPart or RightPart GameObject is not assigned in the inspector.");
         }
     }
+
+    public void OnCombatStartedInRoom(Room room)
+    {
+
+    }
+    public void OnCombatEndedInRoom(Room room)
+    {
+
+    }
+    
 }

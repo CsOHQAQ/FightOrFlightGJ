@@ -162,7 +162,7 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment {
         
 
         EventContext context = new EventContext {
-            Attacker = user,
+            Source = user,
             AttackInfo = new AttackData {
                 BaseDamage = this.Damage,
                 AmmoType = this.AmmoType,

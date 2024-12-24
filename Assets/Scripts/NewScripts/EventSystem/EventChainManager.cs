@@ -14,7 +14,7 @@ public class EventChainManager : MonoBehaviour
 
     public EventChain AttackEventChain { get; private set; }
     public EventChain HitEventChain { get; private set; }
-
+    
     private void Awake()
     {
         if (Instance != null && Instance != this)

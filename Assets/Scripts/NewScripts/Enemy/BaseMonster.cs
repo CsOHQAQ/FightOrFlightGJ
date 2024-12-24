@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BaseMonster : MonoBehaviour, ICharacter, IHitReceiver
+public class BaseMonster : MonoBehaviour, ICharacter, IHitReceiver,IRoomObject
 {
     private float health = 100f; // Default health
     public float Health
@@ -50,5 +50,14 @@ public class BaseMonster : MonoBehaviour, ICharacter, IHitReceiver
     public AbilitySystemComponent GetAbilitySystemComponent()
     {
         return null;
+    }
+
+    public void OnCombatStartedInRoom(Room room)
+    {
+        //Get Activated and can start attacking plyer
+    }
+    public void OnCombatEndedInRoom(Room room)
+    {
+
     }
 }
