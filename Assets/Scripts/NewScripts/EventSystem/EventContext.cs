@@ -93,7 +93,3 @@ public class EventChain<TContext>
     }
 }
 
-public class CharacterDiedEventContext: IStoppableContext
-{
-    public bool ShouldContinue { get; set; } = true; // Flag to control execution of the chain
-}

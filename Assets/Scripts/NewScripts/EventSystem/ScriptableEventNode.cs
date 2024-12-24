@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 
 /// <summary>
 /// A generic ScriptableObject base that defines a node for a particular TContext.
@@ -16,4 +17,7 @@ public abstract class ScriptableEventNode<TContext> : ScriptableObject
     /// based on internal configuration.
     /// </summary>
     public abstract IEventNode<TContext> CreateNodeInstance();
+
+    // Return the TContext type for reflection checks
+    public virtual Type GetContextType() => typeof(TContext);
 }

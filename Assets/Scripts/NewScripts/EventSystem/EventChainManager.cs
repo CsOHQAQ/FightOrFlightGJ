@@ -1,9 +1,6 @@
 using UnityEngine;
+using System;
 
-/// <summary>
-/// EventChainManager: Singleton for managing Attack and Hit event chains.
-/// Allows configuration of initial Event Nodes via the Inspector (loaded from ScriptableObjects).
-/// </summary>
 public class EventChainManager : MonoBehaviour
 {
     public static EventChainManager Instance { get; private set; }
@@ -11,10 +8,10 @@ public class EventChainManager : MonoBehaviour
     [Header("Initial Node Configuration (Loadable from ScriptableObjects)")]
     public ScriptableEventNode<EventContext>[] initialAttackNodes;
     public ScriptableEventNode<EventContext>[] initialHitNodes;
+    public ScriptableEventNode<CharacterDiedEventContext>[] initialCharacterDiedEventNodes;
 
     public EventChain<EventContext> AttackEventChain { get; private set; }
     public EventChain<EventContext> HitEventChain { get; private set; }
-
     public EventChain<CharacterDiedEventContext> CharacterDiedEventChain { get; private set; }
 
     private void Awake()
@@ -30,52 +27,88 @@ public class EventChainManager : MonoBehaviour
 
         AttackEventChain = new EventChain<EventContext>();
         HitEventChain = new EventChain<EventContext>();
+        CharacterDiedEventChain = new EventChain<CharacterDiedEventContext>();
 
         // Load initial nodes from ScriptableObjects
         if (initialAttackNodes != null)
         {
             foreach (var nodeAsset in initialAttackNodes)
             {
-                var node = nodeAsset.CreateNodeInstance();
+                var node = nodeAsset?.CreateNodeInstance();
                 if (node != null)
                     AttackEventChain.AddNode(node);
             }
         }
-        //Add Nodes that on default should be added
+
+        // Add a default node
         HitEventChain.AddNode(new HandleHitReceiverNode());
 
         if (initialHitNodes != null)
         {
             foreach (var nodeAsset in initialHitNodes)
             {
-                var node = nodeAsset.CreateNodeInstance();
+                var node = nodeAsset?.CreateNodeInstance();
                 if (node != null)
                     HitEventChain.AddNode(node);
             }
         }
+
+        if (initialCharacterDiedEventNodes != null)
+        {
+            foreach (var nodeAsset in initialCharacterDiedEventNodes)
+            {
+                var node = nodeAsset?.CreateNodeInstance();
+                if (node != null)
+                    CharacterDiedEventChain.AddNode(node);
+            }
+        }
+    }
+
+    private void OnValidate()
+    {
+        // Validate that each array only has nodes matching the correct TContext
+        ValidateNodesArray<EventContext>(ref initialAttackNodes, "initialAttackNodes");
+        ValidateNodesArray<EventContext>(ref initialHitNodes, "initialHitNodes");
+        ValidateNodesArray<CharacterDiedEventContext>(ref initialCharacterDiedEventNodes, "initialCharacterDiedEventNodes");
     }
 
     /// <summary>
-    /// Executes the AttackEventChain when an attack is initiated.
+    /// Checks each entry in the array. If the scriptable object is not null and 
+    /// does not report the correct context type, we log a warning and set it to null.
     /// </summary>
+    private void ValidateNodesArray<TExpectedContext>(
+        ref ScriptableEventNode<TExpectedContext>[] array, 
+        string arrayName)
+    {
+        if (array == null) return;
+
+        for (int i = 0; i < array.Length; i++)
+        {
+            var nodeAsset = array[i];
+            if (nodeAsset == null) continue;
+
+            // Check if nodeAsset's reported context type matches TExpectedContext
+            var reportedType = nodeAsset.GetContextType();
+            if (reportedType != typeof(TExpectedContext))
+            {
+                Debug.LogWarning($"[EventChainManager] {arrayName}[{i}] is of type {reportedType}, " + 
+                                 $"expected {typeof(TExpectedContext)}. Removing this entry.");
+                // Remove it
+                array[i] = null;
+            }
+        }
+    }
+
     public void ExecuteAttackChain(ref EventContext context)
     {
-        
         AttackEventChain.Execute(context);
     }
 
-    /// <summary>
-    /// Executes the HitEventChain when an attack hits a target.
-    /// </summary>
     public void ExecuteHitChain(ref EventContext context)
     {
         HitEventChain.Execute(context);
     }
 
-    /// <summary>
-    /// Dynamically adds a node to the chain, e.g., when the player acquires a new item
-    /// to add new effects to the Attack or Hit chains.
-    /// </summary>
     public void AddNodeToAttackChain(IEventNode<EventContext> node)
     {
         AttackEventChain.AddNode(node);
