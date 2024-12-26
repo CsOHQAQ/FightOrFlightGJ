@@ -224,7 +224,7 @@ public class Door : MonoBehaviour, IInteractable,IRoomObject
     }
     public void OnCombatEndedInRoom(Room room)
     {
-
+        canInteract=true;
     }
     
 }
