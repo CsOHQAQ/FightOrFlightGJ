@@ -42,8 +42,10 @@ public class BaseMonster : MonoBehaviour, ICharacter, IHitReceiver,IRoomObject
     {
         Debug.Log("MONSTER DIED");
         //TODO: Trigger Event Chain for death
+        OnCharacterDied?.Invoke(this);
         //TODO: Play Death Animation and show corpse
-        Destroy(gameObject);
+        //Destroy(gameObject);
+        gameObject.SetActive(false);
     }
 
     public void OnHit(HitData hitData)

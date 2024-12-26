@@ -242,7 +242,11 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
 
     public void OnDoorFullyOpened()
     {
+        //
+        HandleMovement(new Vector2(0, 1f));
         ChangeState(PlayerState.MovementState);
+        
+        
     }
 
     public void OnDoorFullyClosed()

@@ -6,6 +6,8 @@ using System;
 
 public class Door : MonoBehaviour, IInteractable,IRoomObject
 {
+    private Room room;
+    public Room Room { get{return room;} set{room = value;} }
     private PlayerInput playerInput;
     PlayerCharacter character;
     private BoxCollider doorCollider;
@@ -17,6 +19,7 @@ public class Door : MonoBehaviour, IInteractable,IRoomObject
     public bool IsClosed{get{return isClosed;}}
     private bool compareX;
 
+    bool isFullyOpen=false;
     private float targetOpenness;
     
     [SerializeField, Tooltip("Defines the amount by which the door opens per input."), Range(0f, 1f)]
@@ -122,14 +125,19 @@ public class Door : MonoBehaviour, IInteractable,IRoomObject
         }
         else
         {
+            
             // Trigger events if door is fully opened or fully closed
-            if (targetOpenness >= 1f - 0.02f)
+            if (targetOpenness >= 1f - 0.02f&&!isFullyOpen)
             {
+                
                 playerInput.actions["Movement"].performed -= OnMovementPerformed;
                 doorCollider.enabled = false;
                 OnDoorFullyOpened?.Invoke();
                 OnDoorFullyOpened -= character.OnDoorFullyOpened;
                 OnDoorFullyClosed -= character.OnDoorFullyClosed;
+                Room.StartCombat();
+                isFullyOpen= true;
+                
             }
             else if (!isClosed && tempOpenness <= 0.02f)
             {
@@ -220,11 +228,14 @@ public class Door : MonoBehaviour, IInteractable,IRoomObject
 
     public void OnCombatStartedInRoom(Room room)
     {
-
+        targetOpenness = 0f;
+        canInteract = false;
+        doorCollider.enabled = true;
     }
     public void OnCombatEndedInRoom(Room room)
     {
         canInteract=true;
+        
     }
     
 }
