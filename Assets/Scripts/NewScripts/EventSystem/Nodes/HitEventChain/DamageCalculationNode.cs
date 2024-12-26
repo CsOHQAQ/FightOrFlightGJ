@@ -14,6 +14,18 @@ public class DamageCalculationNode : IEventNode<EventContext> {
         character.TakeDamage(context);
         //Probably should be added to a new Node after this:
         context.Target.OnHit(context.HitData);
+
+        // Damage UI Related
+        float finalDamage = context.HitData.FinalDamage;
+        bool isCrit = context.HitData.WasCrit;
+        Vector3 enemyPosition = context.Target != null 
+            ? context.HitData.HitInfo.HitPoint
+            : Vector3.zero;
+
+        
+        DamageNumberManager.Instance.ShowDamageNumber(enemyPosition, finalDamage, isCrit, context);
     }
+
+
 }
 
