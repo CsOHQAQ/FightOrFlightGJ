@@ -1,9 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class BaseMonster : MonoBehaviour, ICharacter, IHitReceiver,IRoomObject
 {
+    public event Action<ICharacter> OnCharacterDied;
+
     private float health = 100f; // Default health
     public float Health
     {

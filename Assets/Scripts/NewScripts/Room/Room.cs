@@ -41,6 +41,7 @@ public class Room : MonoBehaviour
         {
             OnCombatStartedInRoom+=enemy.OnCombatStartedInRoom;
             OnCombatEndedInRoom+=enemy.OnCombatEndedInRoom;
+            enemy.OnCharacterDied+=OnEnemyInRoomDied;
         }
     }
 
@@ -48,5 +49,29 @@ public class Room : MonoBehaviour
     void Update()
     {
         
+    }
+
+    private void OnEnemyInRoomDied(ICharacter enemyCharacter)
+    {
+        // Unsubscribe from the OnCharacterDied event
+        enemyCharacter.OnCharacterDied -= OnEnemyInRoomDied;
+
+        // Attempt to cast the enemyCharacter to BaseMonster
+        var baseMonster = enemyCharacter as BaseMonster;
+        if (baseMonster != null)
+        {
+            enemies.Remove(baseMonster);
+            Debug.Log($"{baseMonster} has been removed from the enemies list.");
+        }
+        else
+        {
+            Debug.LogWarning("Attempted to remove a non-monster character from the enemies list.");
+        }
+    }
+
+    public void AddEnemyToRoom(BaseMonster enemyCharacter)
+    {
+        enemyCharacter.OnCharacterDied+=OnEnemyInRoomDied;
+        enemies.Add(enemyCharacter);
     }
 }

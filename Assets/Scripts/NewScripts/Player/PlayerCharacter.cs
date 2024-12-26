@@ -12,7 +12,7 @@ public enum PlayerState
 
 public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemComponent
 {
-
+    public event Action<ICharacter> OnCharacterDied;
 
     AbilitySystemComponent abilitySystemComponent;
 

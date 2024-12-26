@@ -128,4 +128,21 @@ public class EventChainManager : MonoBehaviour
     {
         HitEventChain.RemoveNode(node);
     }
+
+    public void ExecuteCharacterDiedChain(ref CharacterDiedEventContext context)
+    {
+        CharacterDiedEventChain.Execute(context);
+    }
+
+    public void AddNodeToCharacterDiedChain(IEventNode<CharacterDiedEventContext> node)
+    {
+        CharacterDiedEventChain.AddNode(node);
+    }
+
+    public void RemoveNodeFromCharacterDiedChain(IEventNode<CharacterDiedEventContext> node)
+    {
+        CharacterDiedEventChain.RemoveNode(node);
+    }
+
+    
 }

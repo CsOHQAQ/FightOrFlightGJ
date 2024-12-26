@@ -1,5 +1,8 @@
+using System;
 public interface ICharacter {
     // Basic attributes, which can be extended as needed
+   
+
     float Health { get; set; }
     float MaxHealth { get; }
 
@@ -8,4 +11,6 @@ public interface ICharacter {
     void TakeDamage(float amount);
     
     public AbilitySystemComponent GetAbilitySystemComponent();
+
+    public event Action<ICharacter> OnCharacterDied;
 }
