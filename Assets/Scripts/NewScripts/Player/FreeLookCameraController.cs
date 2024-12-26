@@ -116,7 +116,7 @@ public class FreeLookCameraController : MonoBehaviour
 
     private void RotateCameraWithCameraRotation()
     {
-        //if(player.CurrentDoor.CurrentOpenness <= 0.5f)
+        if(player.CurrentDoor.CurrentOpenness <= 0.5f)
         {
             Vector3 directionToDoor = (player.CurrentDoor.gameObject.transform.position - player.transform.position).normalized;
             StartCoroutine(ShiftCamera(directionToDoor, centerCameraDuration));

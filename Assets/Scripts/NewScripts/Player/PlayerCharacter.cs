@@ -231,6 +231,16 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
                 {
                     StartCoroutine(Bump(inputDirection.y));
                 }
+                else if (interactInfo.InteractableObject.layer == LayerMask.NameToLayer("Interactable Obj"))
+                {
+                    if(inputDirection.y >0)
+                    {
+                        interactInfo.Interactable.Interact(this.gameObject);
+
+                    }else{
+                        StartCoroutine(Bump(inputDirection.y));
+                    }
+                }
             }
         }
         else if (inputDirection.x != 0)

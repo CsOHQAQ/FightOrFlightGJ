@@ -70,7 +70,7 @@ public class Door : MonoBehaviour, IInteractable,IRoomObject
     {
         DoorOpener = GameManager.Instance.PlayerCharacter.gameObject;
         InitializeDoor();
-        SetRelativePosition();
+        
     }
 
     private void SetRelativePosition()
@@ -164,6 +164,7 @@ public class Door : MonoBehaviour, IInteractable,IRoomObject
         if(!canInteract){
             return;
         }
+        SetRelativePosition();
         GameObject playerObject = args as GameObject;
         playerInput = playerObject.GetComponentInChildren<PlayerInput>();
         playerInput.actions["Movement"].performed += OnMovementPerformed;

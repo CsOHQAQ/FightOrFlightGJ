@@ -37,11 +37,11 @@ public class InteractComponent : MonoBehaviour
         {
             // Check if the object hit has a component that implements IInteractable
             IInteractable interactable = hit.collider.GetComponent<IInteractable>();
-            if (interactable != null)
-            {
-                interactable.Interact(this.gameObject);
+            //if (interactable != null)
+            //{
+            //    interactable.Interact(this.gameObject);
                 
-            }
+            //}
             return new InteractInfo(hit.collider.gameObject,interactable,hit);
         }
 
