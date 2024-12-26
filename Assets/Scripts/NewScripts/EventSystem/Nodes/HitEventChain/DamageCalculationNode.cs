@@ -11,7 +11,7 @@ public class DamageCalculationNode : IEventNode<EventContext> {
         //Target should contain ICharacter at this point now
         ICharacter character = context.Target as ICharacter;
         context.HitData.FinalDamage = context.AttackInfo.BaseDamage;
-        character.TakeDamage(context.HitData.FinalDamage);
+        character.TakeDamage(context);
         //Probably should be added to a new Node after this:
         context.Target.OnHit(context.HitData);
     }

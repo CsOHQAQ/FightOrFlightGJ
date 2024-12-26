@@ -25,15 +25,16 @@ public class BaseMonster : MonoBehaviour, ICharacter, IHitReceiver,IRoomObject
         Health += amount;
     }
 
-    public void TakeDamage(float amount)
+    public void TakeDamage(EventContext context)
     {
-        Health -= amount;
+        Health -= context.HitData.FinalDamage;
         Debug.Log("Monster current health: " + Health);
         if (Health <= 0f) 
         {
             Health = 0f;
-            
+            CharacterDiedEventContext eventContext = new CharacterDiedEventContext(this,context.Source);
             Die();
+            EventChainManager.Instance.ExecuteCharacterDiedChain(ref eventContext);
         }
         
     }
@@ -43,6 +44,7 @@ public class BaseMonster : MonoBehaviour, ICharacter, IHitReceiver,IRoomObject
         Debug.Log("MONSTER DIED");
         //TODO: Trigger Event Chain for death
         OnCharacterDied?.Invoke(this);
+        
         //TODO: Play Death Animation and show corpse
         //Destroy(gameObject);
         gameObject.SetActive(false);

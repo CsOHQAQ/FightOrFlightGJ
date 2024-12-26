@@ -392,9 +392,9 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
         Health += amount;
     }
 
-    public void TakeDamage(float amount)
+    public void TakeDamage(EventContext context)
     {
-        Health -= amount;
+        Health -= context.HitData.FinalDamage;
         if (Health < 0f) Health = 0f;
     }
 
