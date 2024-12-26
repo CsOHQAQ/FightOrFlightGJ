@@ -135,17 +135,20 @@ public class Door : MonoBehaviour, IInteractable,IRoomObject
                 OnDoorFullyOpened?.Invoke();
                 OnDoorFullyOpened -= character.OnDoorFullyOpened;
                 OnDoorFullyClosed -= character.OnDoorFullyClosed;
-                Room.StartCombat();
+                if(Room!=null)
+                {
+                    Room.StartCombat();
+                }
                 isFullyOpen= true;
                 
             }
             else if (!isClosed && tempOpenness <= 0.02f)
             {
                 isClosed = true;
+                isFullyOpen= false;
                 Debug.Log("Door Fully Closed");
                 LeftPart.transform.localEulerAngles = leftStartingLocalEulerAngles;
                 RightPart.transform.localEulerAngles = rightStartingLocalEulerAngles;
-                
             }
         }
     }

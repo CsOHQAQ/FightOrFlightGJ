@@ -116,9 +116,10 @@ public class FreeLookCameraController : MonoBehaviour
 
     private void RotateCameraWithCameraRotation()
     {
-        if(player.CurrentDoor.CurrentOpenness <= 0.5f)
+        //if(player.CurrentDoor.CurrentOpenness <= 0.5f)
         {
-            StartCoroutine(ShiftCamera(player.GetClosestDirection(transform.forward), centerCameraDuration));
+            Vector3 directionToDoor = (player.CurrentDoor.gameObject.transform.position - player.transform.position).normalized;
+            StartCoroutine(ShiftCamera(directionToDoor, centerCameraDuration));
             return;
         }
 
@@ -152,7 +153,7 @@ public class FreeLookCameraController : MonoBehaviour
         float movementAmount = doorOpenness * maxCameraMovement;
 
         // Determine forward direction based on the player's bodyTransform
-        Vector3 forwardDirection = player.transform.forward.normalized;
+        Vector3 forwardDirection = transform.forward.normalized;
 
         // Calculate the target camera position
         Vector3 targetPosition = player.transform.position + forwardDirection * movementAmount;
@@ -188,7 +189,11 @@ public class FreeLookCameraController : MonoBehaviour
         if (state == PlayerState.DoorOpeningState)
         {
             canRotateCamera = false;
-            StartCoroutine(ShiftCamera(player.GetClosestDirection(transform.forward),centerCameraDuration));
+            //Vector3 doorCenter = (door.LeftPart.transform.position + door.RightPart.transform.position) * 0.5f;
+            Vector3 directionToDoor = (player.CurrentDoor.gameObject.transform.position - player.transform.position).normalized;
+
+            StartCoroutine(ShiftCamera(directionToDoor, centerCameraDuration));
+            //StartCoroutine(ShiftCamera(player.GetClosestDirection((player.CurrentDoor.gameObject.transform.position - transform.position).normalized),centerCameraDuration));
             limitHorizontalRotation = true;
         }
     }
@@ -207,9 +212,12 @@ public class FreeLookCameraController : MonoBehaviour
     {
         Quaternion startCameraRotation = cameraTransform.localRotation;
         Quaternion startPlayerRotation = transform.localRotation;
-
-        float targetHorizontalRotation = Mathf.Atan2(targetDirection.x, targetDirection.z) * Mathf.Rad2Deg;
-
+        //Debug.Log("------------------------------");
+        // —— 在这里改用 Quaternion.LookRotation 来求目标水平角度 —— //
+        Vector3 horizontalDir = new Vector3(targetDirection.x, 0f, targetDirection.z);
+        Quaternion targetLookRotation = Quaternion.LookRotation(horizontalDir, Vector3.up);
+        float targetHorizontalRotation = targetLookRotation.eulerAngles.y-90f;
+        //Debug.Log(targetHorizontalRotation);
         float elapsedTime = 0f;
 
         while (elapsedTime < duration)
