@@ -25,7 +25,7 @@ public class Room : MonoBehaviour
         if (isCombatActive) return;
         isCombatActive = true;
         
-        
+        OnCombatStartedInRoom?.Invoke(this);
 
         // do more logic
     }
@@ -66,6 +66,10 @@ public class Room : MonoBehaviour
         else
         {
             Debug.LogWarning("Attempted to remove a non-monster character from the enemies list.");
+        }
+        if(enemies.Count<=0)
+        {
+            OnCombatEndedInRoom?.Invoke(this);
         }
     }
 

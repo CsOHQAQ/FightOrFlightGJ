@@ -33,6 +33,9 @@ public class Door : MonoBehaviour, IInteractable,IRoomObject
     Vector3 leftStartingLocalEulerAngles;
     Vector3 rightStartingLocalEulerAngles;
 
+    private bool canInteract=true;
+    public bool CanInteract{get{return canInteract;}}
+
     public float CurrentDoorAngle
     {
         get
@@ -147,6 +150,9 @@ public class Door : MonoBehaviour, IInteractable,IRoomObject
 
     public void Interact(object args = null)
     {
+        if(!canInteract){
+            return;
+        }
         GameObject playerObject = args as GameObject;
         playerInput = playerObject.GetComponentInChildren<PlayerInput>();
         playerInput.actions["Movement"].performed += OnMovementPerformed;
