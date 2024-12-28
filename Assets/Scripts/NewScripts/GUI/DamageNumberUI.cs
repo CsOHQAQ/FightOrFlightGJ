@@ -25,6 +25,7 @@ public class DamageNumberUI : MonoBehaviour
         {
             damageText.color = Color.yellow;
             damageText.fontSize = 40;
+            damageText.text += "!!";
         }
         else
         {

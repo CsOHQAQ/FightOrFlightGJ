@@ -74,6 +74,7 @@ public class PlayerHandsComponent : SerializedMonoBehaviour
                 StartCoroutine(EaseToState(state));
                 break;
             case HandState.Raised:
+                ChangeHandsVisibility(true);
                 StartCoroutine(EaseToState(state));
                 break;
 
@@ -208,11 +209,20 @@ public class PlayerHandsComponent : SerializedMonoBehaviour
             {
                 Debug.Log("Raise Hand Sequence Finished");
                 ChangeState(HandState.Pushed);
+            }else if (currentState==HandState.Lowered)
+            {
+                ChangeHandsVisibility(false);
             }
         }
         else
         {
             Debug.LogWarning($"No transform data assigned for {targetState} or {lastState} state.");
         }
+    }
+
+    public void ChangeHandsVisibility(bool isVisible)
+    {
+        leftHand.SetActive(isVisible);
+        rightHand.SetActive(isVisible);
     }
 }
