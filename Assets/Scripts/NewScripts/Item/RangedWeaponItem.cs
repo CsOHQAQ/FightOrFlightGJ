@@ -26,6 +26,8 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment {
     private float overloadWindowRatio;
     public bool ShowAmmoInfo { get { return !IsReloading; } }
     public bool ShowCrosshair { get { return !IsReloading; } }
+    public event Action OnFired;
+
 
     public float CurrentLoadingPercentage {
         get {
@@ -87,7 +89,7 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment {
     private void FireShot(IPlayerCharacter user) {
         // Cancel auto-recover if running
         StopAutoRecoverIfActive();
-
+        OnFired?.Invoke(); 
         if (CurrentMagazineAmmo > 0) {
             CurrentMagazineAmmo--;
             lastShotTime = Time.time; // Update last shot time
@@ -247,4 +249,5 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment {
 
         autoRecoverCoroutine = null;
     }
+
 }

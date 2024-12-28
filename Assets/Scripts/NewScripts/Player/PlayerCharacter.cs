@@ -15,7 +15,7 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
     public event Action<ICharacter> OnCharacterDied;
 
     AbilitySystemComponent abilitySystemComponent;
-
+    WeaponComponent weaponComponent;
     private bool isMoving = false;
     
     private InteractComponent interactComponent;
@@ -75,6 +75,7 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
         playerInputAction = GetComponent<PlayerInput>();
         
         abilitySystemComponent = GetComponent<AbilitySystemComponent>();
+        weaponComponent = GetComponentInChildren<WeaponComponent>();
         hand = GetComponentInChildren<PlayerHandsComponent>();
         interactComponent = GetComponentInChildren<InteractComponent>();
         if (bodyTransform == null)
@@ -91,6 +92,11 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
         {
             Debug.LogError("Could not detect Hand Movement Component on Character");
         }
+        if(weaponComponent==null)
+        {
+            Debug.LogError("Could not detect Weapon Component on Character");
+        }
+        
         hand.Initialize(this);
 
         // Initialize to MovementState
@@ -124,7 +130,7 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
         );
         // Equip the weapon
         EquipItem(testWeapon);
-
+        weaponComponent?.Initialize(testWeapon);
     }
 
     private void Update()
