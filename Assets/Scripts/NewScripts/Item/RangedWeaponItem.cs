@@ -158,11 +158,6 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment {
     private void PerformHitscanOrProjectileShot(IPlayerCharacter user) {
         Vector3 muzzlePos = GetMuzzleLocation();
         Vector3 forwardDir = GetMuzzleForwardDirection();
-        float range = 100f; 
-        Debug.DrawRay(muzzlePos, forwardDir * range, Color.red, 1.0f);
-
-        
-
         EventContext context = new EventContext {
             Source = user,
             AttackInfo = new AttackData {
@@ -173,13 +168,31 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment {
         
         EventChainManager.Instance.ExecuteAttackChain(ref context);
 
-        if (Physics.Raycast(muzzlePos, forwardDir, out RaycastHit hit, range)) {
+        if (context.AttackInfo.ProjectilePrefab == null) {
+            PerformHitscanShot(context);
+        }
+        else {
+            SpawnProjectileShot(context); 
+            //Debug.Log("-----------------------------------");
+        }
+
+    }
+
+    private void PerformHitscanShot(EventContext context)
+    {
+        float range = 100f;
+        Vector3 muzzlePos = GetMuzzleLocation();
+        Vector3 forwardDir = GetMuzzleForwardDirection();
+
+        if (Physics.Raycast(muzzlePos, forwardDir, out RaycastHit hit, range))
+        {
             IHitReceiver hitReceiver = hit.collider.GetComponent<IHitReceiver>();
-            if (hitReceiver != null) {
+            if (hitReceiver != null)
+            {
+                // 更新 context.HitData
                 HitInfo hitInfo = new HitInfo {
                     HitPoint = hit.point,
-                    HitNormal = hit.normal,
-                    AdditionalData = null
+                    HitNormal = hit.normal
                 };
                 context.HitData = new HitData {
                     HitInfo = hitInfo,
@@ -188,14 +201,38 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment {
                     IsLethalHit = false
                 };
                 context.Target = hitReceiver;
+
+                // 再次执行HitEventChain
                 EventChainManager.Instance.ExecuteHitChain(ref context);
             }
-            Debug.DrawLine(muzzlePos, hit.point, Color.green, 1.0f);
-        } else {
-            Debug.DrawRay(muzzlePos, forwardDir * range, Color.yellow, 1.0f);
+        }
+        Debug.Log("Hitscan shot fired.");
+    }
+
+    private void SpawnProjectileShot(EventContext context)
+    {
+        
+        var user = context.Source as IPlayerCharacter;
+        if (context.AttackInfo.ProjectilePrefab == null)
+        {
+            Debug.LogWarning("No projectilePrefab specified. Falling back to hitscan or do nothing.");
+            return;
         }
 
-        Debug.Log("Current Ammo Left: " + CurrentMagazineAmmo);
+        // 2) 计算枪口位置 & 方向
+        Vector3 muzzlePos = GetMuzzleLocation();
+        Vector3 forwardDir = GetMuzzleForwardDirection();
+
+        // 3) 实例化Projectile
+        GameObject projObj = GameObject.Instantiate(context.AttackInfo.ProjectilePrefab, muzzlePos, Quaternion.LookRotation(forwardDir));
+        Projectile projectile = projObj.GetComponent<Projectile>();
+        if (projectile != null)
+        {
+            // 传递伤害/攻击者信息等
+            projectile.Setup(context); // 你可以定义 Setup(...) 让projectile获取伤害、射速、攻击者ID等
+        }
+        
+        Debug.Log("Spawned a projectile shot.");
     }
 
     private Vector3 GetMuzzleLocation() {

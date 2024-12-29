@@ -31,6 +31,8 @@ public class AttackData
     public float BaseDamage = 10f;
     public bool IsCritical = false;
     public string AmmoType = "Normal";
+
+    public GameObject ProjectilePrefab;
     // ... Extend with other fields as needed
 }
 
