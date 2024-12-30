@@ -7,6 +7,7 @@ public class AbilitySystemComponent : MonoBehaviour
     // This could reference one or more AttributeSet objects
     [SerializeField] 
     private AttributeSet attributeSet;
+    public AttributeSet AttributeSet{get{return attributeSet;}}
 
     // Active specs keyed by an int handle
     private Dictionary<int, GameplayEffectSpec> activeEffectSpecs = new Dictionary<int, GameplayEffectSpec>();

@@ -9,6 +9,9 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment {
     public float ReloadTime { get; private set; }
     public bool IsReloading { get; private set; }
 
+    // Base angle, e.g. 5 degrees at accuracy=0
+    private float BaseSpreadAngle = 5f; 
+
     public float FireCooldown { get; private set; } 
     private float nextFireTime = 0f;                 
     private float reloadTimer = 0f;
@@ -37,7 +40,7 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment {
     }
 
     public RangedWeaponItem(ItemData data, EquipmentSlot slotType, float damage,
-                            string ammoType, int maxMagazineAmmo, float reloadTime, float fireCooldown,
+                            string ammoType, int maxMagazineAmmo, float reloadTime, float fireCooldown,float BaseSpreadAngle,
                             float overloadWindowRatio = 0.3f)
         : base(data, slotType, damage) {
         this.AmmoType = ammoType;
@@ -45,6 +48,7 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment {
         this.ReloadTime = reloadTime;
         this.FireCooldown = fireCooldown;
         this.CurrentMagazineAmmo = maxMagazineAmmo;
+        this.BaseSpreadAngle = BaseSpreadAngle;
         this.overloadWindowRatio = overloadWindowRatio;
          // Calculate window based on ratio
         // Overload window is centered around ReloadTime/2
@@ -93,7 +97,25 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment {
         if (CurrentMagazineAmmo > 0) {
             CurrentMagazineAmmo--;
             lastShotTime = Time.time; // Update last shot time
-            PerformHitscanOrProjectileShot(user);
+
+            AttributeSet attributeSet = user.GetAbilitySystemComponent().AttributeSet;
+            WeaponAttributeSet weaponAttributeSet = attributeSet as WeaponAttributeSet;
+            
+
+            if (weaponAttributeSet != null) {
+                // Fire multiple shots
+                int bulletsToFire = Mathf.Max(Mathf.CeilToInt(weaponAttributeSet.BulletPerShot.CurrentValue),1);
+                for (int i = 0; i < bulletsToFire; i++)
+                {
+                    PerformHitscanOrProjectileShot(user);
+                }
+            }else{
+                PerformHitscanOrProjectileShot(user);
+                Debug.LogError("No WeaponAttributeSet found");
+            }
+            
+            
+            
             nextFireTime = Time.time + FireCooldown;
 
             if (CurrentMagazineAmmo == 0) {
@@ -178,70 +200,173 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment {
 
     }
 
-    private void PerformHitscanShot(EventContext context)
+private void PerformHitscanShot(EventContext context)
+{
+    // 1) Access the IPlayerCharacter
+    var user = context.Source as IPlayerCharacter;
+    if (user == null)
     {
-        float range = 100f;
-        Vector3 muzzlePos = GetMuzzleLocation();
-        Vector3 forwardDir = GetMuzzleForwardDirection();
+        Debug.LogWarning("No valid user found for hitscan shot.");
+        return;
+    }
 
-        if (Physics.Raycast(muzzlePos, forwardDir, out RaycastHit hit, range))
+        // 2) Attempt to retrieve the WeaponAttributeSet from the character's AbilitySystem
+        var asc = user.GetAbilitySystemComponent();
+        if (asc != null)
         {
-            IHitReceiver hitReceiver = hit.collider.GetComponent<IHitReceiver>();
-            if (hitReceiver != null)
+            AttributeSet attributeSet = asc.AttributeSet;
+            WeaponAttributeSet weaponAttrSet = attributeSet as WeaponAttributeSet;
+            if (weaponAttrSet != null)
             {
-                // 更新 context.HitData
-                HitInfo hitInfo = new HitInfo {
-                    HitPoint = hit.point,
-                    HitNormal = hit.normal
-                };
-                context.HitData = new HitData {
-                    HitInfo = hitInfo,
-                    FinalDamage = 0f,
-                    WasCrit = false,
-                    IsLethalHit = false
-                };
-                context.Target = hitReceiver;
+                // 3) Retrieve the accuracy (could be stored in weaponAttrSet.Accuracy.CurrentValue)
+                float accuracyValue = weaponAttrSet.Accuracy.CurrentValue; 
+                // e.g. 0 means big spread, 1 or higher means less spread
+                Debug.Log($"Current Accuracy: {accuracyValue}");
+                
+                // 4) Compute random spread
+                Vector3 muzzlePos = GetMuzzleLocation();
+                Vector3 forwardDir = GetMuzzleForwardDirection();
 
-                // 再次执行HitEventChain
-                EventChainManager.Instance.ExecuteHitChain(ref context);
+                Vector3 finalShotDirection = ApplyAccuracySpread(forwardDir, accuracyValue);
+
+                // 5) Raycast with the 'finalShotDirection' to get the actual hitscan result
+                float range = 100f;
+                if (Physics.Raycast(muzzlePos, finalShotDirection, out RaycastHit hit, range))
+                {
+                    IHitReceiver hitReceiver = hit.collider.GetComponent<IHitReceiver>();
+                    if (hitReceiver != null)
+                    {
+                        // Fill out hit data
+                        HitInfo hitInfo = new HitInfo {
+                            HitPoint = hit.point,
+                            HitNormal = hit.normal
+                        };
+                        context.HitData = new HitData {
+                            HitInfo = hitInfo,
+                            FinalDamage = 0f, 
+                            WasCrit = false,
+                            IsLethalHit = false
+                        };
+                        context.Target = hitReceiver;
+
+                        // Then run HitEventChain
+                        EventChainManager.Instance.ExecuteHitChain(ref context);
+                    }
+                }
+
+                Debug.Log("Hitscan shot fired with spread-based accuracy.");
+                return;
             }
         }
-        Debug.Log("Hitscan shot fired.");
+
+        // fallback: if no attributes found, do normal hitscan with no spread
+        Debug.LogWarning("No WeaponAttributeSet found, defaulting to no spread.");
+        //BaseHitscanNoSpread(context);
     }
+
 
     private void SpawnProjectileShot(EventContext context)
     {
-        
         var user = context.Source as IPlayerCharacter;
-        if (context.AttackInfo.ProjectilePrefab == null)
+        if (user == null) return;
+
+        // Retrieve accuracy from user attribute set...
+        float accuracyValue = 0f; // default
+        var asc = user.GetAbilitySystemComponent();
+        if (asc != null)
         {
-            Debug.LogWarning("No projectilePrefab specified. Falling back to hitscan or do nothing.");
-            return;
+            AttributeSet attributeSet = asc.AttributeSet;
+            WeaponAttributeSet weaponAttrSet = attributeSet as WeaponAttributeSet;
+            if (weaponAttrSet != null)
+            {
+                accuracyValue = weaponAttrSet.Accuracy.CurrentValue;
+            }
         }
 
-        // 2) 计算枪口位置 & 方向
         Vector3 muzzlePos = GetMuzzleLocation();
         Vector3 forwardDir = GetMuzzleForwardDirection();
+        // Apply random spread
+        Vector3 finalProjectileDir = ApplyAccuracySpread(forwardDir, accuracyValue);
 
-        // 3) 实例化Projectile
-        GameObject projObj = GameObject.Instantiate(context.AttackInfo.ProjectilePrefab, muzzlePos, Quaternion.LookRotation(forwardDir));
+        // Instantiate projectile
+        var projObj = GameObject.Instantiate(context.AttackInfo.ProjectilePrefab, muzzlePos, Quaternion.LookRotation(forwardDir));
+        //Debug.Log($"Spawned projectile rotation = {projObj.transform.eulerAngles}");
         Projectile projectile = projObj.GetComponent<Projectile>();
         if (projectile != null)
         {
-            // 传递伤害/攻击者信息等
-            projectile.Setup(context); // 你可以定义 Setup(...) 让projectile获取伤害、射速、攻击者ID等
+            projectile.Setup(context, finalProjectileDir);
         }
-        
-        Debug.Log("Spawned a projectile shot.");
     }
+
+    /// <summary>
+    /// Adjusts 'forwardDir' by a random spread depending on 'accuracyValue'.
+    /// Higher accuracy => smaller spread range.
+    /// Example: finalSpreadAngle = baseAngle / (1 + accuracyValue).
+    /// </summary>
+    private Vector3 ApplyAccuracySpread(Vector3 forwardDir, float accuracyValue)
+    {
+        
+
+        // Example formula: finalSpreadAngle = baseAngle / (1 + accuracyValue)
+        // So if accuracy=1, finalSpread=2.5°, if accuracy=4, finalSpread=1°.
+        float finalSpreadAngle = BaseSpreadAngle / (1f + accuracyValue);
+
+        // We randomize yaw & pitch in [-finalSpreadAngle/2, +finalSpreadAngle/2]
+        float yaw   = UnityEngine.Random.Range(-finalSpreadAngle * 0.5f, finalSpreadAngle * 0.5f);
+        float pitch = UnityEngine.Random.Range(-finalSpreadAngle * 0.5f, finalSpreadAngle * 0.5f);
+
+        // Construct a rotation from these angles
+        Quaternion spreadRotation = Quaternion.Euler(pitch, yaw, 0f);
+        Debug.Log("Pitch: "+pitch+", Yaw: "+ yaw);
+        // Apply it to the forward direction
+        Vector3 spreadDirection = spreadRotation * forwardDir.normalized;
+        Debug.Log($"Spawned projectile spreadDirection = {spreadDirection}");
+
+        // 1) Normalize forward vector
+        Vector3 fwd = forwardDir.normalized;
+
+        // 2) Choose a random angle up to 'finalSpreadAngle' and a random rotation around that axis
+        float spreadRad = Mathf.Deg2Rad * finalSpreadAngle; // finalSpreadAngle in degrees
+        float u = UnityEngine.Random.value;  // for radius
+        float r = Mathf.Sin(spreadRad) * Mathf.Sqrt(u);  
+        float theta = UnityEngine.Random.Range(0f, 2f * Mathf.PI);
+
+        // Build an orthonormal basis around fwd
+        Vector3 up = (Mathf.Abs(Vector3.Dot(fwd, Vector3.up)) > 0.9999f) ? Vector3.forward : Vector3.up;
+        Vector3 right = Vector3.Cross(fwd, up).normalized;
+        up = Vector3.Cross(fwd, right).normalized;
+
+        // Offsets in plane
+        Vector3 offset = (Mathf.Cos(theta) * right + Mathf.Sin(theta) * up) * r;
+        // Combine with forward
+        Vector3 finalDir = (fwd * Mathf.Sqrt(1f - r*r)) + offset;  // For uniform distribution
+        
+        return finalDir.normalized;
+    }
+
 
     private Vector3 GetMuzzleLocation() {
         return Camera.main.transform.position;
     }
 
-    private Vector3 GetMuzzleForwardDirection() {
-        return Camera.main.transform.forward;
+    private Vector3 GetMuzzleForwardDirection()
+    {
+        // 1) Get camera’s local pitch from its localEulerAngles.x
+        float pitchAngle = Camera.main.transform.eulerAngles.x;
+
+        // 2) Get parent’s yaw from eulerAngles.y
+        float yawAngle = Camera.main.transform.parent.eulerAngles.y;
+
+        // 3) Construct a combined rotation using (pitch, yaw, 0).
+        Quaternion combinedRot = Quaternion.Euler(pitchAngle, yawAngle, 0f);
+
+        // 4) Multiply by Vector3.forward to get the forward direction in world space
+        Vector3 finalForward = combinedRot * Vector3.forward;
+        //Debug.Log("------------------"+ finalForward + "");
+        // Optionally normalize:
+        return finalForward.normalized;
     }
+
 
     private void StopAutoRecoverIfActive() {
         if (autoRecoverCoroutine != null) {

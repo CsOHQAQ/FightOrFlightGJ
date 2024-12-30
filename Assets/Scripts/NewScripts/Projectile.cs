@@ -3,43 +3,44 @@ using UnityEngine;
 public class Projectile : MonoBehaviour
 {
     [Header("Projectile Settings")]
-    [SerializeField] private float speed = 10f;
+    [SerializeField] private float speed = 20f;
     [SerializeField] private float lifeTime = 3f;
     [SerializeField] private bool destroyOnHit = true;
 
     private float spawnTime;
 
+    // We'll store a global flight direction
+    private Vector3 flightDirection;
+
     // We'll store an EventContext if we want to pass it into the HitEventChain
     private EventContext eventContext;
 
     private ICharacter sourceCharacter;
-    
+    public ICharacter SourceCharacter{get{return sourceCharacter;}}
     private Vector3 startPosition;
     private Vector3 endPosition;
-
+    
     /// <summary>
-    /// Called by the spawner (weapon or node) to initialize projectile data.
-    /// Typically, you'd pass an eventContext or partial data to build a new one.
+    /// Called by the spawner to initialize data,
+    /// including a global flight direction.
     /// </summary>
-    public void Setup(EventContext context)
+    public void Setup(EventContext context, Vector3 flightDir)
     {
         this.eventContext = context;
-        //this.speed = projectileSpeed;
         this.sourceCharacter = context.Source;
-
+        this.flightDirection = flightDir.normalized; // store and normalize it
+        Debug.Log("PROJECTILE: " + flightDirection);
         spawnTime = Time.time;
-        startPosition = transform.position;
     }
 
     private void Update()
     {
-        transform.Translate(Vector3.forward * speed * Time.deltaTime);
+        // Move along the global flightDirection
+        transform.position += flightDirection * (speed * Time.deltaTime);
 
-        // Check lifetime
+        // Destroy if lifetime expired
         if (Time.time - spawnTime > lifeTime)
         {
-            endPosition = transform.position;
-            // Possibly do distance logic or finalize here
             Destroy(gameObject);
         }
     }
@@ -47,7 +48,7 @@ public class Projectile : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         // 1) Avoid hitting the source (if you want that logic)
-        if (other.GetComponent<ICharacter>() == sourceCharacter)
+        if (other.GetComponent<ICharacter>() == sourceCharacter || other.GetComponent<Projectile>()!=null)
         {
             return; 
         }

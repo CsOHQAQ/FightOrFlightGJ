@@ -20,7 +20,7 @@ public class SetCurrentAttackValueNode : IEventNode<EventContext>
         bool found=false;
         
         context.AttackInfo.BaseDamage = context.Source.GetAbilitySystemComponent().GetAttributeValue(AttackAttributeReference,out found);
-        Debug.Log("Attack Info Damage is Set: " + context.AttackInfo.BaseDamage);
+        //Debug.Log("Attack Info Damage is Set: " + context.AttackInfo.BaseDamage);
         //context.AttackInfo;
         //Target should contain ICharacter at this point now
         //ICharacter character = context.Target as ICharacter;
