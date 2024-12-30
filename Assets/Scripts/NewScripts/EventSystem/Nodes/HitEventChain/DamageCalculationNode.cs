@@ -7,8 +7,8 @@ public class DamageCalculationNode : IEventNode<EventContext>
     public int Priority => 10;
 
     // Could store a config for minMultiplier, maxMultiplier, etc.
-    private float minRandomFactor = 0.85f;
-    private float maxRandomFactor = 1.0f;
+    private float minRandomFactor = 0.925f;
+    private float maxRandomFactor = 1.075f;
 
     public void Process(EventContext context)
     {

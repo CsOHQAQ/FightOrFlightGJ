@@ -104,7 +104,7 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment {
 
             if (weaponAttributeSet != null) {
                 // Fire multiple shots
-                int bulletsToFire = Mathf.Max(Mathf.CeilToInt(weaponAttributeSet.BulletPerShot.CurrentValue),1);
+                int bulletsToFire = Mathf.Max(Mathf.FloorToInt(weaponAttributeSet.BulletPerShot.CurrentValue),1);
                 for (int i = 0; i < bulletsToFire; i++)
                 {
                     PerformHitscanOrProjectileShot(user);
