@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 [CreateAssetMenu(fileName = "Idle-Random Wander", menuName = "Enemy Logic/Idle Logic/Random Wander")]
 public class EnemyIdleRandomWander : EnemyIdleSOBase
@@ -34,9 +35,9 @@ public class EnemyIdleRandomWander : EnemyIdleSOBase
     {
         base.DoFrameUpdateLogic();
 
-        agent.SetDestination(_direction);
-
+        if (agent.hasPath && !HasReachedDestination()) { return; }
         _direction = GetRandomTarget();
+        agent.SetDestination(_direction);
     }
 
     public override void DoPhysicsLogic()
@@ -64,8 +65,28 @@ public class EnemyIdleRandomWander : EnemyIdleSOBase
         _targetPosition *= wanderRadius;
 
         Vector3 targetLocal = _targetPosition + new Vector3(0, 0, wanderDistance);
-        Vector3 targetWorld = this.gameObject.transform.InverseTransformVector(targetLocal);
+        Vector3 targetWorld = gameObject.transform.TransformPoint(targetLocal);
+
+        targetWorld = CheckToNavMesh(targetWorld);
 
         return targetWorld;
+    }
+
+    private Vector3 CheckToNavMesh(Vector3 position)
+    {
+        NavMeshHit hit;
+
+        if (NavMesh.SamplePosition(position, out hit, wanderDistance, NavMesh.AllAreas))
+        {
+            return hit.position;
+        }
+
+        Vector3 directionToCenter = (transform.position - position).normalized;
+        return transform.position + directionToCenter * 1.0f;
+    }
+
+    private bool HasReachedDestination()
+    {
+        return agent.remainingDistance <= agent.stoppingDistance;
     }
 }
