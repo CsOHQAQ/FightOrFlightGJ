@@ -1,12 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class Enemy : MonoBehaviour, IDamageable, IEnemyMoveable, ITriggerCheckable
 {
+    // For Navigation Implementation
+    NavMeshAgent agent;
+
     [field: SerializeField] public float MaxHealth { get; set; }
     public float CurrentHealth { get; set; }
     public Rigidbody RB { get; set; }
+
+    // Not Being Used
     [field: SerializeField] public float RotationSpeed { get; set; } = 5.0f;
 
     public bool IsAggroed { get; set; }
@@ -54,6 +60,7 @@ public class Enemy : MonoBehaviour, IDamageable, IEnemyMoveable, ITriggerCheckab
     {
         CurrentHealth = MaxHealth;
 
+        agent = GetComponent<NavMeshAgent>();
         RB = GetComponent<Rigidbody>();
 
         EnemyIdleBaseInstance.Initialize(gameObject, this);
@@ -98,21 +105,6 @@ public class Enemy : MonoBehaviour, IDamageable, IEnemyMoveable, ITriggerCheckab
     public void MoveEnemy(Vector3 velocity)
     {
         RB.velocity = velocity;
-        RotateEnemy(velocity);
-    }
-
-    public void RotateEnemy(Vector3 velocity)
-    {
-
-        if (RB.velocity.sqrMagnitude > 0.01f)
-        {
-            Vector3 dirction = new Vector3(RB.velocity.x, 0f, RB.velocity.z).normalized;
-
-            Quaternion targetRotation = Quaternion.LookRotation(dirction);
-
-            transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, RotationSpeed * Time.deltaTime);
-        }
-        
     }
 
     #endregion

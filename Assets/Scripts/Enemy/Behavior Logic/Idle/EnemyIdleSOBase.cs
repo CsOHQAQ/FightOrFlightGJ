@@ -1,12 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class EnemyIdleSOBase : ScriptableObject
 {
     protected Enemy enemy;
     protected Transform transform;
     protected GameObject gameObject;
+    protected NavMeshAgent agent;
 
     protected Transform playerTransform;
 
@@ -15,6 +17,7 @@ public class EnemyIdleSOBase : ScriptableObject
         this.gameObject = gameObject;
         transform = gameObject.transform;
         this.enemy = enemy;
+        agent = gameObject.GetComponent<NavMeshAgent>();
 
         playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
     }

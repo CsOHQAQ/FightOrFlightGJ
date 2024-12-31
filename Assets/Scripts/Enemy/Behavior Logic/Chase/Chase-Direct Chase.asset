@@ -13,3 +13,4 @@ MonoBehaviour:
   m_Name: Chase-Direct Chase
   m_EditorClassIdentifier: 
   _movementSpeed: 1.75
+  _coolDownToForget: 7

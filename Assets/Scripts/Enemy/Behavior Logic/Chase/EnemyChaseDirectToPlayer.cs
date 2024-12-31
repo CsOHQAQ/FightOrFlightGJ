@@ -7,6 +7,8 @@ using UnityEngine;
 public class EnemyChaseDirectToPlayer : EnemyChaseSOBase
 {
     [SerializeField] private float _movementSpeed = 1.75f;
+    [SerializeField] private float _coolDownToForget = 7.0f;
+    private float _forgetCountDown = 0.0f;
 
     public override void DoAnimationTriggerEventLogic(Enemy.AnimationTriggerType triggerType)
     {
@@ -16,22 +18,36 @@ public class EnemyChaseDirectToPlayer : EnemyChaseSOBase
     public override void DoEnterLogic()
     {
         base.DoEnterLogic();
+        agent.isStopped = false;
+        agent.speed = _movementSpeed;
     }
 
     public override void DoExitLogic()
     {
         base.DoExitLogic();
+        agent.isStopped = true;
+        _forgetCountDown = 0.0f;
     }
 
     public override void DoFrameUpdateLogic()
     {
         base.DoFrameUpdateLogic();
 
-        Vector3 moveDirection = (playerTransform.position - enemy.transform.position).normalized;
+        if (!enemy.IsAggroed)
+        {
+            _forgetCountDown += Time.deltaTime;
+        }
+        else
+        {
+            _forgetCountDown = 0.0f;
+        }
 
-        moveDirection.y = 0f;
+        if (!enemy.IsAggroed && _forgetCountDown >= _coolDownToForget)
+        {
+            enemy.StateMachine.ChangeState(enemy.IdleState);
+        }
 
-        enemy.MoveEnemy(moveDirection * _movementSpeed);
+        agent.SetDestination(playerTransform.position);
     }
 
     public override void DoPhysicsLogic()

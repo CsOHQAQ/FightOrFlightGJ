@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.UI;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 [CreateAssetMenu(fileName = "Chase-Run Away", menuName = "Enemy Logic/Chase Logic/Run Away")]
 public class EnemyChaseRunAway : EnemyChaseSOBase
@@ -15,6 +15,7 @@ public class EnemyChaseRunAway : EnemyChaseSOBase
     public override void DoEnterLogic()
     {
         base.DoEnterLogic();
+        agent.speed = _runAwaySpeed;
     }
 
     public override void DoExitLogic()
@@ -26,10 +27,7 @@ public class EnemyChaseRunAway : EnemyChaseSOBase
     {
         base.DoFrameUpdateLogic();
 
-        Vector3 runDirection = -(playerTransform.position - enemy.transform.position).normalized;
-        runDirection.y = 0f;
-
-        enemy.MoveEnemy(runDirection * _runAwaySpeed);
+        agent.SetDestination(gameObject.transform.position - (playerTransform.position - gameObject.transform.position));
     }
 
     public override void DoPhysicsLogic()

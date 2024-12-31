@@ -5,10 +5,12 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "Idle-Random Wander", menuName = "Enemy Logic/Idle Logic/Random Wander")]
 public class EnemyIdleRandomWander : EnemyIdleSOBase
 {
-    [SerializeField] private float RandomMovementRange = 5f;
-    [SerializeField] private float RandomMovementSpeed = 1f;
+    [SerializeField] private float wanderRadius = 10.0f;
+    [SerializeField] private float wanderDistance = 10.0f;
+    [SerializeField] private float wanderJitter = 1f;
+    [SerializeField] private float _enemySpeed = 1.0f;
 
-    private Vector3 _targetPosition;
+    private Vector3 _targetPosition = Vector3.zero;
     private Vector3 _direction;
 
     public override void DoAnimationTriggerEventLogic(Enemy.AnimationTriggerType triggerType)
@@ -19,8 +21,8 @@ public class EnemyIdleRandomWander : EnemyIdleSOBase
     public override void DoEnterLogic()
     {
         base.DoEnterLogic();
-
-        _targetPosition = GetRandomPointInSphere();
+        _direction = gameObject.transform.position;
+        agent.speed = _enemySpeed;
     }
 
     public override void DoExitLogic()
@@ -32,21 +34,9 @@ public class EnemyIdleRandomWander : EnemyIdleSOBase
     {
         base.DoFrameUpdateLogic();
 
-        _direction = (_targetPosition - enemy.transform.position).normalized;
+        agent.SetDestination(_direction);
 
-        _direction.y = 0;
-
-        enemy.MoveEnemy(_direction * RandomMovementSpeed);
-
-        // Check if the enemy is close to the target point (ignoring Y)
-        Vector3 flatPosition = new Vector3(enemy.transform.position.x, 0, enemy.transform.position.z);
-        Vector3 flatTarget = new Vector3(_targetPosition.x, 0, _targetPosition.z);
-
-        if ((flatPosition - flatTarget).sqrMagnitude < 0.01f)
-        {
-            // Assign a new target position when the enemy reaches the current one
-            _targetPosition = GetRandomPointInSphere();
-        }
+        _direction = GetRandomTarget();
     }
 
     public override void DoPhysicsLogic()
@@ -64,12 +54,18 @@ public class EnemyIdleRandomWander : EnemyIdleSOBase
         base.ResetValues();
     }
 
-    private Vector3 GetRandomPointInSphere()
+    private Vector3 GetRandomTarget()
     {
-        Vector3 randomOffSet = Random.insideUnitSphere * RandomMovementRange;
+        _targetPosition += new Vector3(Random.Range(-1.0f, 1.0f) * wanderJitter,
+            0,
+            Random.Range(-1.0f, 1.0f) * wanderJitter);
 
-        randomOffSet.y = 0;
+        _targetPosition.Normalize();
+        _targetPosition *= wanderRadius;
 
-        return enemy.transform.position + randomOffSet;
+        Vector3 targetLocal = _targetPosition + new Vector3(0, 0, wanderDistance);
+        Vector3 targetWorld = this.gameObject.transform.InverseTransformVector(targetLocal);
+
+        return targetWorld;
     }
 }

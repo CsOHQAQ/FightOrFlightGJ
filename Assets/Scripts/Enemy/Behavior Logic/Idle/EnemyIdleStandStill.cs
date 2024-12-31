@@ -13,18 +13,18 @@ public class EnemyIdleStandStill : EnemyIdleSOBase
     public override void DoEnterLogic()
     {
         base.DoEnterLogic();
+        agent.isStopped = true;
     }
 
     public override void DoExitLogic()
     {
         base.DoExitLogic();
+        agent.isStopped = false;
     }
 
     public override void DoFrameUpdateLogic()
     {
         base.DoFrameUpdateLogic();
-
-        enemy.MoveEnemy(Vector3.zero);
     }
 
     public override void DoPhysicsLogic()

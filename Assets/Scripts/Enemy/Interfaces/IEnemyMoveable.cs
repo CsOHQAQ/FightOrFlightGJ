@@ -9,6 +9,5 @@ public interface IEnemyMoveable
     float RotationSpeed { get; set; }
 
     void MoveEnemy(Vector3 velocity);
-    void RotateEnemy(Vector3 velocity);
 
 }
