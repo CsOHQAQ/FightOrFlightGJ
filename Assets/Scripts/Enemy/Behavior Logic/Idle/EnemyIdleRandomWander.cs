@@ -6,8 +6,8 @@ using UnityEngine.AI;
 [CreateAssetMenu(fileName = "Idle-Random Wander", menuName = "Enemy Logic/Idle Logic/Random Wander")]
 public class EnemyIdleRandomWander : EnemyIdleSOBase
 {
-    [SerializeField] private float wanderRadius = 10.0f;
-    [SerializeField] private float wanderDistance = 10.0f;
+    [SerializeField] private float wanderRadius = 3.0f;
+    [SerializeField] private float wanderDistance = 3.0f;
     [SerializeField] private float wanderJitter = 1f;
     [SerializeField] private float _enemySpeed = 1.0f;
 

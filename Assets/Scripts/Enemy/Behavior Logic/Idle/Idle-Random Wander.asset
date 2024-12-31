@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 200d072c46dd7c44db6465a153509f4b, type: 3}
   m_Name: Idle-Random Wander
   m_EditorClassIdentifier: 
-  wanderRadius: 10
-  wanderDistance: 10
+  wanderRadius: 3
+  wanderDistance: 3
   wanderJitter: 1
   _enemySpeed: 1
