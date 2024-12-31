@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine.InputSystem;
 
 public enum PlayerState
@@ -17,6 +18,8 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
     [SerializeField] ArtifactSO[] artifactsOnStart;
     AbilitySystemComponent abilitySystemComponent;
     WeaponComponent weaponComponent;
+
+    private List<ArtifactItem> artifactItems;
     private bool isMoving = false;
     
     private InteractComponent interactComponent;
@@ -54,6 +57,8 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
     public event Action<IEquipable> OnPlayerEquipped;
     public event Action<IEquipable> OnPlayerUnEquipped;
 
+    
+
     private PlayerInput playerInputAction;
 
     // ICharacter properties and fields
@@ -74,7 +79,7 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
     private void Awake()
     {
         playerInputAction = GetComponent<PlayerInput>();
-        
+        artifactItems = new List<ArtifactItem>();
         abilitySystemComponent = GetComponent<AbilitySystemComponent>();
         weaponComponent = GetComponentInChildren<WeaponComponent>();
         hand = GetComponentInChildren<PlayerHandsComponent>();
@@ -106,7 +111,7 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
 
     private void Start()
     {
-        WeaponAttributeSet weaponAttributeSet = GetComponent<WeaponAttributeSet>();
+        PlayerCharacterAttributeSet playerCharacterAttributeSet = GetComponent<PlayerCharacterAttributeSet>();
         
         
         ItemData testData = new ItemData {
@@ -123,12 +128,12 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
         RangedWeaponItem testWeapon = new RangedWeaponItem(
             data: testData,
             //slotType: EquipmentSlot.Hands,
-            damage: weaponAttributeSet.BaseWeaponDamage.CurrentValue,
+            damage: playerCharacterAttributeSet.BaseWeaponDamage.CurrentValue,
             ammoType: "9mm",
-            maxMagazineAmmo: (int)weaponAttributeSet.MaxAmmo.CurrentValue,
+            maxMagazineAmmo: (int)playerCharacterAttributeSet.MaxAmmo.CurrentValue,
             reloadTime: 1.5f,
             fireCooldown: 0.4f,
-            BaseSpreadAngle : weaponAttributeSet.BaseSpreadAngle.CurrentValue
+            BaseSpreadAngle : playerCharacterAttributeSet.BaseSpreadAngle.CurrentValue
         );
         // Equip the weapon
         EquipItem(testWeapon);
@@ -137,7 +142,12 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
         foreach(ArtifactSO artifact in artifactsOnStart)
         {
             EquipItem(new ArtifactItem(artifact));
+            
         }
+
+
+        UnequipItem(artifactItems[0]);
+        
     }
 
     private void Update()
@@ -434,6 +444,11 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
         {
             currentActivatable = activatableItem;
         }
+        ArtifactItem artifactItem = item as ArtifactItem;
+        if (artifactItem != null)
+        {
+            artifactItems.Add(artifactItem);
+        }
         item.Equip(this);
         OnPlayerEquipped?.Invoke(item);
         return true;
@@ -444,6 +459,12 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
         // Call Unequip on the item.
         item.Unequip(this);
         OnPlayerUnEquipped?.Invoke(item);
+
+        var artifactItem = item as ArtifactItem;
+        if (artifactItem != null)
+        {
+            artifactItems.Remove(artifactItem);
+        }
         return true;
     }
 

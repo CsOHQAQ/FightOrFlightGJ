@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class WeaponAttributeSet : AttributeSet
+public class PlayerCharacterAttributeSet : CharacterAttributeSet
 {
     public GameplayAttribute BaseWeaponDamage;
     public GameplayAttribute AttackSpeed;

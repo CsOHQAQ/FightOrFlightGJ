@@ -99,19 +99,19 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment {
             lastShotTime = Time.time; // Update last shot time
 
             AttributeSet attributeSet = user.GetAbilitySystemComponent().AttributeSet;
-            WeaponAttributeSet weaponAttributeSet = attributeSet as WeaponAttributeSet;
+            PlayerCharacterAttributeSet playerCharacterAttributeSet = attributeSet as PlayerCharacterAttributeSet;
             
 
-            if (weaponAttributeSet != null) {
+            if (playerCharacterAttributeSet != null) {
                 // Fire multiple shots
-                int bulletsToFire = Mathf.Max(Mathf.FloorToInt(weaponAttributeSet.BulletPerShot.CurrentValue),1);
+                int bulletsToFire = Mathf.Max(Mathf.FloorToInt(playerCharacterAttributeSet.BulletPerShot.CurrentValue),1);
                 for (int i = 0; i < bulletsToFire; i++)
                 {
                     PerformHitscanOrProjectileShot(user);
                 }
             }else{
                 PerformHitscanOrProjectileShot(user);
-                Debug.LogError("No WeaponAttributeSet found");
+                Debug.LogError("No PlayerCharacterAttributeSet found");
             }
             
             
@@ -210,12 +210,12 @@ private void PerformHitscanShot(EventContext context)
         return;
     }
 
-        // 2) Attempt to retrieve the WeaponAttributeSet from the character's AbilitySystem
+        // 2) Attempt to retrieve the PlayerCharacterAttributeSet from the character's AbilitySystem
         var asc = user.GetAbilitySystemComponent();
         if (asc != null)
         {
             AttributeSet attributeSet = asc.AttributeSet;
-            WeaponAttributeSet weaponAttrSet = attributeSet as WeaponAttributeSet;
+            PlayerCharacterAttributeSet weaponAttrSet = attributeSet as PlayerCharacterAttributeSet;
             if (weaponAttrSet != null)
             {
                 // 3) Retrieve the accuracy (could be stored in weaponAttrSet.Accuracy.CurrentValue)
@@ -260,7 +260,7 @@ private void PerformHitscanShot(EventContext context)
         }
 
         // fallback: if no attributes found, do normal hitscan with no spread
-        Debug.LogWarning("No WeaponAttributeSet found, defaulting to no spread.");
+        Debug.LogWarning("No PlayerCharacterAttributeSet found, defaulting to no spread.");
         //BaseHitscanNoSpread(context);
     }
 
@@ -276,7 +276,7 @@ private void PerformHitscanShot(EventContext context)
         if (asc != null)
         {
             AttributeSet attributeSet = asc.AttributeSet;
-            WeaponAttributeSet weaponAttrSet = attributeSet as WeaponAttributeSet;
+            PlayerCharacterAttributeSet weaponAttrSet = attributeSet as PlayerCharacterAttributeSet;
             if (weaponAttrSet != null)
             {
                 accuracyValue = weaponAttrSet.Accuracy.CurrentValue;

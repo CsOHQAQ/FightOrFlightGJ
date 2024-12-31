@@ -10,12 +10,18 @@ public class Room : MonoBehaviour
     public List<Door> doors;
     [SerializeField]
     public List<BaseMonster> enemies;
+
+    [SerializeField]
+    private List<ArtifactSO> rewardList;
+
     private int remainingEnemyNum;
     //public List<BaseMonster> deadEnemies;
     public event Action<Room> OnCombatStartedInRoom;
     public event Action<Room> OnCombatEndedInRoom;
     private bool hasCombatEncounter = true;
     private bool isCombatActive = false;
+
+
     void Start()
     {
         InitializeDoors();
