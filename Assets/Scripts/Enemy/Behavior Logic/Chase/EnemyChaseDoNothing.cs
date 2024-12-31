@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-[CreateAssetMenu(fileName = "Chase-Direct Chase", menuName = "Enemy Logic/Chase Logic/Direct Chase")]
-public class EnemyChaseDirectToPlayer : EnemyChaseSOBase
+[CreateAssetMenu(fileName = "Chase-Do Nothing", menuName = "Enemy Logic/Chase Logic/DoNothing Chase")]
+public class EnemyChaseDoNothing : EnemyChaseSOBase
 {
-    [SerializeField] private float _movementSpeed = 1.75f;
-    [SerializeField] private float _coolDownToForget = 7.5f;
+    private float _movementSpeed = 0f;
+    [SerializeField] private float _coolDownToForget = 5.0f;
+    [SerializeField] private float _rotationSpeed = 100.0f;
     private float _forgetCountDown = 0.0f;
 
     public override void DoAnimationTriggerEventLogic(Enemy.AnimationTriggerType triggerType)
@@ -18,6 +19,7 @@ public class EnemyChaseDirectToPlayer : EnemyChaseSOBase
     public override void DoEnterLogic()
     {
         base.DoEnterLogic();
+        agent.updateRotation = false;
         agent.isStopped = false;
         agent.speed = _movementSpeed;
     }
@@ -25,6 +27,7 @@ public class EnemyChaseDirectToPlayer : EnemyChaseSOBase
     public override void DoExitLogic()
     {
         base.DoExitLogic();
+        agent.updateRotation = true;
         agent.isStopped = true;
         _forgetCountDown = 0.0f;
     }
@@ -47,7 +50,7 @@ public class EnemyChaseDirectToPlayer : EnemyChaseSOBase
             enemy.StateMachine.ChangeState(enemy.IdleState);
         }
 
-        agent.SetDestination(playerTransform.position);
+        FacePlayer();
     }
 
     public override void DoPhysicsLogic()
@@ -63,5 +66,19 @@ public class EnemyChaseDirectToPlayer : EnemyChaseSOBase
     public override void ResetValues()
     {
         base.ResetValues();
+    }
+
+    public void FacePlayer()
+    {
+        Vector3 directionToPlayer = (playerTransform.position - transform.position).normalized;
+        directionToPlayer.y = 0;
+
+        Quaternion targetRotation = Quaternion.LookRotation(directionToPlayer);
+
+        transform.rotation = Quaternion.RotateTowards(
+            transform.rotation,
+            targetRotation,
+            _rotationSpeed * Time.deltaTime
+            );
     }
 }

@@ -18,3 +18,4 @@ MonoBehaviour:
   _timeTillExit: 3
   _distanceToCountExit: 3
   _flameBlastSpeed: 10
+  _rotationSpeed: 100

@@ -11,7 +11,7 @@ public class EnemyAttackSingleStraightFireBlast : EnemyAttackSOBase
     [SerializeField] private float _timeTillExit = 3.0f;
     [SerializeField] private float _distanceToCountExit = 3.0f;
     [SerializeField] private float _flameBlastSpeed = 10f;
-    [SerializeField] private float _rotationSpeed = 5.0f;
+    [SerializeField] private float _rotationSpeed = 100.0f;
 
     private float _timer;
     private float _exitTimer;
