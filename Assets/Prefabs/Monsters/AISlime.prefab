@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 7220513429449405002}
   - component: {fileID: 7788425287318101814}
   - component: {fileID: 8495312859400376413}
-  m_Layer: 13
+  m_Layer: 14
   m_Name: AISlime
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -167,7 +167,7 @@ GameObject:
   - component: {fileID: 740760162987298157}
   - component: {fileID: 4589879833095782853}
   - component: {fileID: 7078684606285829674}
-  m_Layer: 13
+  m_Layer: 14
   m_Name: StrikingDistance
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -233,7 +233,7 @@ GameObject:
   - component: {fileID: 1612269036862683289}
   - component: {fileID: 2559720088847769174}
   - component: {fileID: 3887782078889726052}
-  m_Layer: 13
+  m_Layer: 14
   m_Name: AggroRadius
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -299,17 +299,17 @@ PrefabInstance:
     - target: {fileID: 933809040952993578, guid: 33dd1939f75edb949abe57f1a7480a50,
         type: 3}
       propertyPath: m_Layer
-      value: 13
+      value: 14
       objectReference: {fileID: 0}
     - target: {fileID: 1685386282627867672, guid: 33dd1939f75edb949abe57f1a7480a50,
         type: 3}
       propertyPath: m_Layer
-      value: 13
+      value: 14
       objectReference: {fileID: 0}
     - target: {fileID: 2856656380527078381, guid: 33dd1939f75edb949abe57f1a7480a50,
         type: 3}
       propertyPath: m_Layer
-      value: 13
+      value: 14
       objectReference: {fileID: 0}
     - target: {fileID: 2868468667505510112, guid: 33dd1939f75edb949abe57f1a7480a50,
         type: 3}
@@ -369,22 +369,22 @@ PrefabInstance:
     - target: {fileID: 4805795058625842103, guid: 33dd1939f75edb949abe57f1a7480a50,
         type: 3}
       propertyPath: m_Layer
-      value: 13
+      value: 14
       objectReference: {fileID: 0}
     - target: {fileID: 6277817055531864072, guid: 33dd1939f75edb949abe57f1a7480a50,
         type: 3}
       propertyPath: m_Layer
-      value: 13
+      value: 14
       objectReference: {fileID: 0}
     - target: {fileID: 7392630724583631919, guid: 33dd1939f75edb949abe57f1a7480a50,
         type: 3}
       propertyPath: m_Layer
-      value: 13
+      value: 14
       objectReference: {fileID: 0}
     - target: {fileID: 8714989705448124295, guid: 33dd1939f75edb949abe57f1a7480a50,
         type: 3}
       propertyPath: m_Layer
-      value: 13
+      value: 14
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 4963189499102597170, guid: 33dd1939f75edb949abe57f1a7480a50, type: 3}
