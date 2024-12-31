@@ -82,12 +82,16 @@ public class AmmoDisplayUI : MonoBehaviour
 
     void OnPlayerEquipped(IEquipable equipable)
     {
-        ClearImageObjects();
-
+        if (equipable.SlotType != EquipmentSlot.Weapon)
+        {
+            return;
+        }
+        
         var item = equipable as IAmmoDisplayEquipment;
-        equipment = equipable;
+        ClearImageObjects();
         if (item != null)
         {
+            equipment = equipable;
             // Populate ammo icons dynamically using the prefab
             for (int i = 0; i < item.MaxMagazineAmmo; i++)
             {

@@ -5,8 +5,8 @@ using UnityEngine;
 public class MeleeWeaponItem : WeaponItem {
     public float SwingCooldown { get; private set; }
 
-    public MeleeWeaponItem(ItemData data, EquipmentSlot slotType, float damage, float swingCooldown)
-        : base(data, slotType, damage) {
+    public MeleeWeaponItem(ItemData data, float damage, float swingCooldown)
+        : base(data, damage) {
         this.SwingCooldown = swingCooldown;
     }
 

@@ -7,7 +7,7 @@ using System;
 /// TContext is the type of event context (e.g. AttackContext, HitContext, EnemyDiedContext).
 /// </summary>
 /// <typeparam name="TContext">The context type for this node (e.g., AttackContext).</typeparam>
-public abstract class ScriptableEventNode<TContext> : ScriptableObject
+public abstract class ScriptableEventNode<TContext> : ScriptableEventNodeBase
 {
     [SerializeField] private int priority;
     public int Priority => priority;
@@ -19,5 +19,5 @@ public abstract class ScriptableEventNode<TContext> : ScriptableObject
     public abstract IEventNode<TContext> CreateNodeInstance();
 
     // Return the TContext type for reflection checks
-    public virtual Type GetContextType() => typeof(TContext);
+    public override Type GetContextType() => typeof(TContext);
 }

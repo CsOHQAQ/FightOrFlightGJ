@@ -13,8 +13,8 @@ public abstract class WeaponItem : BaseItem, IEquipable, IActivatable {
 
     
 
-    public WeaponItem(ItemData data, EquipmentSlot slotType, float damage) : base(data) {
-        this.SlotType = slotType;
+    public WeaponItem(ItemData data,  float damage) : base(data) {
+        this.SlotType = EquipmentSlot.Weapon;
         this.Damage = damage;
     }
 

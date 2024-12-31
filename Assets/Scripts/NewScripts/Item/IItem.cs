@@ -28,10 +28,8 @@ public interface IStackable {
 }
 
 public enum EquipmentSlot {
-    Head,
-    Body,
-    Hands,
-    Legs
+    Weapon,
+    Artifact
 }
 
 public interface IEquipable {

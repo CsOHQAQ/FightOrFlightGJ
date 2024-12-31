@@ -14,6 +14,7 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
 {
     public event Action<ICharacter> OnCharacterDied;
 
+    [SerializeField] ArtifactSO[] artifactsOnStart;
     AbilitySystemComponent abilitySystemComponent;
     WeaponComponent weaponComponent;
     private bool isMoving = false;
@@ -121,7 +122,7 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
         // Create a ranged weapon with basic parameters
         RangedWeaponItem testWeapon = new RangedWeaponItem(
             data: testData,
-            slotType: EquipmentSlot.Hands,
+            //slotType: EquipmentSlot.Hands,
             damage: weaponAttributeSet.BaseWeaponDamage.CurrentValue,
             ammoType: "9mm",
             maxMagazineAmmo: (int)weaponAttributeSet.MaxAmmo.CurrentValue,
@@ -132,6 +133,11 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
         // Equip the weapon
         EquipItem(testWeapon);
         weaponComponent?.Initialize(testWeapon);
+
+        foreach(ArtifactSO artifact in artifactsOnStart)
+        {
+            EquipItem(new ArtifactItem(artifact));
+        }
     }
 
     private void Update()

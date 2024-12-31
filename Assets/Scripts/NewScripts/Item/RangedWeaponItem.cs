@@ -39,10 +39,10 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment {
         }
     }
 
-    public RangedWeaponItem(ItemData data, EquipmentSlot slotType, float damage,
+    public RangedWeaponItem(ItemData data,  float damage,
                             string ammoType, int maxMagazineAmmo, float reloadTime, float fireCooldown,float BaseSpreadAngle,
                             float overloadWindowRatio = 0.3f)
-        : base(data, slotType, damage) {
+        : base(data,  damage) {
         this.AmmoType = ammoType;
         this.MaxMagazineAmmo = maxMagazineAmmo;
         this.ReloadTime = reloadTime;

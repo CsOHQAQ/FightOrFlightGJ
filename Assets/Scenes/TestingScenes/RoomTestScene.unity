@@ -89577,6 +89577,17 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 6748637875441958486, guid: 4c924695c68e9094c8cb5f49578b9908,
         type: 3}
+    - target: {fileID: 8751576015793047942, guid: 4c19df142387f654783b9224f16c02c1,
+        type: 3}
+      propertyPath: artifactsOnStart.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8751576015793047942, guid: 4c19df142387f654783b9224f16c02c1,
+        type: 3}
+      propertyPath: artifactsOnStart.Array.data[0]
+      value: 
+      objectReference: {fileID: 11400000, guid: 8158e71091e69bd44b220184f57b6909,
+        type: 2}
     - target: {fileID: 8899700664992436692, guid: 4c19df142387f654783b9224f16c02c1,
         type: 3}
       propertyPath: serializationData.Prefab
