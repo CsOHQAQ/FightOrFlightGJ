@@ -146,7 +146,6 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
         }
 
 
-        UnequipItem(artifactItems[0]);
         
     }
 
@@ -503,5 +502,10 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
     public AbilitySystemComponent GetAbilitySystemComponent()
     {
         return abilitySystemComponent;
+    }
+
+    public void Die()
+    {
+        //Implement logic for dying.
     }
 }

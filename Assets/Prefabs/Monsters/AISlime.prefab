@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 7220513429449405002}
   - component: {fileID: 7788425287318101814}
   - component: {fileID: 8495312859400376413}
+  - component: {fileID: 3606608609652920836}
   m_Layer: 14
   m_Name: AISlime
   m_TagString: Untagged
@@ -129,7 +130,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 406e2fa72ca419d45a63cb3a4292bdf9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <MaxHealth>k__BackingField: 0
+  <MaxHealth>k__BackingField: 100
   <RotationSpeed>k__BackingField: 5
   EnemyIdleBase: {fileID: 11400000, guid: b230759dfca61ee4ab0a3fb381a720bd, type: 2}
   EnemyChaseBase: {fileID: 11400000, guid: 1b1d31192b294564a82ff9b839c0d306, type: 2}
@@ -156,6 +157,27 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!65 &3606608609652920836
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1682325659339220174}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.625, y: 0.5, z: 0.2}
+  m_Center: {x: 0, y: 0.25, z: 0}
 --- !u!1 &6687065476797734462
 GameObject:
   m_ObjectHideFlags: 0
@@ -202,7 +224,7 @@ SphereCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 8192
   m_LayerOverridePriority: 0
   m_IsTrigger: 1
   m_ProvidesContacts: 0
@@ -268,7 +290,7 @@ SphereCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 8192
   m_LayerOverridePriority: 0
   m_IsTrigger: 1
   m_ProvidesContacts: 0
@@ -370,6 +392,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Layer
       value: 14
+      objectReference: {fileID: 0}
+    - target: {fileID: 4805795058625842103, guid: 33dd1939f75edb949abe57f1a7480a50,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6277817055531864072, guid: 33dd1939f75edb949abe57f1a7480a50,
         type: 3}

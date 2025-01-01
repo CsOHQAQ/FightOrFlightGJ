@@ -9,13 +9,13 @@ public class Room : MonoBehaviour
     [SerializeField]
     public List<Door> doors;
     [SerializeField]
-    public List<BaseMonster> enemies;
+    public List<Enemy> enemies;
 
     [SerializeField]
     private List<ArtifactSO> rewardList;
 
     private int remainingEnemyNum;
-    //public List<BaseMonster> deadEnemies;
+    //public List<Enemy> deadEnemies;
     public event Action<Room> OnCombatStartedInRoom;
     public event Action<Room> OnCombatEndedInRoom;
     private bool hasCombatEncounter = true;
@@ -45,7 +45,7 @@ public class Room : MonoBehaviour
             OnCombatStartedInRoom+=door.OnCombatStartedInRoom;
             OnCombatEndedInRoom+=door.OnCombatEndedInRoom;
         }
-        foreach (BaseMonster enemy in enemies)
+        foreach (Enemy enemy in enemies)
         {
             OnCombatStartedInRoom+=enemy.OnCombatStartedInRoom;
             OnCombatEndedInRoom+=enemy.OnCombatEndedInRoom;
@@ -65,13 +65,13 @@ public class Room : MonoBehaviour
         // Unsubscribe from the OnCharacterDied event
         enemyCharacter.OnCharacterDied -= OnEnemyInRoomDied;
         
-        // Attempt to cast the enemyCharacter to BaseMonster
-        var baseMonster = enemyCharacter as BaseMonster;
-        if (baseMonster != null)
+        // Attempt to cast the enemyCharacter to Enemy
+        var Enemy = enemyCharacter as Enemy;
+        if (Enemy != null)
         {
-            //enemies.Remove(baseMonster);
+            //enemies.Remove(Enemy);
             remainingEnemyNum--;
-            Debug.Log($"{baseMonster} has been removed from the enemies list.");
+            Debug.Log($"{Enemy} has been removed from the enemies list.");
         }
         else
         {
@@ -84,7 +84,7 @@ public class Room : MonoBehaviour
         }
     }
 
-    public void AddEnemyToRoom(BaseMonster enemyCharacter)
+    public void AddEnemyToRoom(Enemy enemyCharacter)
     {
         enemyCharacter.OnCharacterDied+=OnEnemyInRoomDied;
         enemies.Add(enemyCharacter);

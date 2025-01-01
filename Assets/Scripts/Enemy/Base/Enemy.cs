@@ -2,14 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using System;
 
-public class Enemy : MonoBehaviour, IDamageable, IEnemyMoveable, ITriggerCheckable
+public class Enemy : MonoBehaviour, IEnemyMoveable, ITriggerCheckable,ICharacter,IHitReceiver,IRoomObject
 {
     // For Navigation Implementation
     NavMeshAgent agent;
-
+    public event Action<ICharacter> OnCharacterDied;
     [field: SerializeField] public float MaxHealth { get; set; }
-    public float CurrentHealth { get; set; }
+    public float Health { get; set; }
     public Rigidbody RB { get; set; }
 
     // Not Being Used
@@ -58,7 +59,7 @@ public class Enemy : MonoBehaviour, IDamageable, IEnemyMoveable, ITriggerCheckab
 
     private void Start()
     {
-        CurrentHealth = MaxHealth;
+        Health = MaxHealth;
 
         agent = GetComponent<NavMeshAgent>();
         RB = GetComponent<Rigidbody>();
@@ -82,21 +83,36 @@ public class Enemy : MonoBehaviour, IDamageable, IEnemyMoveable, ITriggerCheckab
 
     #region Health/ / Die Functions
 
-    public void Damage(float damageAmount)
+    public void AddHealth(float amount)
     {
-        CurrentHealth -= damageAmount;
-
-        if (CurrentHealth <= damageAmount)
-        {
-            Die();
-        }
+        Health += amount;
     }
+
+    public void TakeDamage(EventContext context)
+    {
+        Health -= context.HitData.FinalDamage;
+        Debug.Log("Monster current health: " + Health);
+        if (Health <= 0f) 
+        {
+            Health = 0f;
+            CharacterDiedEventContext eventContext = new CharacterDiedEventContext(this,context.Source);
+            Die();
+            EventChainManager.Instance.ExecuteCharacterDiedChain(ref eventContext);
+        }
+        
+    }
+
 
     public void Die()
     {
-        Destroy(gameObject);
+        Debug.Log( "Enemy "+ this.gameObject.name+" DIED");
+        //TODO: Trigger Event Chain for death
+        OnCharacterDied?.Invoke(this);
+        
+        //TODO: Play Death Animation and show corpse
+        //Destroy(gameObject);
+        gameObject.SetActive(false);
     }
-
     #endregion
 
 
@@ -137,4 +153,23 @@ public class Enemy : MonoBehaviour, IDamageable, IEnemyMoveable, ITriggerCheckab
     }
 
     #endregion
+
+
+    public AbilitySystemComponent GetAbilitySystemComponent()
+    {
+        return null;
+    }
+
+    public void OnCombatStartedInRoom(Room room)
+    {
+        //Get Activated and can start attacking plyer
+    }
+    public void OnCombatEndedInRoom(Room room)
+    {
+
+    }
+    public void OnHit(HitData hitData)
+    {
+        Debug.Log("Got Hit on " + hitData.HitInfo.HitPoint);
+    }
 }

@@ -29,7 +29,7 @@ public class Projectile : MonoBehaviour
         this.eventContext = context;
         this.sourceCharacter = context.Source;
         this.flightDirection = flightDir.normalized; // store and normalize it
-        Debug.Log("PROJECTILE: " + flightDirection);
+        //Debug.Log("PROJECTILE: " + flightDirection);
         spawnTime = Time.time;
     }
 
@@ -52,11 +52,12 @@ public class Projectile : MonoBehaviour
         {
             return; 
         }
-        Debug.Log("HIT" + other.gameObject.name);
+        
         // 2) If it’s an IHitReceiver, we want to call the HitEventChain
         IHitReceiver hitReceiver = other.GetComponent<IHitReceiver>();
         if (hitReceiver != null)
         {
+            Debug.Log("HIT" + other.gameObject.name);
             // If we have an eventContext from the weapon, let's reuse it
             if (eventContext != null)
             {

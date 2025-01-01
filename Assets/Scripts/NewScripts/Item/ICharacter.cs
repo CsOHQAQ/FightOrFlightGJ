@@ -9,6 +9,7 @@ public interface ICharacter {
     // Provides methods to increase or decrease the character's health for convenient item use (e.g., healing potions)
     void AddHealth(float amount);
     void TakeDamage(EventContext context);
+    void Die();
     
     public AbilitySystemComponent GetAbilitySystemComponent();
 

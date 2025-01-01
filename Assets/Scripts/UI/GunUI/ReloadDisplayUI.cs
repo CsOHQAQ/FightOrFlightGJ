@@ -41,7 +41,7 @@ public class ReloadDisplayUI : MonoBehaviour
     public void InitializeOverloadWindowUI(float windowPercentage)
     {
 
-        Debug.Log(windowPercentage);
+        //Debug.Log(windowPercentage);
         if (reloadFilledImage == null || leftOverloadBar == null || rightOverloadBar == null)
         {
             Debug.LogWarning("Ensure all required images (reloadFilledImage, leftOverloadBar, rightOverloadBar) are assigned!");
