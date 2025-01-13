@@ -50,6 +50,7 @@ public class Projectile : MonoBehaviour
         // 1) Avoid hitting the source (if you want that logic)
         if (other.GetComponent<ICharacter>() == sourceCharacter || other.GetComponent<Projectile>()!=null)
         {
+            Debug.Log("DDDDDDDDDDDDDDDDDDDD");
             return; 
         }
         

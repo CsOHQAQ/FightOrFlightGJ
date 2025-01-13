@@ -76,8 +76,8 @@ GameObject:
   - component: {fileID: 8751576015793047942}
   - component: {fileID: 6402829396178528019}
   - component: {fileID: 1264771267051366832}
-  - component: {fileID: 3257245114734308198}
   - component: {fileID: 7033916318951973429}
+  - component: {fileID: 8289266888572124827}
   m_Layer: 3
   m_Name: PlayerCharacter
   m_TagString: Player
@@ -275,36 +275,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &3257245114734308198
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3200897976135295805}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 95669d1f4c301504f865c26688f4f97b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Health:
-    baseValue: 100
-  MaxHealth:
-    baseValue: 100
-  Damage:
-    baseValue: 0
-  BaseWeaponDamage:
-    baseValue: 6
-  AttackSpeed:
-    baseValue: 5
-  MaxAmmo:
-    baseValue: 3
-  BulletPerShot:
-    baseValue: 1
-  Accuracy:
-    baseValue: 0
-  BaseSpreadAngle:
-    baseValue: 2
 --- !u!114 &7033916318951973429
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -317,7 +287,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 360c2122f543d164eaff66956d9325ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attributeSet: {fileID: 3257245114734308198}
+  attributeSet: {fileID: 8289266888572124827}
+--- !u!114 &8289266888572124827
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3200897976135295805}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 95669d1f4c301504f865c26688f4f97b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Health:
+    baseValue: 0
+  MaxHealth:
+    baseValue: 0
+  Damage:
+    baseValue: 0
+  BaseWeaponDamage:
+    baseValue: 25
+  AttackSpeed:
+    baseValue: 5
+  MaxAmmo:
+    baseValue: 10
+  BulletPerShot:
+    baseValue: 1
+  Accuracy:
+    baseValue: 0
+  BaseSpreadAngle:
+    baseValue: 4
 --- !u!1 &3456895501349425507
 GameObject:
   m_ObjectHideFlags: 0
