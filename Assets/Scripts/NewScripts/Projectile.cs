@@ -48,9 +48,13 @@ public class Projectile : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         // 1) Avoid hitting the source (if you want that logic)
-        if (other.GetComponent<ICharacter>() == sourceCharacter || other.GetComponent<Projectile>()!=null)
+        if (other.GetComponent<ICharacter>() == sourceCharacter )
         {
-            Debug.Log("DDDDDDDDDDDDDDDDDDDD");
+            
+            return; 
+        }
+        if(other.gameObject.layer == LayerMask.NameToLayer("Projectile")|| other.GetComponent<Projectile>()!=null)
+        {
             return; 
         }
         

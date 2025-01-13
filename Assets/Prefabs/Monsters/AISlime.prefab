@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 7788425287318101814}
   - component: {fileID: 8495312859400376413}
   - component: {fileID: 3606608609652920836}
+  - component: {fileID: 5264413024997153595}
   m_Layer: 14
   m_Name: AISlime
   m_TagString: Untagged
@@ -117,7 +118,7 @@ Rigidbody:
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 0
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
 --- !u!114 &7788425287318101814
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -167,7 +168,7 @@ BoxCollider:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 8192
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -176,8 +177,25 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.625, y: 0.5, z: 0.2}
+  m_Size: {x: 0.625, y: 0.5, z: 0.4}
   m_Center: {x: 0, y: 0.25, z: 0}
+--- !u!114 &5264413024997153595
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1682325659339220174}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9b49f72cbf883a459e77ba999810e7b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spriteList:
+  - {fileID: 21300000, guid: e87e82aa24f37004bbe8cc0143025829, type: 3}
+  - {fileID: 21300000, guid: fa277363680fade4a8294e8f92ff0cf0, type: 3}
+  switchInterval: 0.5
+  rotateToFacePlayer: 1
 --- !u!1 &6687065476797734462
 GameObject:
   m_ObjectHideFlags: 0

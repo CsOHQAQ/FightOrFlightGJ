@@ -163,6 +163,7 @@ public class Enemy : MonoBehaviour, IEnemyMoveable, ITriggerCheckable,ICharacter
     public void OnCombatStartedInRoom(Room room)
     {
         //Get Activated and can start attacking plyer
+        SetAggroStatus(true);
     }
     public void OnCombatEndedInRoom(Room room)
     {

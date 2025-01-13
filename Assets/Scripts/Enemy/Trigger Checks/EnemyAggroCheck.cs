@@ -18,7 +18,11 @@ public class EnemyAggroCheck : MonoBehaviour
     {
         if (collision.gameObject == PlayerTarget)
         {
-            _enemy.SetAggroStatus(true);
+            //_enemy.SetAggroStatus(true);
+            if (!_enemy.IsAggroed)
+            {
+                //Should tell enemy to run it's logic handling awareness.
+            }
         }
     }
 
@@ -26,7 +30,8 @@ public class EnemyAggroCheck : MonoBehaviour
     {
         if (collision.gameObject == PlayerTarget)
         {
-            _enemy.SetAggroStatus(false);
+            //_enemy.SetAggroStatus(false);
+            //Should never leave aggro currently. 
         }
     }
 }
