@@ -133,7 +133,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <MaxHealth>k__BackingField: 100
   <RotationSpeed>k__BackingField: 5
-  EnemyIdleBase: {fileID: 11400000, guid: b230759dfca61ee4ab0a3fb381a720bd, type: 2}
+  EnemyIdleBase: {fileID: 11400000, guid: e9c056e967ed1e04a82f0761a0c76304, type: 2}
   EnemyChaseBase: {fileID: 11400000, guid: 1b1d31192b294564a82ff9b839c0d306, type: 2}
   EnemyAttackBase: {fileID: 11400000, guid: 38c757451e3264e47ac7d79f8db2acf8, type: 2}
 --- !u!195 &8495312859400376413

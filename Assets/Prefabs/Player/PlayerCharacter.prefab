@@ -301,9 +301,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Health:
-    baseValue: 0
+    baseValue: 100
   MaxHealth:
-    baseValue: 0
+    baseValue: 100
   Damage:
     baseValue: 0
   BaseWeaponDamage:

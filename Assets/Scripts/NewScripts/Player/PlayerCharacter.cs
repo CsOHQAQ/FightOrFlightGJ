@@ -11,20 +11,20 @@ public enum PlayerState
     MenuState
 }
 
-public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemComponent
+public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemComponent,IHitReceiver
 {
     public event Action<ICharacter> OnCharacterDied;
 
     [SerializeField] ArtifactSO[] artifactsOnStart;
     AbilitySystemComponent abilitySystemComponent;
     WeaponComponent weaponComponent;
-
+    public Faction Faction{ get{return Faction.PLAYER;} }
     private List<ArtifactItem> artifactItems;
     private bool isMoving = false;
     
     private InteractComponent interactComponent;
     private PlayerHandsComponent hand;
-
+    
     [SerializeField, Tooltip("Duration of the movement forward or backward in seconds.")]
     private float moveDuration = 1.0f;
 
@@ -418,6 +418,8 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
     {
         Health -= context.HitData.FinalDamage;
         if (Health < 0f) Health = 0f;
+
+        Debug.Log("Player Health is now: " + Health);
     }
 
     public bool AddItem(IItem item)
@@ -507,5 +509,10 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
     public void Die()
     {
         //Implement logic for dying.
+    }
+
+    public void OnHit(HitData hitData)
+    {
+        //Debug.Log("Got Hit on " + hitData.HitInfo.HitPoint);
     }
 }

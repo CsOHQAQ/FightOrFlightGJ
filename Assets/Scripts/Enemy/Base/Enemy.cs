@@ -13,6 +13,7 @@ public class Enemy : MonoBehaviour, IEnemyMoveable, ITriggerCheckable,ICharacter
     public float Health { get; set; }
     public Rigidbody RB { get; set; }
 
+    public Faction Faction{ get{return Faction.ENEMY;} set{Faction = value;} }
     // Not Being Used
     [field: SerializeField] public float RotationSpeed { get; set; } = 5.0f;
 
@@ -171,6 +172,6 @@ public class Enemy : MonoBehaviour, IEnemyMoveable, ITriggerCheckable,ICharacter
     }
     public void OnHit(HitData hitData)
     {
-        Debug.Log("Got Hit on " + hitData.HitInfo.HitPoint);
+        //Debug.Log("Got Hit on " + hitData.HitInfo.HitPoint);
     }
 }

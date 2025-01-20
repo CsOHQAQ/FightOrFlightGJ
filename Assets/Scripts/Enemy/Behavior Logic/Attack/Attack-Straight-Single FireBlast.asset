@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d6c390e1399cbd4e98ead6790dab8a2, type: 3}
   m_Name: Attack-Straight-Single FireBlast
   m_EditorClassIdentifier: 
-  FireBlastPrefab: {fileID: 4295672349230855265, guid: b2e1f7175f1a794429d9b6362a789920,
+  FireBlastPrefab: {fileID: 5779004393706579253, guid: b2e1f7175f1a794429d9b6362a789920,
     type: 3}
   _timeBetweenShots: 2
   _timeTillExit: 3

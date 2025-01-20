@@ -49,7 +49,32 @@ public class EnemyAttackSingleStraightFireBlast : EnemyAttackSOBase
 
             // Should have like an Object Pool System to avoid this
             Rigidbody flameBlast = GameObject.Instantiate(FireBlastPrefab, enemy.transform.position, Quaternion.identity);
-            flameBlast.velocity = direction * _flameBlastSpeed;
+
+            // The projectile script might store "EventContext" for use on collision
+            EventContext attackContext = new EventContext
+            {
+                // The AI character is the "Source" of the attack
+                Source = enemy, 
+
+                AttackInfo = new AttackData
+                {
+                    BaseDamage = 10f,         // or set from some stat
+                    AmmoType = "Fireblast",   // optional: thematic label
+                    // ProjectilePrefab is optional if needed 
+                    ProjectilePrefab = FireBlastPrefab.gameObject 
+                }
+                // HitData is left empty, since the collision hasn't happened yet
+            };
+
+            Projectile projectile = flameBlast.GetComponent<Projectile>();
+            if (projectile != null)
+            {
+                // Pass the same context + direction so the projectile 
+                // can reference AttackInfo when it hits the target
+                projectile.Setup(attackContext, direction);
+            }
+
+            //flameBlast.velocity = direction * _flameBlastSpeed;
         }
         else
         {
