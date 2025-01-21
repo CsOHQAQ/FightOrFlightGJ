@@ -34,16 +34,20 @@ public class DamageCalculationNode : IEventNode<EventContext>
         // 6) Trigger OnHit
         context.Target.OnHit(context.HitData);
 
-        // 7) Damage UI
-        Vector3 enemyPosition = (context.Target != null) 
-            ? context.HitData.HitInfo.HitPoint
-            : Vector3.zero;
+        if(character.Faction == Faction.ENEMY)
+        {
+            // 7) Damage UI
+            Vector3 enemyPosition = (context.Target != null) 
+                ? context.HitData.HitInfo.HitPoint
+                : Vector3.zero;
 
-        DamageNumberManager.Instance.ShowDamageNumber(
-            enemyPosition,
-            context.HitData.FinalDamage, 
-            context.HitData.WasCrit,
-            context
-        );
+            DamageNumberManager.Instance.ShowDamageNumber(
+                enemyPosition,
+                context.HitData.FinalDamage, 
+                context.HitData.WasCrit,
+                context
+            );
+        }
+
     }
 }
