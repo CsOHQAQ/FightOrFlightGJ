@@ -848,7 +848,7 @@ MonoBehaviour:
         RotationSpace: 1
         AnimateRotationDuration: 0.2
         RemapCurveZero: 0
-        RemapCurveOne: -60
+        RemapCurveOne: -80
         AnimateX: 1
         AnimateRotationTweenX:
           MMTweenDefinitionType: 1

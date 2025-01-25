@@ -151927,11 +151927,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4263926499076829382, guid: 4c19df142387f654783b9224f16c02c1,
         type: 3}
-      propertyPath: managedReferences[9030188499613777923].RemapCurveOne
-      value: -80
-      objectReference: {fileID: 0}
-    - target: {fileID: 4263926499076829382, guid: 4c19df142387f654783b9224f16c02c1,
-        type: 3}
       propertyPath: managedReferences[9030188499613777926].BypassEffects
       value: 0
       objectReference: {fileID: 0}
