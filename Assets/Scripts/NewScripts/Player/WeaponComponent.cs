@@ -8,12 +8,16 @@ public class WeaponComponent : MonoBehaviour
     [Tooltip("Drag the actual gun mesh or root transform here.")]
     [SerializeField] private Transform gunMeshRoot;
 
-    [Tooltip("Optional: a reference for playing Feel feedback.")]
-    [SerializeField] private MMFeedbacks fireFeedback;
+    [Header("Feel Player (New System)")]
+    [SerializeField] private MMF_Player firePlayer; // Not 'MMFeedbacks'
 
     private RangedWeaponItem weaponData; // We'll store the currently equipped weapon data here.
 
     // --- Step 1: Hook up the weapon item to this component ---
+    private void Start()
+    {
+
+    }
     public void Initialize(RangedWeaponItem rangedWeapon)
     {
         // Unsubscribe if we were previously subscribed to another weapon
@@ -30,6 +34,17 @@ public class WeaponComponent : MonoBehaviour
         {
             weaponData.OnFired += HandleWeaponFired;
         }
+        
+        if (firePlayer == null) { return; }
+
+        foreach (MMF_Feedback feedback in firePlayer.FeedbacksList)
+        {
+            if (feedback is MMF_Rotation rotationFeedback)
+            {
+                rotationFeedback.AnimateRotationDuration=weaponData.FireCooldown/2f;
+                Debug.Log($"AnimateRotationDuration: {rotationFeedback.AnimateRotationDuration}");
+            }
+        }
     }
 
     // --- Step 2: Respond to the event ---
@@ -37,7 +52,7 @@ public class WeaponComponent : MonoBehaviour
     {
         // 1. Play Feel feedback if assigned
         
-        fireFeedback?.PlayFeedbacks();
+        firePlayer?.PlayFeedbacks();
 
         // 2. Optionally do things like:
         //    - Animate the gun mesh (e.g., recoil, slide, etc.)

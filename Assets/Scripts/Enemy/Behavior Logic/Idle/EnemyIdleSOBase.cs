@@ -17,7 +17,7 @@ public class EnemyIdleSOBase : ScriptableObject
         this.gameObject = gameObject;
         transform = gameObject.transform;
         this.enemy = enemy;
-        agent = gameObject.GetComponent<NavMeshAgent>();
+        agent = enemy.Agent;
 
         playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
     }

@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 3606608609652920836}
   - component: {fileID: 5264413024997153595}
   m_Layer: 14
-  m_Name: AISlime
+  m_Name: NewBaseEnemy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -132,6 +132,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <MaxHealth>k__BackingField: 100
+  speed: 1
   <RotationSpeed>k__BackingField: 5
   EnemyIdleBase: {fileID: 11400000, guid: e9c056e967ed1e04a82f0761a0c76304, type: 2}
   EnemyChaseBase: {fileID: 11400000, guid: 1b1d31192b294564a82ff9b839c0d306, type: 2}
@@ -248,7 +249,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.6
+  m_Radius: 1.5
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &7078684606285829674
 MonoBehaviour:

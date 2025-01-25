@@ -132,7 +132,7 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
             ammoType: "9mm",
             maxMagazineAmmo: (int)playerCharacterAttributeSet.MaxAmmo.CurrentValue,
             reloadTime: 1.5f,
-            fireCooldown: 0.4f,
+            fireCooldown: 1f/playerCharacterAttributeSet.AttackSpeed.CurrentValue,
             BaseSpreadAngle : playerCharacterAttributeSet.BaseSpreadAngle.CurrentValue
         );
         // Equip the weapon

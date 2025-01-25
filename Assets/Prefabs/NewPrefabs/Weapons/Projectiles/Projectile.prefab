@@ -47,7 +47,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b0018addd8e4004ba095f02b0d567ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 30
+  speed: 20
   lifeTime: 3
   destroyOnHit: 1
 --- !u!135 &2951523231609897063
@@ -69,7 +69,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.02
+  m_Radius: 0.04
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &-6443472164690342256
 Rigidbody:
@@ -177,7 +177,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 0.02, y: 0.02}
+  m_Size: {x: 0.04, y: 0.04}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1

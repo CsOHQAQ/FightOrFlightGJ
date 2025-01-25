@@ -221,7 +221,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   artifactsOnStart: []
-  moveDuration: 0.3
+  moveDuration: 0.6
   moveDistance: 2
   turnDuration: 0.3
   bumpDistance: 0.3
@@ -307,11 +307,11 @@ MonoBehaviour:
   Damage:
     baseValue: 0
   BaseWeaponDamage:
-    baseValue: 25
+    baseValue: 20
   AttackSpeed:
-    baseValue: 5
+    baseValue: 1.6
   MaxAmmo:
-    baseValue: 10
+    baseValue: 6
   BulletPerShot:
     baseValue: 1
   Accuracy:
@@ -661,7 +661,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gunMeshRoot: {fileID: 2938669212496782387}
-  fireFeedback: {fileID: 4263926499076829382}
+  firePlayer: {fileID: 4263926499076829382}
 --- !u!114 &4263926499076829382
 MonoBehaviour:
   m_ObjectHideFlags: 0

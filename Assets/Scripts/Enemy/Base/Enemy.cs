@@ -8,9 +8,13 @@ public class Enemy : MonoBehaviour, IEnemyMoveable, ITriggerCheckable,ICharacter
 {
     // For Navigation Implementation
     NavMeshAgent agent;
+    public NavMeshAgent Agent{get{return agent;}}
     public event Action<ICharacter> OnCharacterDied;
     [field: SerializeField] public float MaxHealth { get; set; }
     public float Health { get; set; }
+    [SerializeField]
+    private float speed = 1f;
+    public float Speed{get{return speed;}}
     public Rigidbody RB { get; set; }
 
     public Faction Faction{ get{return Faction.ENEMY;} set{Faction = value;} }
@@ -62,7 +66,7 @@ public class Enemy : MonoBehaviour, IEnemyMoveable, ITriggerCheckable,ICharacter
     {
         Health = MaxHealth;
 
-        agent = GetComponent<NavMeshAgent>();
+        agent = GetComponentInChildren<NavMeshAgent>();
         RB = GetComponent<Rigidbody>();
 
         EnemyIdleBaseInstance.Initialize(gameObject, this);

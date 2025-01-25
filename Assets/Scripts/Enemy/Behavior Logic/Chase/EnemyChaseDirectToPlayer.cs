@@ -6,7 +6,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "Chase-Direct Chase", menuName = "Enemy Logic/Chase Logic/Direct Chase")]
 public class EnemyChaseDirectToPlayer : EnemyChaseSOBase
 {
-    [SerializeField] private float _movementSpeed = 1.75f;
+    [SerializeField] private float _movementSpeedMultiplier = 1f;
     [SerializeField] private float _coolDownToForget = 7.5f;
     private float _forgetCountDown = 0.0f;
 
@@ -19,7 +19,7 @@ public class EnemyChaseDirectToPlayer : EnemyChaseSOBase
     {
         base.DoEnterLogic();
         agent.isStopped = false;
-        agent.speed = _movementSpeed;
+        agent.speed = enemy.Speed * _movementSpeedMultiplier;
     }
 
     public override void DoExitLogic()

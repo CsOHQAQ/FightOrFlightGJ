@@ -19,7 +19,7 @@ public class DamageCalculationNode : IEventNode<EventContext>
 
         // 2) Apply random factor
         float randomFactor = UnityEngine.Random.Range(minRandomFactor, maxRandomFactor);
-        float finalDamage = baseDamage * randomFactor;
+        float finalDamage = Mathf.Round(baseDamage * randomFactor) ;
 
         // 3) If you have other multipliers (like critical hits, element advantage), do them here
         // e.g., finalDamage *= 2 if context.HitData.WasCrit?
