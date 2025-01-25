@@ -13,6 +13,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: NewSlime
       objectReference: {fileID: 0}
+    - target: {fileID: 2256110514845273034, guid: 63096c840e257d4419d191f5afc0941d,
+        type: 3}
+      propertyPath: m_Name
+      value: MMF_HurtEffect
+      objectReference: {fileID: 0}
     - target: {fileID: 4589879833095782853, guid: 63096c840e257d4419d191f5afc0941d,
         type: 3}
       propertyPath: m_Radius

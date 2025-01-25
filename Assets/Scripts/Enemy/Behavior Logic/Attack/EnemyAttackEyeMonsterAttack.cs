@@ -1,0 +1,125 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using static UnityEngine.RuleTile.TilingRuleOutput;
+
+[CreateAssetMenu(fileName = "Attack-Eye Monster FireBlast", menuName = "Enemy Logic/Attack Logic/Eye Monster FireBlast")]
+public class EnemyAttackEyeMonsterAttack : EnemyAttackSOBase
+{
+    [SerializeField] private Rigidbody FireBlastPrefab;
+    [SerializeField] private float _timeBetweenShots = 2.0f;
+    [SerializeField] private float _timeTillExit = 3.0f;
+    [SerializeField] private float _distanceToCountExit = 3.0f;
+    [SerializeField] private float _flameBlastSpeed = 10f;
+    [SerializeField] private float _rotationSpeed = 100.0f;
+    private EyeMonster eyeMonster;
+    private float _timer;
+    private float _exitTimer;
+
+    public override void DoAnimationTriggerEventLogic(Enemy.AnimationTriggerType triggerType)
+    {
+        base.DoAnimationTriggerEventLogic(triggerType);
+    }
+
+    public override void DoEnterLogic()
+    {
+        base.DoEnterLogic();
+        eyeMonster = enemy as EyeMonster;
+        if (eyeMonster == null)
+        {
+            Debug.LogError("Wrong Script for Monster Type");
+        }
+    }
+
+    public override void DoExitLogic()
+    {
+        base.DoExitLogic();
+
+    }
+
+    public override void DoFrameUpdateLogic()
+    {
+        base.DoFrameUpdateLogic();
+        eyeMonster.TrackGameObject(playerTransform);
+        if (_timer > _timeBetweenShots)
+        {
+            _timer = 0f;
+
+            //RotateEnemy(true);
+
+            Vector3 direction = (playerTransform.position - enemy.transform.position).normalized;
+
+            // Should have like an Object Pool System to avoid this
+            Rigidbody flameBlast = GameObject.Instantiate(FireBlastPrefab, enemy.transform.position, Quaternion.identity);
+
+            // The projectile script might store "EventContext" for use on collision
+            EventContext attackContext = new EventContext
+            {
+                // The AI character is the "Source" of the attack
+                Source = enemy, 
+
+                AttackInfo = new AttackData
+                {
+                    BaseDamage = 10f,         // or set from some stat
+                    AmmoType = "Fireblast",   // optional: thematic label
+                    // ProjectilePrefab is optional if needed 
+                    ProjectilePrefab = FireBlastPrefab.gameObject 
+                }
+                // HitData is left empty, since the collision hasn't happened yet
+            };
+
+            Projectile projectile = flameBlast.GetComponent<Projectile>();
+            if (projectile != null)
+            {
+                // Pass the same context + direction so the projectile 
+                // can reference AttackInfo when it hits the target
+                projectile.Setup(attackContext, direction);
+            }
+
+            //flameBlast.velocity = direction * _flameBlastSpeed;
+        }
+        else
+        {
+            //RotateEnemy(false);
+        }
+
+        // Better implementation for the future this is just for testing
+        if (Vector3.Distance(playerTransform.position, enemy.transform.position) > _distanceToCountExit)
+        {
+            _exitTimer += Time.deltaTime;
+
+            if (_exitTimer > _timeTillExit)
+            {
+                enemy.StateMachine.ChangeState(enemy.ChaseState);
+            }
+        }
+        else
+        {
+            _exitTimer = 0f;
+        }
+
+        _timer += Time.deltaTime;
+    }
+
+    public override void DoPhysicsLogic()
+    {
+        base.DoPhysicsLogic();
+    }
+
+    public override void Initialize(GameObject gameObject, Enemy enemy)
+    {
+        base.Initialize(gameObject, enemy);
+    }
+
+    public override void ResetValues()
+    {
+        base.ResetValues();
+    }
+
+    public void RotateEnemy(bool isShooting)
+    {
+
+
+
+    }
+}

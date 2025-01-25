@@ -2,10 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using MoreMountains.Feedbacks;
 using System;
 
 public class Enemy : MonoBehaviour, IEnemyMoveable, ITriggerCheckable,ICharacter,IHitReceiver,IRoomObject
 {
+    [Header("Feedback for Attack Warning")]
+    [SerializeField] private MMF_Player hurtFeedback;
+    [SerializeField] protected SpriteRenderer spriteRenderer;
+    
     // For Navigation Implementation
     NavMeshAgent agent;
     public NavMeshAgent Agent{get{return agent;}}
@@ -48,7 +53,7 @@ public class Enemy : MonoBehaviour, IEnemyMoveable, ITriggerCheckable,ICharacter
 
     #endregion
 
-    private void Awake()
+    protected void Awake()
     {
         EnemyIdleBaseInstance = Instantiate(EnemyIdleBase);
         EnemyChaseBaseInstance = Instantiate(EnemyChaseBase);
@@ -60,9 +65,14 @@ public class Enemy : MonoBehaviour, IEnemyMoveable, ITriggerCheckable,ICharacter
         IdleState = new EnemyIdleState(this, StateMachine);
         ChaseState = new EnemyChaseState(this, StateMachine);
         AttackState = new EnemyAttackState(this, StateMachine);
+
+        if(spriteRenderer==null)
+        {
+            spriteRenderer = gameObject.GetComponentInChildren<SpriteRenderer>();
+        }
     }
 
-    private void Start()
+    protected void Start()
     {
         Health = MaxHealth;
 
@@ -76,12 +86,12 @@ public class Enemy : MonoBehaviour, IEnemyMoveable, ITriggerCheckable,ICharacter
         StateMachine.Initialize(IdleState);
     }
 
-    private void Update()
+    protected void Update()
     {
         StateMachine.CurrentEnemyState.FrameUpdate();
     }
 
-    private void FixedUpdate()
+    protected void FixedUpdate()
     {
         StateMachine.CurrentEnemyState.PhysicsUpdate();
     }
@@ -96,7 +106,15 @@ public class Enemy : MonoBehaviour, IEnemyMoveable, ITriggerCheckable,ICharacter
     public void TakeDamage(EventContext context)
     {
         Health -= context.HitData.FinalDamage;
-        Debug.Log("Monster current health: " + Health);
+        //Debug.Log("Monster current health: " + Health);
+        if (hurtFeedback != null)
+        {
+            hurtFeedback.PlayFeedbacks();
+        }
+        else
+        {
+            Debug.LogWarning("No hurtFeedback assigned on enemy!");
+        }
         if (Health <= 0f) 
         {
             Health = 0f;
@@ -176,6 +194,19 @@ public class Enemy : MonoBehaviour, IEnemyMoveable, ITriggerCheckable,ICharacter
     }
     public void OnHit(HitData hitData)
     {
-        //Debug.Log("Got Hit on " + hitData.HitInfo.HitPoint);
+
+    }
+
+    /// <summary>
+    /// Called just before the enemy attacks. This triggers a white flash feedback.
+    /// </summary>
+    public virtual void AttackWarning()
+    {
+        // If we have a feedback assigned, play it
+
+    }
+    public virtual void Attack()
+    {
+
     }
 }

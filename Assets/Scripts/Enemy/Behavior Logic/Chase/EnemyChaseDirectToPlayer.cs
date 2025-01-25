@@ -42,10 +42,10 @@ public class EnemyChaseDirectToPlayer : EnemyChaseSOBase
             _forgetCountDown = 0.0f;
         }
 
-        if (!enemy.IsAggroed && _forgetCountDown >= _coolDownToForget)
-        {
-            enemy.StateMachine.ChangeState(enemy.IdleState);
-        }
+        //if (!enemy.IsAggroed && _forgetCountDown >= _coolDownToForget)
+        //{
+        //    enemy.StateMachine.ChangeState(enemy.IdleState);
+        //}
 
         agent.SetDestination(playerTransform.position);
     }
