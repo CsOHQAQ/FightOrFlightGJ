@@ -7,9 +7,14 @@ using System;
 
 public class Enemy : MonoBehaviour, IEnemyMoveable, ITriggerCheckable,ICharacter,IHitReceiver,IRoomObject
 {
-    [Header("Feedback for Attack Warning")]
-    [SerializeField] private MMF_Player hurtFeedback;
+    
     [SerializeField] protected SpriteRenderer spriteRenderer;
+
+    [Header("Feedbacks")]
+    [SerializeField] private MMF_Player hurtFeedback;
+    [SerializeField] private MMF_Player windUpFeedback;
+    [SerializeField] private MMF_Player attackFeedback;
+    protected MapObject mapObject;
     
     // For Navigation Implementation
     NavMeshAgent agent;
@@ -70,6 +75,7 @@ public class Enemy : MonoBehaviour, IEnemyMoveable, ITriggerCheckable,ICharacter
         {
             spriteRenderer = gameObject.GetComponentInChildren<SpriteRenderer>();
         }
+        mapObject = gameObject.GetComponentInChildren<MapObject>();
     }
 
     protected void Start()
@@ -84,6 +90,8 @@ public class Enemy : MonoBehaviour, IEnemyMoveable, ITriggerCheckable,ICharacter
         EnemyAttackBaseInstance.Initialize(gameObject, this);
 
         StateMachine.Initialize(IdleState);
+
+
     }
 
     protected void Update()
@@ -200,13 +208,41 @@ public class Enemy : MonoBehaviour, IEnemyMoveable, ITriggerCheckable,ICharacter
     /// <summary>
     /// Called just before the enemy attacks. This triggers a white flash feedback.
     /// </summary>
-    public virtual void AttackWarning()
+    public virtual void StartAttackWindUp()
     {
         // If we have a feedback assigned, play it
-
+        UpdateSpriteAutoPlay(false,true);
+        windUpFeedback.PlayFeedbacks();
     }
     public virtual void Attack()
     {
+        attackFeedback.PlayFeedbacks();
+    }
 
+    public virtual void UpdateSpriteAutoPlay(bool doesAutoPlay, bool snapToSprite = false, int snapToIndex = 0)
+    {
+        mapObject.UpdateSpriteAutoPlay(doesAutoPlay,snapToSprite,snapToIndex);
+    }
+
+    protected virtual void OnWindUpComplete()
+    {
+        Attack();
+    }
+    protected void OnEnable()
+    {
+        // Subscribe to the event
+        if (windUpFeedback != null)
+        {
+            //windUpFeedback.OnStop  += OnWindUpComplete;
+        }
+    }
+
+    protected void OnDisable()
+    {
+        // Unsubscribe to avoid memory leaks
+        if (windUpFeedback != null)
+        {
+            //windUpFeedback.OnStop  -= OnWindUpComplete;
+        }
     }
 }

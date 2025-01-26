@@ -43,10 +43,10 @@ public class EnemyAttackSingleStraightFireBlast : EnemyAttackSOBase
         {
             _timer = 0f;
 
-            RotateEnemy(true);
+            //RotateEnemy(true);
 
             Vector3 direction = (playerTransform.position - enemy.transform.position).normalized;
-
+            /*
             // Should have like an Object Pool System to avoid this
             Rigidbody flameBlast = GameObject.Instantiate(FireBlastPrefab, enemy.transform.position, Quaternion.identity);
 
@@ -75,10 +75,15 @@ public class EnemyAttackSingleStraightFireBlast : EnemyAttackSOBase
             }
 
             //flameBlast.velocity = direction * _flameBlastSpeed;
+
+            */
+
+            enemy.StartAttackWindUp();
+
         }
         else
         {
-            RotateEnemy(false);
+            //RotateEnemy(false);
         }
 
         // Better implementation for the future this is just for testing

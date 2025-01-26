@@ -226,6 +226,23 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 861679888675832359, guid: 63096c840e257d4419d191f5afc0941d,
+        type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: -1422832935, guid: 4f4f88961b2377043ba6555398330ffb,
+        type: 3}
+    - target: {fileID: 973118259426558052, guid: 63096c840e257d4419d191f5afc0941d,
+        type: 3}
+      propertyPath: spriteList.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 973118259426558052, guid: 63096c840e257d4419d191f5afc0941d,
+        type: 3}
+      propertyPath: spriteList.Array.data[0]
+      value: 
+      objectReference: {fileID: -1422832935, guid: 4f4f88961b2377043ba6555398330ffb,
+        type: 3}
     - target: {fileID: 1682325659339220174, guid: 63096c840e257d4419d191f5afc0941d,
         type: 3}
       propertyPath: m_Name
@@ -383,6 +400,11 @@ PrefabInstance:
       propertyPath: m_AutoTraverseOffMeshLink
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8795285031760399873, guid: 63096c840e257d4419d191f5afc0941d,
+        type: 3}
+      propertyPath: Events.OnComplete.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 7788425287318101814, guid: 63096c840e257d4419d191f5afc0941d, type: 3}
     m_RemovedGameObjects: []
@@ -415,12 +437,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6da43522623d4704e979466dc7650b65, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!212 &5919164866188410452 stripped
-SpriteRenderer:
-  m_CorrespondingSourceObject: {fileID: 2688777133989049086, guid: 63096c840e257d4419d191f5afc0941d,
-    type: 3}
-  m_PrefabInstance: {fileID: 8607906775540026538}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &6930406357884315748 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1682325659339220174, guid: 63096c840e257d4419d191f5afc0941d,
@@ -439,8 +455,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8bd23dc7f6935c248adfbffde18299e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  spriteRenderer: {fileID: 0}
   hurtFeedback: {fileID: 2778762474848199338}
-  spriteRenderer: {fileID: 5919164866188410452}
+  windUpFeedback: {fileID: 0}
+  attackFeedback: {fileID: 0}
   <MaxHealth>k__BackingField: 80
   speed: 0
   <RotationSpeed>k__BackingField: 5

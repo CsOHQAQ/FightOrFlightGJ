@@ -8,6 +8,24 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 861679888675832359, guid: 63096c840e257d4419d191f5afc0941d,
+        type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 56be63de55728ba4d9cefec2b8cf174a,
+        type: 3}
+    - target: {fileID: 973118259426558052, guid: 63096c840e257d4419d191f5afc0941d,
+        type: 3}
+      propertyPath: spriteList.Array.data[0]
+      value: 
+      objectReference: {fileID: 21300000, guid: 56be63de55728ba4d9cefec2b8cf174a,
+        type: 3}
+    - target: {fileID: 973118259426558052, guid: 63096c840e257d4419d191f5afc0941d,
+        type: 3}
+      propertyPath: spriteList.Array.data[1]
+      value: 
+      objectReference: {fileID: 21300000, guid: 288d9f502446dbc4392a724e3b383612,
+        type: 3}
     - target: {fileID: 1682325659339220174, guid: 63096c840e257d4419d191f5afc0941d,
         type: 3}
       propertyPath: m_Name
@@ -19,6 +37,16 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 21300000, guid: 56be63de55728ba4d9cefec2b8cf174a,
         type: 3}
+    - target: {fileID: 3081846848056303681, guid: 63096c840e257d4419d191f5afc0941d,
+        type: 3}
+      propertyPath: managedReferences[8400953318299140136].RemapCurveOne
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 3081846848056303681, guid: 63096c840e257d4419d191f5afc0941d,
+        type: 3}
+      propertyPath: managedReferences[8400953318299140137].RemapCurveOne
+      value: 1.1
+      objectReference: {fileID: 0}
     - target: {fileID: 3606608609652920836, guid: 63096c840e257d4419d191f5afc0941d,
         type: 3}
       propertyPath: m_Size.x
@@ -49,17 +77,17 @@ PrefabInstance:
     - target: {fileID: 7176235886458917555, guid: 63096c840e257d4419d191f5afc0941d,
         type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.7
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 7176235886458917555, guid: 63096c840e257d4419d191f5afc0941d,
         type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.7
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 7176235886458917555, guid: 63096c840e257d4419d191f5afc0941d,
         type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.7
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 7176235886458917555, guid: 63096c840e257d4419d191f5afc0941d,
         type: 3}
@@ -135,6 +163,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Radius
       value: 0.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 8795285031760399873, guid: 63096c840e257d4419d191f5afc0941d,
+        type: 3}
+      propertyPath: managedReferences[8400953318299140122].RemapCurveOne
+      value: -5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

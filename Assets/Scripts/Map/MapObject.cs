@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class MapObject : MonoBehaviour
 {
@@ -20,7 +21,7 @@ public class MapObject : MonoBehaviour
     private int currentSpriteIndex = 0;
     private float timer = 0f;
     private Camera mainCamera;
-
+    public bool DoesAutoPlay = true;
     void Start()
     {
         
@@ -49,7 +50,7 @@ public class MapObject : MonoBehaviour
     void Update()
     {
         // Handle sprite switching
-        if (spriteList.Count > 1) // Only switch sprites if there's more than one
+        if (DoesAutoPlay && spriteList.Count > 1 ) // Only switch sprites if there's more than one
         {
             timer += Time.deltaTime;
 
@@ -63,17 +64,38 @@ public class MapObject : MonoBehaviour
         }
 
         // Handle rotation to face the player
-        if (rotateToFacePlayer && mainCamera != null)
+    if (rotateToFacePlayer && mainCamera != null)
+    {
+        // 1. Compute the direction to the camera (optionally zero out Y if you only want a horizontal direction)
+        Vector3 directionToFace = mainCamera.transform.position - transform.position;
+        directionToFace.y = 0f; // Only turn on Y-axis
+        
+        // 2. Figure out what the Y angle should be
+        float targetY = Quaternion.LookRotation(directionToFace).eulerAngles.y;
+        
+        // 3. Get your current rotation's Euler angles
+        Vector3 currentEuler = transform.eulerAngles;
+        
+        // 4. Create a "target" set of Euler angles that only changes the Y component
+        Vector3 targetEuler = new Vector3(currentEuler.x, targetY, currentEuler.z);
+        
+        // 5. Convert those Euler angles back to a Quaternion
+        Quaternion targetRotation = Quaternion.Euler(targetEuler);
+        
+        // 6. Slerp from the current rotation to this new Y-only rotation
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 5f);
+    }
+
+    }
+
+    public void UpdateSpriteAutoPlay(bool doesAutoPlay, bool snapToSprite = false, int snapToIndex = 0)
+    {
+        DoesAutoPlay = doesAutoPlay;
+        if (snapToSprite)
         {
-            // Get the position of the camera and calculate the direction to face it
-            Vector3 directionToFace = mainCamera.transform.position - transform.position;
-
-            // Keep only the Y-axis rotation
-            directionToFace.y = 0;
-
-            // Rotate towards the camera (only on the Y-axis)
-            Quaternion targetRotation = Quaternion.LookRotation(directionToFace);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 5f); // Smooth rotation
+            // Clamping snapToIndex to be within the valid range of spriteList indices
+            int clampedIndex = Math.Clamp(snapToIndex, 0, spriteList.Count - 1);
+            spriteRenderer.sprite = spriteList[clampedIndex];
         }
     }
 }
