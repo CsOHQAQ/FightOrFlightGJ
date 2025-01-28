@@ -62,6 +62,11 @@ PrefabInstance:
       propertyPath: m_Center.y
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 4589879833095782853, guid: 63096c840e257d4419d191f5afc0941d,
+        type: 3}
+      propertyPath: m_Radius
+      value: 0.6
+      objectReference: {fileID: 0}
     - target: {fileID: 5264413024997153595, guid: 63096c840e257d4419d191f5afc0941d,
         type: 3}
       propertyPath: spriteList.Array.data[0]

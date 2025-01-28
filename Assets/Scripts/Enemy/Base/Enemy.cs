@@ -15,6 +15,8 @@ public class Enemy : MonoBehaviour, IEnemyMoveable, ITriggerCheckable,ICharacter
     [SerializeField] private MMF_Player windUpFeedback;
     [SerializeField] private MMF_Player attackFeedback;
     protected MapObject mapObject;
+
+    protected PlayerCharacter playerCharacter;
     
     // For Navigation Implementation
     NavMeshAgent agent;
@@ -76,6 +78,7 @@ public class Enemy : MonoBehaviour, IEnemyMoveable, ITriggerCheckable,ICharacter
             spriteRenderer = gameObject.GetComponentInChildren<SpriteRenderer>();
         }
         mapObject = gameObject.GetComponentInChildren<MapObject>();
+        playerCharacter = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerCharacter>();
     }
 
     protected void Start()
@@ -217,6 +220,18 @@ public class Enemy : MonoBehaviour, IEnemyMoveable, ITriggerCheckable,ICharacter
     public virtual void Attack()
     {
         attackFeedback.PlayFeedbacks();
+        EventContext attackContext = new EventContext
+        {
+            // The AI character is the "Source" of the attack
+            Source = this, 
+            Target = playerCharacter,
+            AttackInfo = new AttackData
+            {
+                BaseDamage = 10f,         // or set from some stat
+            }
+            
+            // HitData is left empty, since the collision hasn't happened yet
+        };
     }
 
     public virtual void UpdateSpriteAutoPlay(bool doesAutoPlay, bool snapToSprite = false, int snapToIndex = 0)
