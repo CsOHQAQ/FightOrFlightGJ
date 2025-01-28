@@ -186,10 +186,11 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment {
                 BaseDamage = this.Damage,
                 AmmoType = this.AmmoType,
             }
+            
         };
         
         EventChainManager.Instance.ExecuteAttackChain(ref context);
-
+        //Debug.LogError(this.Damage+" "+context.AttackInfo.BaseDamage);
         if (context.AttackInfo.ProjectilePrefab == null) {
             PerformHitscanShot(context);
         }
@@ -256,7 +257,7 @@ private void PerformHitscanShot(EventContext context)
 
                 Debug.Log("Hitscan shot fired with spread-based accuracy.");
                 return;
-            }
+            }else{Debug.LogError("WEAPON ATTRIBUTE SET IS NULL");}
         }
 
         // fallback: if no attributes found, do normal hitscan with no spread

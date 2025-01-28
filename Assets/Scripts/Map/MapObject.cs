@@ -94,8 +94,12 @@ public class MapObject : MonoBehaviour
         if (snapToSprite)
         {
             // Clamping snapToIndex to be within the valid range of spriteList indices
-            int clampedIndex = Math.Clamp(snapToIndex, 0, spriteList.Count - 1);
-            spriteRenderer.sprite = spriteList[clampedIndex];
+            
+            if(spriteList.Count>0)
+            {
+                int clampedIndex = Math.Clamp(snapToIndex, 0, spriteList.Count - 1);
+                spriteRenderer.sprite = spriteList[clampedIndex];
+            }
         }
     }
 }

@@ -11,6 +11,7 @@ public class EyeMonster : Enemy
 {
     [Header("References")]
     [SerializeField] private PupilHandler pupilHandler; 
+    private Collider pupilCollider;
 
     [Header("Eye Sprites")]
     [Tooltip("List of sprites from fully closed (index 0) to fully open (last index).")]
@@ -30,11 +31,15 @@ public class EyeMonster : Enemy
     [SerializeField] private Rigidbody FireBlastPrefab;
     [SerializeField] private float _timeBetweenShots = 2.0f;
     [SerializeField] private float _flameBlastSpeed = 10f;
-
+    private float attackCoolDownTimer=0f;
+    public float AttackCoolDownTimer { get{return attackCoolDownTimer;}}
     // Eye state events
     public event Action OnEyeFullyOpened;
     public event Action OnEyeFullyClosed;
-
+    private bool isEyeOpen = false;
+    public bool IsEyeOpen{get{return isEyeOpen;}}
+    private bool isEyeOpening = false;
+    private bool isEyeClosing =false;
     // The current index in the sprite list
     private int currentSpriteIndex = 0;
 
@@ -60,17 +65,64 @@ public class EyeMonster : Enemy
         {
             Debug.LogWarning("EyeMonster: No sprites assigned!");
         }
-
+        pupilCollider = GetComponent<Collider>();
         UpdatePupilVisibility();
+        OnEyeFullyOpened+=OnFullyOpened;
+        OnEyeFullyClosed+=OnFullyClosed;
     }
 
+    private void OnDestroy()
+    {
+        OnEyeFullyOpened-=OnFullyOpened;
+        OnEyeFullyClosed-=OnFullyClosed;
+    }
+    protected void Update()
+    {
+        base.Update();
+        attackCoolDownTimer = Mathf.Max(0f,attackCoolDownTimer-Time.deltaTime);
+        
+    }
+    
+    public virtual void Attack()
+    {
+        attackFeedback.PlayFeedbacks();
+        EventContext attackContext = new EventContext
+        {
+            // The AI character is the "Source" of the attack
+            Source = this, 
+            Target = playerCharacter,
+            AttackInfo = new AttackData
+            {
+                BaseDamage = 10f,         // or set from some stat
+                ProjectilePrefab = FireBlastPrefab.gameObject,
+            }
+            
+            // HitData is left empty, since the collision hasn't happened yet
+        };
+        Rigidbody flameBlast = GameObject.Instantiate(FireBlastPrefab, pupilHandler.transform.position, Quaternion.identity);
+        Vector3 direction = (playerCharacter.transform.position - pupilHandler.transform.position).normalized;
+        Projectile projectile = flameBlast.GetComponent<Projectile>();
+            if (projectile != null)
+            {
+                // Pass the same context + direction so the projectile 
+                // can reference AttackInfo when it hits the target
+                projectile.Setup(attackContext, direction);
+            }
+        CloseEye();
+        //StateMachine.ChangeState(ChaseState);
+    }
     /// <summary>
     /// Called externally or from AI to open the eye from its current state up to fully open.
     /// </summary>
     public void OpenEye()
     {
-        StopAllCoroutines();
+        if(isEyeOpening) {return;}
+        StopCoroutine(CloseEyeCoroutine());
+        //StopAllCoroutines();
+        Debug.LogWarning("Trying to Open Eye");
+        isEyeOpening = true;
         StartCoroutine(OpenEyeCoroutine());
+        
     }
 
     /// <summary>
@@ -78,7 +130,12 @@ public class EyeMonster : Enemy
     /// </summary>
     public void CloseEye()
     {
-        StopAllCoroutines();
+        if(isEyeClosing) {return;}
+        isEyeOpen = false;
+        //StopAllCoroutines();
+        StopCoroutine(OpenEyeCoroutine());
+        Debug.LogWarning("Trying to Close Eye");
+        isEyeClosing= true;
         StartCoroutine(CloseEyeCoroutine());
     }
 
@@ -114,6 +171,7 @@ public class EyeMonster : Enemy
             spriteRenderer.sprite = eyeSprites[currentSpriteIndex];
             UpdatePupilVisibility();
             OnEyeFullyOpened?.Invoke();
+
             yield break;
         }
 
@@ -142,6 +200,7 @@ public class EyeMonster : Enemy
         spriteRenderer.sprite = eyeSprites[currentSpriteIndex];
         UpdatePupilVisibility();
         OnEyeFullyOpened?.Invoke();
+
     }
 
     /// <summary>
@@ -189,6 +248,9 @@ public class EyeMonster : Enemy
         spriteRenderer.sprite = eyeSprites[currentSpriteIndex];
         UpdatePupilVisibility();
         OnEyeFullyClosed?.Invoke();
+
+        attackCoolDownTimer = _timeBetweenShots;
+        
     }
 
     /// <summary>
@@ -202,5 +264,22 @@ public class EyeMonster : Enemy
 
         bool pupilVisible = (currentSpriteIndex >= pupilVisibleSpriteIndex);
         pupilHandler.hidePupil = !pupilVisible;
+        
+        // New collider logic
+        if (pupilCollider != null)
+        {
+            pupilCollider.enabled = pupilVisible;
+        }
+    }
+
+    private void OnFullyOpened()
+    {
+        isEyeOpen = true;
+        isEyeOpening = false;
+    }
+
+    private void OnFullyClosed()
+    {
+        isEyeClosing = false;
     }
 }

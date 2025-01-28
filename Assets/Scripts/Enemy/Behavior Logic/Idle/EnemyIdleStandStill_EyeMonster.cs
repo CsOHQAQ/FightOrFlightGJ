@@ -13,6 +13,7 @@ public class EnemyIdleStandStill_EyeMonster : EnemyIdleSOBase
 
     public override void DoEnterLogic()
     {
+        
         base.DoEnterLogic();
         if (agent!=null)
         {
@@ -34,17 +35,19 @@ public class EnemyIdleStandStill_EyeMonster : EnemyIdleSOBase
         {
             agent.isStopped = false;
         }
-        
+        eyeMonster.OnEyeFullyOpened-=OnEyeFullyOpened;
     }
 
     public override void DoFrameUpdateLogic()
     {
-        base.DoFrameUpdateLogic();
+        //base.DoFrameUpdateLogic();
         //Opens it's eye and then enter chase state. 
         if (enemy.IsAggroed)
         {
-            eyeMonster.OnEyeFullyOpened-=OnEyeFullyOpened;
+            
             eyeMonster.OpenEye();
+            
+            //Debug.LogWarning("?????????????");
         }
     }
 
@@ -65,6 +68,7 @@ public class EnemyIdleStandStill_EyeMonster : EnemyIdleSOBase
     
     private void OnEyeFullyOpened()
     {
+        //Debug.LogWarning("?????????????");
         enemy.StateMachine.ChangeState(enemy.ChaseState);
     }
 }

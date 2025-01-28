@@ -7,7 +7,7 @@ public class MyTagSelectorComponent : MonoBehaviour
     public GameplayTagDatabase TagDatabase;
     public GameplayTag SelectedTag;
 }
-
+#if UNITY_EDITOR
 [CustomEditor(typeof(MyTagSelectorComponent))]
 public class MyTagSelectorComponentEditor : Editor
 {
@@ -47,3 +47,4 @@ public class MyTagSelectorComponentEditor : Editor
         serializedObject.ApplyModifiedProperties();
     }
 }
+#endif

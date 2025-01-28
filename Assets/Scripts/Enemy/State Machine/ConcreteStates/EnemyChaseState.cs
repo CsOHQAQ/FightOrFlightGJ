@@ -27,7 +27,7 @@ public class EnemyChaseState : EnemyState
     {
         base.ExitState();
 
-        enemy.EnemyChaseBaseInstance.DoEnterLogic();
+        enemy.EnemyChaseBaseInstance.DoExitLogic();
     }
 
     public override void FrameUpdate()

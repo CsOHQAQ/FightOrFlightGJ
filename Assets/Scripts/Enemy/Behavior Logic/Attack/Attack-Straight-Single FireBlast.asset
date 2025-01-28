@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   FireBlastPrefab: {fileID: 5779004393706579253, guid: b2e1f7175f1a794429d9b6362a789920,
     type: 3}
-  _timeBetweenShots: 2
+  _timeBetweenShots: 1.5
   _timeTillExit: 3
   _distanceToCountExit: 3
   _flameBlastSpeed: 10

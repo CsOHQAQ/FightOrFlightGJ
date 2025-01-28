@@ -20,36 +20,43 @@ public class EnemyChase_EyeMonster : EnemyChaseSOBase
 
     public override void DoEnterLogic()
     {
+        
         base.DoEnterLogic();
         eyeMonster = enemy as EyeMonster;
         if (eyeMonster == null)
         {
             Debug.LogError("Wrong Script for Monster Type");
         }
-        
+        eyeMonster.OnEyeFullyOpened+=OnEyeFullyOpened;
     }
 
     public override void DoExitLogic()
     {
         base.DoExitLogic();
-
-
+        
+        eyeMonster.OnEyeFullyOpened-=OnEyeFullyOpened;
         _forgetCountDown = 0.0f;
     }
-
+    public override void DoPhysicsLogic()
+    {
+        if (enemy.IsWithinStrikingDistance && (eyeMonster.AttackCoolDownTimer==0f))
+        {
+            
+            eyeMonster.OpenEye();
+        }
+        eyeMonster.TrackGameObject(playerTransform);
+    }
     public override void DoFrameUpdateLogic()
     {
-        base.DoFrameUpdateLogic();
-        eyeMonster.TrackGameObject(playerTransform);
+        
+
 
         //FacePlayer();
     }
-
-    public override void DoPhysicsLogic()
+    private void OnEyeFullyOpened()
     {
-        base.DoPhysicsLogic();
+        enemy.StateMachine.ChangeState(enemy.AttackState);
     }
-
     public override void Initialize(GameObject gameObject, Enemy enemy)
     {
         base.Initialize(gameObject, enemy);

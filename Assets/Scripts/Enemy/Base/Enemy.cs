@@ -11,9 +11,9 @@ public class Enemy : MonoBehaviour, IEnemyMoveable, ITriggerCheckable,ICharacter
     [SerializeField] protected SpriteRenderer spriteRenderer;
 
     [Header("Feedbacks")]
-    [SerializeField] private MMF_Player hurtFeedback;
-    [SerializeField] private MMF_Player windUpFeedback;
-    [SerializeField] private MMF_Player attackFeedback;
+    [SerializeField] protected MMF_Player hurtFeedback;
+    [SerializeField] protected MMF_Player windUpFeedback;
+    [SerializeField] protected MMF_Player attackFeedback;
     protected MapObject mapObject;
 
     protected PlayerCharacter playerCharacter;
@@ -216,6 +216,7 @@ public class Enemy : MonoBehaviour, IEnemyMoveable, ITriggerCheckable,ICharacter
         // If we have a feedback assigned, play it
         UpdateSpriteAutoPlay(false,true);
         windUpFeedback.PlayFeedbacks();
+        
     }
     public virtual void Attack()
     {
@@ -232,6 +233,12 @@ public class Enemy : MonoBehaviour, IEnemyMoveable, ITriggerCheckable,ICharacter
             
             // HitData is left empty, since the collision hasn't happened yet
         };
+        if (IsWithinStrikingDistance)
+        {
+            playerCharacter.TakeDamage(10f);
+        }
+        
+        
     }
 
     public virtual void UpdateSpriteAutoPlay(bool doesAutoPlay, bool snapToSprite = false, int snapToIndex = 0)

@@ -422,6 +422,14 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
         Debug.Log("Player Health is now: " + Health);
     }
 
+    public void TakeDamage(float damage)
+    {
+        Health -= damage;
+        if (Health < 0f) Health = 0f;
+
+        Debug.Log("Player Health is now: " + Health);
+    }
+
     public bool AddItem(IItem item)
     {
         // For now, always return true.
