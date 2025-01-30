@@ -18,6 +18,10 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
     [SerializeField] ArtifactSO[] artifactsOnStart;
     AbilitySystemComponent abilitySystemComponent;
     WeaponComponent weaponComponent;
+    /// <summary>
+    /// List of all Enemies currently in the player's trigger overlap.
+    /// </summary>
+    private List<Enemy> overlappingEnemies = new List<Enemy>();
     public Faction Faction{ get{return Faction.PLAYER;} }
     private List<ArtifactItem> artifactItems;
     private bool isMoving = false;
@@ -208,7 +212,8 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
 
     public void OnLeftClickPerformed(InputAction.CallbackContext context)
     {
-        if (currentState != PlayerState.MovementState || isMoving)
+        //if (currentState != PlayerState.MovementState || isMoving)
+        if (currentState != PlayerState.MovementState )
             return;
         if(currentActivatable == null)
             return;
@@ -289,6 +294,7 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
     private IEnumerator Move(float direction)
     {
         isMoving = true;
+
         Vector3 forward = Vector3.forward;
         Vector3 backward = Vector3.back;
         Vector3 left = Vector3.left;
@@ -304,13 +310,48 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
 
         while (elapsedTime < moveDuration)
         {
-            transform.position = Vector3.Lerp(startPosition, targetPosition, elapsedTime / moveDuration);
-            elapsedTime += Time.deltaTime;
+            // Lerp from start to target
+            float t = elapsedTime / moveDuration;
+            transform.position = Vector3.Lerp(startPosition, targetPosition, t);
+
+            // Get current speed factor based on how many enemies
+            float factor = GetSpeedFactorFromEnemies();
+
+            // Advance elapsedTime
+            // The more enemies, the smaller 'factor', so the slower the time progression
+            elapsedTime += Time.deltaTime * factor;
+
             yield return null;
         }
 
+        // Ensure we end exactly at target position
         transform.position = targetPosition;
         isMoving = false;
+    }
+    /// <summary>
+    /// Returns a fractional speed (0..1) based on how many enemies overlap
+    /// </summary>
+    private float GetSpeedFactorFromEnemies()
+    {
+        int count = OverlappingEnemyCount();
+
+        if (count == 0)
+        {
+            return 1f;     // Full speed
+        }
+        else if (count == 1)
+        {
+            return 0.66f;  // 66% speed
+        }
+        else if (count == 2)
+        {
+            return 0.30f;  // 30% speed
+        }
+        else
+        {
+            // 3 or more
+            return 0.10f;  // 10% speed
+        }
     }
 
     public Vector3 GetClosestDirection(Vector3 currentForward, params Vector3[] directions)
@@ -522,5 +563,75 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
     public void OnHit(HitData hitData)
     {
         //Debug.Log("Got Hit on " + hitData.HitInfo.HitPoint);
+    }
+
+
+
+    private void OnTriggerEnter(Collider other)
+    {
+        // 1) Check if the other object is on the Enemy layer:
+        if (other.gameObject.layer == LayerMask.NameToLayer("Enemy"))
+        {
+            // 2) Try to get an Enemy script
+            Enemy enemy = other.GetComponent<Enemy>();
+            if (enemy != null)
+            {
+                // 3) Add to our list if not already there
+                if (!overlappingEnemies.Contains(enemy))
+                {
+                    overlappingEnemies.Add(enemy);
+                    // 4) Subscribe to the enemy's OnCharacterDied event
+                    enemy.OnCharacterDied += HandleEnemyDied;
+                }
+            }
+
+            
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.gameObject.layer == LayerMask.NameToLayer("Enemy"))
+        {
+            Enemy enemy = other.GetComponent<Enemy>();
+            if (enemy != null && overlappingEnemies.Contains(enemy))
+            {
+                // Unsubscribe from OnCharacterDied before removing
+                enemy.OnCharacterDied -= HandleEnemyDied;
+                overlappingEnemies.Remove(enemy);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Called when an Enemy in our list fires its OnCharacterDied event
+    /// (which presumably means it's been destroyed or forcibly removed).
+    /// </summary>
+    private void HandleEnemyDied(ICharacter dyingCharacter)
+    {
+        // 1) Convert to Enemy
+        Enemy deadEnemy = dyingCharacter as Enemy;
+        if (deadEnemy == null) return;
+
+        // 2) Unsubscribe to avoid further calls
+        deadEnemy.OnCharacterDied -= HandleEnemyDied;
+
+        // 3) Remove from the list if present
+        if (overlappingEnemies.Contains(deadEnemy))
+        {
+            overlappingEnemies.Remove(deadEnemy);
+        }
+    }
+    
+    // Example usage: checking how many enemies are close
+    public int OverlappingEnemyCount()
+    {
+        return overlappingEnemies.Count;
+    }
+
+    // Optionally, you can call this to get the list or manipulate it
+    public List<Enemy> GetNearbyEnemies()
+    {
+        return overlappingEnemies;
     }
 }

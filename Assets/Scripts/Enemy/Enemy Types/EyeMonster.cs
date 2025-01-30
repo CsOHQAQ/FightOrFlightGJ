@@ -119,7 +119,7 @@ public class EyeMonster : Enemy
         if(isEyeOpening) {return;}
         StopCoroutine(CloseEyeCoroutine());
         //StopAllCoroutines();
-        Debug.LogWarning("Trying to Open Eye");
+        //Debug.LogWarning("Trying to Open Eye");
         isEyeOpening = true;
         StartCoroutine(OpenEyeCoroutine());
         
@@ -134,7 +134,7 @@ public class EyeMonster : Enemy
         isEyeOpen = false;
         //StopAllCoroutines();
         StopCoroutine(OpenEyeCoroutine());
-        Debug.LogWarning("Trying to Close Eye");
+        //Debug.LogWarning("Trying to Close Eye");
         isEyeClosing= true;
         StartCoroutine(CloseEyeCoroutine());
     }
