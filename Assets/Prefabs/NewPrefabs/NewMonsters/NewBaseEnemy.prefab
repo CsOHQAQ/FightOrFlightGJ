@@ -692,7 +692,19 @@ MonoBehaviour:
         m_Calls: []
     OnComplete:
       m_PersistentCalls:
-        m_Calls: []
+        m_Calls:
+        - m_Target: {fileID: 7788425287318101814}
+          m_TargetAssemblyTypeName: Enemy, Assembly-CSharp
+          m_MethodName: OnAttackComplete
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
     OnRestoreInitialValues:
       m_PersistentCalls:
         m_Calls: []
@@ -713,6 +725,7 @@ MonoBehaviour:
   - rid: 8400953318299140136
   - rid: 8400953318299140137
   - rid: 9104204302266925057
+  - rid: 9104204391448051712
   KeepPlayModeChanges: 0
   PerformanceMode: 0
   StopFeedbacksOnDisable: 0
@@ -797,7 +810,7 @@ MonoBehaviour:
         AnimateRotationTarget: {fileID: 5659649554746332905}
         Mode: 1
         RotationSpace: 1
-        AnimateRotationDuration: 0.3
+        AnimateRotationDuration: 0.2
         RemapCurveZero: 0
         RemapCurveOne: 15
         AnimateX: 1
@@ -1056,7 +1069,7 @@ MonoBehaviour:
         SquashAndStretchTarget: {fileID: 5659649554746332905}
         Mode: 0
         Axis: 4
-        AnimateScaleDuration: 0.3
+        AnimateScaleDuration: 0.2
         RemapCurveZero: 1
         RemapCurveOne: 1.5
         Offset: 0
@@ -1183,7 +1196,7 @@ MonoBehaviour:
         Mode: 0
         Space: 1
         RandomizeRemap: 0
-        AnimatePositionDuration: 0.3
+        AnimatePositionDuration: 0.2
         AnimatePositionTween:
           MMTweenDefinitionType: 1
           MMTweenCurve: 4
@@ -1388,6 +1401,88 @@ MonoBehaviour:
           m_PreInfinity: 2
           m_PostInfinity: 2
           m_RotationOrder: 4
+    - rid: 9104204391448051712
+      type: {class: MMF_HoldingPause, ns: MoreMountains.Feedbacks, asm: MoreMountains.Tools}
+      data:
+        Active: 1
+        UniqueID: -1249925023
+        Label: Holding Pause
+        ChannelMode: 0
+        Channel: 0
+        MMChannelDefinition: {fileID: 0}
+        Chance: 100
+        DisplayColor: {r: 0, g: 0, b: 0, a: 1}
+        Timing:
+          TimescaleMode: 0
+          ExcludeFromHoldingPauses: 0
+          ContributeToTotalDuration: 1
+          InitialDelay: 0
+          CooldownDuration: 0
+          InterruptsOnStop: 1
+          NumberOfRepeats: 0
+          RepeatForever: 0
+          DelayBetweenRepeats: 1
+          PlayCount: 0
+          LimitPlayCount: 0
+          MaxPlayCount: 3
+          SetPlayCountToZeroOnReset: 0
+          MMFeedbacksDirectionCondition: 0
+          PlayDirection: 0
+          ConstantIntensity: 0
+          UseIntensityInterval: 0
+          IntensityIntervalMin: 0
+          IntensityIntervalMax: 0
+          Sequence: {fileID: 0}
+          TrackID: 0
+          Quantized: 0
+          TargetBPM: 120
+        AutomatedTargetAcquisition:
+          Mode: 0
+          ChildIndex: 0
+        RandomizeOutput: 0
+        RandomMultiplier: {x: 0.8, y: 1}
+        RandomizeDuration: 0
+        RandomDurationMultiplier: {x: 0.5, y: 2}
+        UseRange: 0
+        RangeDistance: 5
+        UseRangeFalloff: 0
+        RangeFalloff:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 0
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        RemapRangeFalloff: {x: 0, y: 1}
+        AutomaticShakerSetupButton:
+          ButtonText: 
+        Owner: {fileID: 3081846848056303681}
+        DebugActive: 0
+        PauseDuration: 0.5
+        RandomizePauseDuration: 0
+        MinPauseDuration: 1
+        MaxPauseDuration: 3
+        RandomizeOnEachPlay: 1
+        ScriptDriven: 0
+        AutoResume: 0
+        AutoResumeAfter: 0.25
 --- !u!1 &6687065476797734462
 GameObject:
   m_ObjectHideFlags: 0
@@ -1683,7 +1778,7 @@ MonoBehaviour:
         Owner: {fileID: 8795285031760399873}
         DebugActive: 0
         TargetShaker: {fileID: 7149611652659922662}
-        Duration: 0.5
+        Duration: 0.3
         ResetShakerValuesAfterShake: 1
         ResetTargetValuesAfterShake: 1
         ShakeSpeed: 60
@@ -1820,7 +1915,7 @@ MonoBehaviour:
         NewScale: {x: 0, y: 0}
         NewVector: {x: 0, y: 0, z: 0, w: 0}
         InterpolateValue: 1
-        Duration: 0.5
+        Duration: 0.3
         InterpolationCurve:
           MMTweenDefinitionType: 1
           MMTweenCurve: 4
@@ -1962,7 +2057,7 @@ MonoBehaviour:
         AnimateRotationTarget: {fileID: 5659649554746332905}
         Mode: 1
         RotationSpace: 1
-        AnimateRotationDuration: 0.5
+        AnimateRotationDuration: 0.3
         RemapCurveZero: 0
         RemapCurveOne: -10
         AnimateX: 1
@@ -2231,7 +2326,7 @@ MonoBehaviour:
         Mode: 0
         Space: 1
         RandomizeRemap: 0
-        AnimatePositionDuration: 0.5
+        AnimatePositionDuration: 0.3
         AnimatePositionTween:
           MMTweenDefinitionType: 1
           MMTweenCurve: 4

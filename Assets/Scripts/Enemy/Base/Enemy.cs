@@ -22,6 +22,7 @@ public class Enemy : MonoBehaviour, IEnemyMoveable, ITriggerCheckable,ICharacter
     NavMeshAgent agent;
     public NavMeshAgent Agent{get{return agent;}}
     public event Action<ICharacter> OnCharacterDied;
+    
     [field: SerializeField] public float MaxHealth { get; set; }
     public float Health { get; set; }
     [SerializeField]
@@ -249,6 +250,11 @@ public class Enemy : MonoBehaviour, IEnemyMoveable, ITriggerCheckable,ICharacter
     protected virtual void OnWindUpComplete()
     {
         Attack();
+    }
+
+    public virtual void OnAttackComplete()
+    {
+        StateMachine.ChangeState(ChaseState);
     }
     protected void OnEnable()
     {
