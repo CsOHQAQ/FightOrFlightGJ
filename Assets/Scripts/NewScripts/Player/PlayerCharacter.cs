@@ -254,7 +254,7 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
             }
             else
             {
-                if (interactInfo.InteractableObject.layer == LayerMask.NameToLayer("Obstacle") || !interactInfo.Interactable.CanInteract)
+                if (interactInfo.InteractableObject.layer == LayerMask.NameToLayer("Obstacle") || (interactInfo.Interactable!=null && !interactInfo.Interactable.CanInteract))
                 {
                     StartCoroutine(Bump(inputDirection.y));
                 }

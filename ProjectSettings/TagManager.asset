@@ -22,7 +22,7 @@ TagManager:
   - WeaponLayer
   - Projectile
   - Enemy
-  - 
+  - EnemySense
   - 
   - 
   - 
