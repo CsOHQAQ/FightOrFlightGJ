@@ -33,52 +33,44 @@ public class InteractComponent : MonoBehaviour
         Vector3 end = start + direction * MaxLineCastDistance;
 
         // Draw the line in the Scene view for debugging
-        Debug.DrawLine(start, end, Color.red, 100f); // Draws a red line for 0.1 seconds
+        Debug.DrawLine(start, end, Color.red, 100f);
 
-        
-        // Quick Cringe Fix, Should be updated later
-        if (Physics.Raycast(start, direction, out hit, MaxLineCastDistance, enemyLayer))
+        // Create a layer mask that excludes the "Enemy" layer
+        int layerMask = ~(1 << LayerMask.NameToLayer("Enemy"));
+
+        // Perform the raycast with the layer mask
+        if (Physics.Raycast(start, direction, out hit, MaxLineCastDistance, layerMask))
         {
-            // Nothing Happens 
-        }
-        else
-        {
-            // Perform the raycast from this object's position in the specified direction
-            if (Physics.Raycast(start, direction, out hit, MaxLineCastDistance))
+            // Check if the object hit has a component that implements IInteractable
+            IInteractable interactable = hit.collider.GetComponent<IInteractable>();
+            if (interactable != null)
             {
-                // Check if the object hit has a component that implements IInteractable
-                IInteractable interactable = hit.collider.GetComponent<IInteractable>();
-                if (interactable != null)
-                {
-                    interactable.Interact(this.gameObject);
-
-                }
-                return new InteractInfo(hit.collider.gameObject, interactable, hit);
+                interactable.Interact(this.gameObject);
             }
+            return new InteractInfo(hit.collider.gameObject, interactable, hit);
         }
 
-        // Return null if no IInteractable was hit
-        return new InteractInfo(null,null,hit);
+        // Return an InteractInfo with null values if nothing was hit
+        return new InteractInfo(null, null, hit);
     }
 
-        
 }
-
-public struct InteractInfo
-{
-    public GameObject InteractableObject { get; }
-    public IInteractable Interactable { get; }
-    public RaycastHit HitInfo { get; }
-
-    // Constructor to initialize the struct
-    public InteractInfo(GameObject interactableObject, IInteractable interactable, RaycastHit hitInfo)
+    public struct InteractInfo
     {
-        InteractableObject = interactableObject;
-        if (interactable!=null)
-        {Interactable = interactable;}
-        else{
-            Interactable = null;
+        public GameObject InteractableObject { get; }
+        public IInteractable Interactable { get; }
+        public RaycastHit HitInfo { get; }
+
+        // Constructor to initialize the struct
+        public InteractInfo(GameObject interactableObject, IInteractable interactable, RaycastHit hitInfo)
+        {
+            InteractableObject = interactableObject;
+            if (interactable!=null)
+            {Interactable = interactable;}
+            else{
+                Interactable = null;
+            }
+            HitInfo = hitInfo;
         }
-        HitInfo = hitInfo;
     }
-}
+    
