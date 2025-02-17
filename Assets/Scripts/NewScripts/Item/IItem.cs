@@ -42,6 +42,8 @@ public interface IEquipable {
 }
 
 public interface IActivatable {
+
+    bool CanActivate();
     void BeginUse(IPlayerCharacter user, ActivationTrigger trigger);
     void HoldUse(IPlayerCharacter user, ActivationTrigger trigger);
     void EndUse(IPlayerCharacter user, ActivationTrigger trigger);

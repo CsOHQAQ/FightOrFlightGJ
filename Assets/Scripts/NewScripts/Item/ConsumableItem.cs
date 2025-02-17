@@ -21,6 +21,11 @@ public class ConsumableItem : BaseItem, IStackable, IActivatable {
         return other is ConsumableItem c && c.data.ID == this.data.ID;
     }
 
+    public virtual bool CanActivate()
+    {
+        return true;
+    }
+
     // Implementation of IActivatable
     public void BeginUse(IPlayerCharacter user, ActivationTrigger trigger) {
         // The usage of consumables might only need to be triggered instantly upon pressing.

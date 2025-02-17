@@ -18,7 +18,7 @@ public class WeaponComponent : MonoBehaviour
     {
 
     }
-    public void Initialize(RangedWeaponItem rangedWeapon)
+    public void Initialize(PlayerCharacter player, RangedWeaponItem rangedWeapon)
     {
         // Unsubscribe if we were previously subscribed to another weapon
         if (weaponData != null)
@@ -36,6 +36,7 @@ public class WeaponComponent : MonoBehaviour
         }
         
         if (firePlayer == null) { return; }
+        
 
         foreach (MMF_Feedback feedback in firePlayer.FeedbacksList)
         {
@@ -45,6 +46,7 @@ public class WeaponComponent : MonoBehaviour
                 Debug.Log($"AnimateRotationDuration: {rotationFeedback.AnimateRotationDuration}");
             }
         }
+        player.OnCanActivateChanged += HandleCanActivateChanged;
     }
 
     // --- Step 2: Respond to the event ---
@@ -69,5 +71,9 @@ public class WeaponComponent : MonoBehaviour
         {
             weaponData.OnFired -= HandleWeaponFired;
         }
+    }
+
+    protected virtual void HandleCanActivateChanged(bool canActivate) {
+        gunMeshRoot.gameObject.SetActive(canActivate);
     }
 }

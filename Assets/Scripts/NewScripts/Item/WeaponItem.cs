@@ -12,7 +12,11 @@ public abstract class WeaponItem : BaseItem, IEquipable, IActivatable {
     public float Damage { get; protected set; }
 
     protected PlayerCharacter equippedPlayer;
-
+    protected bool canActivate;
+    public bool CanActivate()
+    {
+        return canActivate;
+    }
     public WeaponItem(ItemData data, float damage) : base(data) {
         this.SlotType = EquipmentSlot.Weapon;
         this.Damage = damage;
@@ -23,7 +27,9 @@ public abstract class WeaponItem : BaseItem, IEquipable, IActivatable {
         // Subscribe to the player's activation event if it is a PlayerCharacter.
         if (character is PlayerCharacter player) {
             equippedPlayer = player;
+            canActivate = player.CanActivate;
             player.OnCanActivateChanged += HandleCanActivateChanged;
+            
         }
     }
 
@@ -42,6 +48,7 @@ public abstract class WeaponItem : BaseItem, IEquipable, IActivatable {
     protected virtual void HandleCanActivateChanged(bool canActivate) {
         // You can override this in concrete weapon classes to enable/disable functionality.
         Debug.Log($"{Name} received CanActivate change: {canActivate}");
+        this.canActivate = canActivate;
     }
 
     // IActivatable methods that concrete classes must implement.

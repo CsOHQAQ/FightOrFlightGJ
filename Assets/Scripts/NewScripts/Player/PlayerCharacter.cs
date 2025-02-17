@@ -61,7 +61,7 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
     public event Action<IEquipable> OnPlayerEquipped;
     public event Action<IEquipable> OnPlayerUnEquipped;
 
-    private bool canActivate = false;
+    private bool canActivate = true;
     public bool CanActivate
     {
         get => canActivate;
@@ -124,12 +124,13 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
         
         hand.Initialize(this);
 
-        // Initialize to MovementState
-        ChangeState(PlayerState.MovementState);
+        
     }
 
     private void Start()
     {
+        // Initialize to MovementState
+        ChangeState(PlayerState.MovementState);
         PlayerCharacterAttributeSet playerCharacterAttributeSet = GetComponent<PlayerCharacterAttributeSet>();
         
         
@@ -156,7 +157,7 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
         );
         // Equip the weapon
         EquipItem(testWeapon);
-        weaponComponent?.Initialize(testWeapon);
+        weaponComponent?.Initialize(this,testWeapon);
 
         foreach(ArtifactSO artifact in artifactsOnStart)
         {

@@ -27,8 +27,8 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment {
     public float OverloadWindowRatio{ get {return overloadWindowRatio;} }// Set this via constructor or data
     private bool canOverload=false;
     private float overloadWindowRatio;
-    public bool ShowAmmoInfo { get { return !IsReloading; } }
-    public bool ShowCrosshair { get { return !IsReloading; } }
+    public bool ShowAmmoInfo { get { return !IsReloading && this.CanActivate(); } }
+    public bool ShowCrosshair { get { return !IsReloading && this.CanActivate(); } }
     public event Action OnFired;
 
 
