@@ -61,8 +61,23 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
     public event Action<IEquipable> OnPlayerEquipped;
     public event Action<IEquipable> OnPlayerUnEquipped;
 
-    
+    private bool canActivate = false;
+    public bool CanActivate
+    {
+        get => canActivate;
+        set
+        {
+            if (canActivate != value)
+            {
+                canActivate = value;
+                // Raise an event to notify subscribers that the value has changed.
+                OnCanActivateChanged?.Invoke(canActivate);
+            }
+        }
+    }
 
+    // Define an event using a delegate that takes the new value as a parameter.
+    public event Action<bool> OnCanActivateChanged;
     private PlayerInput playerInputAction;
 
     // ICharacter properties and fields
@@ -159,7 +174,10 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
         if (confirmAction != null && confirmAction.phase == InputActionPhase.Performed)
         {
             //Debug.Log("Key is being held down.");
-            HoldUseItem(currentActivatable, ActivationTrigger.LeftMouse);
+            if(canActivate)
+            {
+                HoldUseItem(currentActivatable, ActivationTrigger.LeftMouse);
+            } 
         }
     }
 
@@ -178,15 +196,18 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
             case PlayerState.MovementState:
                 Debug.Log("Entering Movement State");
                 hand.ChangeState(HandState.Lowered);
+                this.CanActivate = true;
                 break;
 
             case PlayerState.DoorOpeningState:
                 Debug.Log("Entering Door Opening State");
                 hand.ChangeState(HandState.Raised);
+                this.CanActivate = false;
                 break;
 
             case PlayerState.MenuState:
                 Debug.Log("Entering Menu State");
+                this.CanActivate = false;
                 break;
         }
     }
@@ -213,7 +234,9 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
     public void OnLeftClickPerformed(InputAction.CallbackContext context)
     {
         //if (currentState != PlayerState.MovementState || isMoving)
-        if (currentState != PlayerState.MovementState )
+        //if (currentState != PlayerState.MovementState  )
+        //    return;
+        if(!canActivate)
             return;
         if(currentActivatable == null)
             return;
