@@ -311,6 +311,11 @@ PrefabInstance:
       propertyPath: managedReferences[9104204302266925057].Active
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3081846848056303681, guid: 63096c840e257d4419d191f5afc0941d,
+        type: 3}
+      propertyPath: Events.OnComplete.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 3606608609652920836, guid: 63096c840e257d4419d191f5afc0941d,
         type: 3}
       propertyPath: m_Size.x
@@ -339,7 +344,7 @@ PrefabInstance:
     - target: {fileID: 4589879833095782853, guid: 63096c840e257d4419d191f5afc0941d,
         type: 3}
       propertyPath: m_Radius
-      value: 10
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 5264413024997153595, guid: 63096c840e257d4419d191f5afc0941d,
         type: 3}
