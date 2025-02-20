@@ -16,6 +16,9 @@ public class Enemy : MonoBehaviour, IEnemyMoveable, ITriggerCheckable,ICharacter
     [SerializeField] protected MMF_Player attackFeedback;
     protected MapObject mapObject;
 
+    [SerializeField] private float scoreOnKill=100f;
+    public float ScoreOnKill{get {return scoreOnKill;}}
+
     protected PlayerCharacter playerCharacter;
     
     // For Navigation Implementation
@@ -143,7 +146,7 @@ public class Enemy : MonoBehaviour, IEnemyMoveable, ITriggerCheckable,ICharacter
         Debug.Log( "Enemy "+ this.gameObject.name+" DIED");
         //TODO: Trigger Event Chain for death
         OnCharacterDied?.Invoke(this);
-        
+        GameManager.Instance.AddScore(scoreOnKill);
         //TODO: Play Death Animation and show corpse
         //Destroy(gameObject);
         gameObject.SetActive(false);

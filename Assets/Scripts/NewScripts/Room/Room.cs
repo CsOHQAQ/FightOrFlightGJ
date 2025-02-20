@@ -21,6 +21,7 @@ public class Room : MonoBehaviour
     private bool hasCombatEncounter = true;
     private bool isCombatActive = false;
 
+    private float roomClearingScore=0f;
 
     void Start()
     {
@@ -50,6 +51,7 @@ public class Room : MonoBehaviour
             OnCombatStartedInRoom+=enemy.OnCombatStartedInRoom;
             OnCombatEndedInRoom+=enemy.OnCombatEndedInRoom;
             enemy.OnCharacterDied+=OnEnemyInRoomDied;
+            roomClearingScore+=enemy.ScoreOnKill;
         }
         remainingEnemyNum = enemies.Count;
     }
@@ -81,6 +83,7 @@ public class Room : MonoBehaviour
         {
             Debug.Log("Room is Cleared");
             OnCombatEndedInRoom?.Invoke(this);
+            GameManager.Instance.AddScore(roomClearingScore);
         }
     }
 

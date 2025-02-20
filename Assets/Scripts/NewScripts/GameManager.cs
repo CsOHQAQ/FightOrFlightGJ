@@ -7,6 +7,9 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
     private PlayerCharacter playerCharacter;
     public PlayerCharacter PlayerCharacter{get{return playerCharacter;}}
+    public float CurrentScore = 0;
+    [SerializeField]
+    
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -27,4 +30,8 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void AddScore(float scoreToAdd)
+    {
+        CurrentScore+=scoreToAdd;
+    }
 }
