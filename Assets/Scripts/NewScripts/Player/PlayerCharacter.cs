@@ -11,36 +11,40 @@ public enum PlayerState
     MenuState
 }
 
-public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemComponent,IHitReceiver
+public class PlayerCharacter : MonoBehaviour, IPlayerCharacter, IAbilitySystemComponent, IHitReceiver
 {
     public event Action<ICharacter> OnCharacterDied;
 
     [SerializeField] ArtifactSO[] artifactsOnStart;
-    AbilitySystemComponent abilitySystemComponent;
-    WeaponComponent weaponComponent;
+    private AbilitySystemComponent abilitySystemComponent;
+    private WeaponComponent weaponComponent;
+
     /// <summary>
     /// List of all Enemies currently in the player's trigger overlap.
     /// </summary>
     private List<Enemy> overlappingEnemies = new List<Enemy>();
-    public Faction Faction{ get{return Faction.PLAYER;} }
+    public Faction Faction { get { return Faction.PLAYER; } }
     private List<ArtifactItem> artifactItems;
-    private bool isMoving = false;
-    
+
     private InteractComponent interactComponent;
     private PlayerHandsComponent hand;
-    
-    [SerializeField, Tooltip("Duration of the movement forward or backward in seconds.")]
-    private float moveDuration = 1.0f;
 
-    [SerializeField, Tooltip("Distance the player moves forward or backward.")]
-    private float moveDistance = 1.0f;
+    // -------------------- 新增或调整的字段 开始 --------------------
+    [Header("First-Person Movement Settings (CharacterController)")]
+    [SerializeField] private float moveSpeed = 4.0f;    // 玩家移动速度
+    [SerializeField] private float rotationSpeed = 180f;// 若要用键盘左右旋转，可用此值
 
-    [SerializeField, Tooltip("Duration of the turn in seconds.")]
-    private float turnDuration = 0.5f;
+    // 存储 OnMovementPerformed 获取的输入 (x:左右, y:前后)
+    private Vector2 moveInput;
 
+    // 使用 CharacterController 而非 Rigidbody
+    private CharacterController characterController;
+
+    // -------------------- 新增或调整的字段 结束 --------------------
+
+    [Header("Old Movement/Bump Settings (May keep for reference)")]
     [SerializeField, Tooltip("Distance the player moves for a bump effect.")]
     private float bumpDistance = 0.1f;
-
     [SerializeField, Tooltip("Duration of the bump animation in seconds.")]
     private float bumpDuration = 0.1f;
 
@@ -70,13 +74,10 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
             if (canActivate != value)
             {
                 canActivate = value;
-                // Raise an event to notify subscribers that the value has changed.
                 OnCanActivateChanged?.Invoke(canActivate);
             }
         }
     }
-
-    // Define an event using a delegate that takes the new value as a parameter.
     public event Action<bool> OnCanActivateChanged;
     private PlayerInput playerInputAction;
 
@@ -90,10 +91,12 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
             health = Mathf.Clamp(value, 0f, MaxHealth);
         }
     }
-
     public float MaxHealth => 100f;
 
     private IActivatable currentActivatable;
+
+    // 用于 Bump 协程时，标记是否在进行 Bump 动画
+    private bool isMoving = false;
 
     private void Awake()
     {
@@ -103,10 +106,18 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
         weaponComponent = GetComponentInChildren<WeaponComponent>();
         hand = GetComponentInChildren<PlayerHandsComponent>();
         interactComponent = GetComponentInChildren<InteractComponent>();
+
+        // -------------------- 获取 CharacterController 用于角色自由移动 --------------------
+        characterController = GetComponent<CharacterController>();
+        if (characterController == null)
+        {
+            Debug.LogError("No CharacterController found on Player! Please add one in the Inspector.");
+        }
+
         if (bodyTransform == null)
         {
-            Debug.LogError("No Transform Set for Rotation");
-            bodyTransform = gameObject.transform;
+            Debug.LogError("No Transform Set for bodyTransform; defaulting to this.transform.");
+            bodyTransform = this.transform;
         }
 
         if (interactComponent == null)
@@ -117,24 +128,24 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
         {
             Debug.LogError("Could not detect Hand Movement Component on Character");
         }
-        if(weaponComponent==null)
+        if (weaponComponent == null)
         {
             Debug.LogError("Could not detect Weapon Component on Character");
         }
-        
-        hand.Initialize(this);
 
-        
+        hand.Initialize(this);
     }
 
     private void Start()
     {
         // Initialize to MovementState
         ChangeState(PlayerState.MovementState);
+
+        // 测试武器/装备示例
         PlayerCharacterAttributeSet playerCharacterAttributeSet = GetComponent<PlayerCharacterAttributeSet>();
-        
-        
-        ItemData testData = new ItemData {
+
+        ItemData testData = new ItemData
+        {
             ID = "test_gun",
             Name = "Test Gun",
             Description = "A test ranged weapon",
@@ -144,41 +155,57 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
             MaxStackCount = 1
         };
 
-        // Create a ranged weapon with basic parameters
         RangedWeaponItem testWeapon = new RangedWeaponItem(
             data: testData,
-            //slotType: EquipmentSlot.Hands,
             damage: playerCharacterAttributeSet.BaseWeaponDamage.CurrentValue,
             ammoType: "9mm",
             maxMagazineAmmo: (int)playerCharacterAttributeSet.MaxAmmo.CurrentValue,
             reloadTime: 1.5f,
-            fireCooldown: 1f/playerCharacterAttributeSet.AttackSpeed.CurrentValue,
-            BaseSpreadAngle : playerCharacterAttributeSet.BaseSpreadAngle.CurrentValue
+            fireCooldown: 1f / playerCharacterAttributeSet.AttackSpeed.CurrentValue,
+            BaseSpreadAngle: playerCharacterAttributeSet.BaseSpreadAngle.CurrentValue
         );
-        // Equip the weapon
         EquipItem(testWeapon);
-        weaponComponent?.Initialize(this,testWeapon);
+        weaponComponent?.Initialize(this, testWeapon);
 
-        foreach(ArtifactSO artifact in artifactsOnStart)
+        foreach (ArtifactSO artifact in artifactsOnStart)
         {
             EquipItem(new ArtifactItem(artifact));
-            
         }
-
-
-        
     }
 
     private void Update()
     {
-        var confirmAction = playerInputAction.actions["Confirm"]; 
+        var confirmAction = playerInputAction.actions["Confirm"];
         if (confirmAction != null && confirmAction.phase == InputActionPhase.Performed)
         {
-            //Debug.Log("Key is being held down.");
-            if(canActivate)
+            if (canActivate)
             {
                 HoldUseItem(currentActivatable, ActivationTrigger.LeftMouse);
-            } 
+            }
+        }
+    }
+
+    private void FixedUpdate()
+    {
+        // 如果你想把移动放在 Update 里，也可以，但最好固定在一个地方，以免与物理冲突。
+        // CharacterController 不完全是物理物体，但为了保持一致，这里放在 FixedUpdate 也行。
+        if (currentState == PlayerState.MovementState && !isMoving && characterController)
+        {
+            // 1) 计算受敌人数量影响的减速因子
+            float factor = GetSpeedFactorFromEnemies();
+
+            // 2) 根据 input + bodyTransform.forward/right 计算移动向量 (x,z)
+            Vector3 forward = bodyTransform.forward * moveInput.y;
+            Vector3 right   = bodyTransform.right   * moveInput.x;
+            Vector3 moveDirection = (forward + right).normalized * (moveSpeed * factor);
+
+            // 如果要使用键盘左右旋转替代平移，可以注释掉 right 并在 Update 里做:
+            // float turn = moveInput.x * rotationSpeed * Time.deltaTime;
+            // bodyTransform.Rotate(0, turn, 0);
+
+            // 3) 用 CharacterController.Move() 来移动，不会穿墙
+            // 注意 CC.Move() expects "distance per frame", 所以乘以 Time.fixedDeltaTime
+            characterController.Move(moveDirection * Time.fixedDeltaTime);
         }
     }
 
@@ -221,11 +248,9 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
             case PlayerState.MovementState:
                 Debug.Log("Exiting Movement State");
                 break;
-
             case PlayerState.DoorOpeningState:
                 Debug.Log("Exiting Door Opening State");
                 break;
-
             case PlayerState.MenuState:
                 Debug.Log("Exiting Menu State");
                 break;
@@ -234,22 +259,12 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
 
     public void OnLeftClickPerformed(InputAction.CallbackContext context)
     {
-        //if (currentState != PlayerState.MovementState || isMoving)
-        //if (currentState != PlayerState.MovementState  )
-        //    return;
-        if(!canActivate)
-            return;
-        if(currentActivatable == null)
-            return;
+        if (!canActivate) return;
+        if (currentActivatable == null) return;
+
         if (context.phase == InputActionPhase.Started)
         {
-            
             BeginUseItem(currentActivatable, ActivationTrigger.LeftMouse);
-
-        }
-        else if (context.phase == InputActionPhase.Performed)
-        {
-            //HoldUseItem(currentActivatable, ActivationTrigger.LeftMouse);
         }
         else if (context.phase == InputActionPhase.Canceled)
         {
@@ -257,57 +272,18 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
         }
     }
 
-
     public void OnMovementPerformed(InputAction.CallbackContext context)
     {
-        if (currentState != PlayerState.MovementState || isMoving)
+        if (currentState != PlayerState.MovementState)
             return;
 
-        Vector2 inputDirection = context.ReadValue<Vector2>();
-        HandleMovement(inputDirection);
-    }
-
-    private void HandleMovement(Vector2 inputDirection)
-    {
-        if (inputDirection.y != 0)
-        {
-            InteractInfo interactInfo = interactComponent.PerformInteractionCheck(GetClosestDirection(bodyTransform.forward) * inputDirection.y);
-            if (interactInfo.InteractableObject == null)
-            {
-                StartCoroutine(Move(inputDirection.y));
-            }
-            else
-            {
-                if (interactInfo.InteractableObject.layer == LayerMask.NameToLayer("Obstacle") || (interactInfo.Interactable!=null && !interactInfo.Interactable.CanInteract))
-                {
-                    StartCoroutine(Bump(inputDirection.y));
-                }
-                else if (interactInfo.InteractableObject.layer == LayerMask.NameToLayer("Interactable Obj"))
-                {
-                    if(inputDirection.y >0)
-                    {
-                        interactInfo.Interactable.Interact(this.gameObject);
-
-                    }else{
-                        StartCoroutine(Bump(inputDirection.y));
-                    }
-                }
-            }
-        }
-        else if (inputDirection.x != 0)
-        {
-            // For turning, uncomment and use as needed:
-            // StartCoroutine(Turn(inputDirection.x));
-        }
+        // 记录输入 (W/S -> y, A/D -> x)
+        moveInput = context.ReadValue<Vector2>();
     }
 
     public void OnDoorFullyOpened()
     {
-        //
-        HandleMovement(new Vector2(0, 1f));
         ChangeState(PlayerState.MovementState);
-        
-        
     }
 
     public void OnDoorFullyClosed()
@@ -315,132 +291,12 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
         ChangeState(PlayerState.MovementState);
     }
 
-    private IEnumerator Move(float direction)
-    {
-        isMoving = true;
-
-        Vector3 forward = Vector3.forward;
-        Vector3 backward = Vector3.back;
-        Vector3 left = Vector3.left;
-        Vector3 right = Vector3.right;
-
-        Vector3 currentForward = new Vector3(bodyTransform.forward.x, 0, bodyTransform.forward.z).normalized;
-        Vector3 closestDirection = GetClosestDirection(currentForward, forward, backward, left, right);
-        Vector3 moveDirection = closestDirection * Mathf.Sign(direction);
-
-        float elapsedTime = 0f;
-        Vector3 startPosition = transform.position;
-        Vector3 targetPosition = startPosition + moveDirection * moveDistance;
-
-        while (elapsedTime < moveDuration)
-        {
-            // Lerp from start to target
-            float t = elapsedTime / moveDuration;
-            transform.position = Vector3.Lerp(startPosition, targetPosition, t);
-
-            // Get current speed factor based on how many enemies
-            float factor = GetSpeedFactorFromEnemies();
-
-            // Advance elapsedTime
-            // The more enemies, the smaller 'factor', so the slower the time progression
-            elapsedTime += Time.deltaTime * factor;
-
-            yield return null;
-        }
-
-        // Ensure we end exactly at target position
-        transform.position = targetPosition;
-        isMoving = false;
-    }
     /// <summary>
-    /// Returns a fractional speed (0..1) based on how many enemies overlap
+    /// Bump 协程保留，供未来功能使用
     /// </summary>
-    private float GetSpeedFactorFromEnemies()
-    {
-        int count = OverlappingEnemyCount();
-
-        if (count == 0)
-        {
-            return 1f;     // Full speed
-        }
-        else if (count == 1)
-        {
-            return 0.66f;  // 66% speed
-        }
-        else if (count == 2)
-        {
-            return 0.30f;  // 30% speed
-        }
-        else
-        {
-            // 3 or more
-            return 0.10f;  // 10% speed
-        }
-    }
-
-    public Vector3 GetClosestDirection(Vector3 currentForward, params Vector3[] directions)
-    {
-        float maxDot = float.MinValue;
-        Vector3 closestDirection = Vector3.zero;
-
-        foreach (var direction in directions)
-        {
-            float dot = Vector3.Dot(currentForward, direction);
-            if (dot > maxDot)
-            {
-                maxDot = dot;
-                closestDirection = direction;
-            }
-        }
-
-        return closestDirection;
-    }
-
-    private Vector3 GetClosestDirection(Vector3 currentForward)
-    {
-        Vector3 forward = Vector3.forward;
-        Vector3 backward = Vector3.back;
-        Vector3 left = Vector3.left;
-        Vector3 right = Vector3.right;
-
-        float maxDot = float.MinValue;
-        Vector3 closestDirection = Vector3.zero;
-        Vector3[] directions = { forward, backward, left, right };
-
-        foreach (var direction in directions)
-        {
-            float dot = Vector3.Dot(currentForward, direction);
-            if (dot > maxDot)
-            {
-                maxDot = dot;
-                closestDirection = direction;
-            }
-        }
-
-        return closestDirection;
-    }
-
-    private IEnumerator Turn(float direction)
-    {
-        isMoving = true;
-
-        float elapsedTime = 0f;
-        Quaternion startRotation = transform.rotation;
-        Quaternion targetRotation = Quaternion.Euler(0, transform.eulerAngles.y + (direction * 90), 0);
-
-        while (elapsedTime < turnDuration)
-        {
-            transform.rotation = Quaternion.Lerp(startRotation, targetRotation, elapsedTime / turnDuration);
-            elapsedTime += Time.deltaTime;
-            yield return null;
-        }
-
-        transform.rotation = targetRotation;
-        isMoving = false;
-    }
-
     private IEnumerator Bump(float direction)
     {
+        // 假如你想在Bump期间禁止普通移动:
         isMoving = true;
 
         Vector3 originalPosition = bodyTransform.position;
@@ -450,7 +306,8 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
 
         while (elapsedTime < bumpDuration)
         {
-            transform.position = Vector3.Lerp(originalPosition, bumpPosition, elapsedTime / bumpDuration);
+            float t = elapsedTime / bumpDuration;
+            bodyTransform.position = Vector3.Lerp(originalPosition, bumpPosition, t);
             elapsedTime += Time.deltaTime;
             yield return null;
         }
@@ -458,19 +315,23 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
         elapsedTime = 0f;
         while (elapsedTime < bumpDuration)
         {
-            transform.position = Vector3.Lerp(bumpPosition, originalPosition, elapsedTime / bumpDuration);
+            float t = elapsedTime / bumpDuration;
+            bodyTransform.position = Vector3.Lerp(bumpPosition, originalPosition, t);
             elapsedTime += Time.deltaTime;
             yield return null;
         }
 
-        transform.position = originalPosition;
+        bodyTransform.position = originalPosition;
         isMoving = false;
     }
 
-    public void OnInteractDoor(Door door)
+    private float GetSpeedFactorFromEnemies()
     {
-        currentDoor = door;
-        ChangeState(PlayerState.DoorOpeningState);
+        int count = OverlappingEnemyCount();
+        if (count == 0)      return 1f;    // Full speed
+        else if (count == 1) return 0.66f; // 66% speed
+        else if (count == 2) return 0.30f; // 30% speed
+        else                 return 0.10f; // 3 or more -> 10% speed
     }
 
     // ICharacter Implementation
@@ -483,7 +344,6 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
     {
         Health -= context.HitData.FinalDamage;
         if (Health < 0f) Health = 0f;
-
         Debug.Log("Player Health is now: " + Health);
     }
 
@@ -491,33 +351,29 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
     {
         Health -= damage;
         if (Health < 0f) Health = 0f;
-
         Debug.Log("Player Health is now: " + Health);
     }
 
     public bool AddItem(IItem item)
     {
         // For now, always return true.
-        // In a real game, you would add item to inventory.
         return true;
     }
 
     public bool RemoveItem(IItem item)
     {
         // For now, always return true.
-        // In a real game, you would remove the item from inventory.
         return true;
     }
 
     public bool EquipItem(IEquipable item)
     {
-        // Call Equip on the item. 
-        // Optionally store a reference to the equipped item if you need to track it.
         var activatableItem = item as IActivatable;
         if (activatableItem != null)
         {
             currentActivatable = activatableItem;
         }
+
         ArtifactItem artifactItem = item as ArtifactItem;
         if (artifactItem != null)
         {
@@ -530,10 +386,8 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
 
     public bool UnequipItem(IEquipable item)
     {
-        // Call Unequip on the item.
         item.Unequip(this);
         OnPlayerUnEquipped?.Invoke(item);
-
         var artifactItem = item as ArtifactItem;
         if (artifactItem != null)
         {
@@ -564,13 +418,11 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
 
     public int GetAmmoCount(string ammoType)
     {
-        // For testing, return a large number
-        return 50;
+        return 50; // For testing
     }
 
     public void ConsumeAmmo(string ammoType, int amountToLoad)
     {
-        // For testing, just log ammo consumption.
         Debug.Log($"Consumed {amountToLoad} rounds of {ammoType}.");
     }
 
@@ -581,35 +433,24 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
 
     public void Die()
     {
-        //Implement logic for dying.
+        // Implement logic for dying.
     }
 
     public void OnHit(HitData hitData)
     {
-        //Debug.Log("Got Hit on " + hitData.HitInfo.HitPoint);
+        // Debug.Log("Got Hit on " + hitData.HitInfo.HitPoint);
     }
-
-
 
     private void OnTriggerEnter(Collider other)
     {
-        // 1) Check if the other object is on the Enemy layer:
         if (other.gameObject.layer == LayerMask.NameToLayer("Enemy"))
         {
-            // 2) Try to get an Enemy script
             Enemy enemy = other.GetComponent<Enemy>();
-            if (enemy != null)
+            if (enemy != null && !overlappingEnemies.Contains(enemy))
             {
-                // 3) Add to our list if not already there
-                if (!overlappingEnemies.Contains(enemy))
-                {
-                    overlappingEnemies.Add(enemy);
-                    // 4) Subscribe to the enemy's OnCharacterDied event
-                    enemy.OnCharacterDied += HandleEnemyDied;
-                }
+                overlappingEnemies.Add(enemy);
+                enemy.OnCharacterDied += HandleEnemyDied;
             }
-
-            
         }
     }
 
@@ -620,42 +461,37 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter,IAbilitySystemCom
             Enemy enemy = other.GetComponent<Enemy>();
             if (enemy != null && overlappingEnemies.Contains(enemy))
             {
-                // Unsubscribe from OnCharacterDied before removing
                 enemy.OnCharacterDied -= HandleEnemyDied;
                 overlappingEnemies.Remove(enemy);
             }
         }
     }
 
-    /// <summary>
-    /// Called when an Enemy in our list fires its OnCharacterDied event
-    /// (which presumably means it's been destroyed or forcibly removed).
-    /// </summary>
     private void HandleEnemyDied(ICharacter dyingCharacter)
     {
-        // 1) Convert to Enemy
         Enemy deadEnemy = dyingCharacter as Enemy;
         if (deadEnemy == null) return;
 
-        // 2) Unsubscribe to avoid further calls
         deadEnemy.OnCharacterDied -= HandleEnemyDied;
-
-        // 3) Remove from the list if present
         if (overlappingEnemies.Contains(deadEnemy))
         {
             overlappingEnemies.Remove(deadEnemy);
         }
     }
-    
-    // Example usage: checking how many enemies are close
+
     public int OverlappingEnemyCount()
     {
         return overlappingEnemies.Count;
     }
 
-    // Optionally, you can call this to get the list or manipulate it
     public List<Enemy> GetNearbyEnemies()
     {
         return overlappingEnemies;
+    }
+
+    public void OnInteractDoor(Door door)
+    {
+        currentDoor = door;
+        ChangeState(PlayerState.DoorOpeningState);
     }
 }

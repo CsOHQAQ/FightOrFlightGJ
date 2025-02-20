@@ -74,10 +74,10 @@ GameObject:
   - component: {fileID: 6740710436765521578}
   - component: {fileID: 3576868361960191886}
   - component: {fileID: 8751576015793047942}
-  - component: {fileID: 6402829396178528019}
   - component: {fileID: 1264771267051366832}
   - component: {fileID: 7033916318951973429}
   - component: {fileID: 8289266888572124827}
+  - component: {fileID: 7803116860341066059}
   m_Layer: 3
   m_Name: PlayerCharacter
   m_TagString: Player
@@ -222,33 +222,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   artifactsOnStart: []
-  moveDuration: 0.6
-  moveDistance: 2
-  turnDuration: 0.3
+  moveSpeed: 4
+  rotationSpeed: 180
   bumpDistance: 0.3
   bumpDuration: 0.15
   bodyTransform: {fileID: 5601706960039789189}
---- !u!135 &6402829396178528019
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3200897976135295805}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &1264771267051366832
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -272,9 +250,9 @@ Rigidbody:
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 0
-  m_IsKinematic: 0
+  m_IsKinematic: 1
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 80
   m_CollisionDetection: 0
 --- !u!114 &7033916318951973429
 MonoBehaviour:
@@ -319,6 +297,32 @@ MonoBehaviour:
     baseValue: 0
   BaseSpreadAngle:
     baseValue: 2
+--- !u!143 &7803116860341066059
+CharacterController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3200897976135295805}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Height: 1.7
+  m_Radius: 0.5
+  m_SlopeLimit: 45
+  m_StepOffset: 0.3
+  m_SkinWidth: 0.08
+  m_MinMoveDistance: 0.001
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &3456895501349425507
 GameObject:
   m_ObjectHideFlags: 0

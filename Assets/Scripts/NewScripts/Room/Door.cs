@@ -241,5 +241,7 @@ public class Door : MonoBehaviour, IInteractable,IRoomObject
         canInteract=true;
         
     }
+
+
     
 }
