@@ -26,17 +26,27 @@ public class AmmoDisplayUI : MonoBehaviour
 
     private ReloadDisplayUI reloadDisplayUI;
     private IEquipable equipment;
+    private RangedWeaponItem currentRangedWeapon; // We'll store the currently equipped ranged weapon
     private int lastAmmoCount = -1; // Tracks the previous ammo count
+
     void Awake()
     {
-        // Get PlayerCharacter reference from GameManager
+        // 1) Get PlayerCharacter reference from GameManager
         playerCharacter = GameManager.Instance.PlayerCharacter;
+
+        // 2) Get references from children
         reloadDisplayUI = GetComponentInChildren<ReloadDisplayUI>();
-        // Subscribe to player events
+        reticleScript = GetComponentInChildren<ReticleScript>();
+        if (reticleScript != null)
+        {
+            reticleScript.playerCharacter = playerCharacter;
+        }
+
+        // 3) Subscribe to player's equip events
         playerCharacter.OnPlayerEquipped += OnPlayerEquipped;
         playerCharacter.OnPlayerUnEquipped += OnPlayerUnEquipped;
 
-        // Check if required variables are set
+        // 4) Validate references
         if (ammoImageGroup == null)
         {
             Debug.LogError("Ammo Image Group Not Set for UI");
@@ -53,25 +63,28 @@ public class AmmoDisplayUI : MonoBehaviour
         {
             Debug.LogError("Ammo Image Prefab Not Set");
         }
-        reticleScript = GetComponentInChildren<ReticleScript>();
-        reticleScript.PlayerCharacter = playerCharacter;
     }
 
     void Update()
     {
         var item = equipment as IAmmoDisplayEquipment;
-        
         if (item != null)
         {
-            
+            // Show/hide crosshair
             reticle.gameObject.SetActive(item.ShowCrosshair);
+
+            // Show/hide ammo UI
             if (item.ShowAmmoInfo)
             {
                 ammoImageGroup.gameObject.SetActive(true);
                 UpdateAmmoUI(item.MaxMagazineAmmo, item.CurrentMagazineAmmo);
-            }else{
+            }
+            else
+            {
                 ammoImageGroup.gameObject.SetActive(false);
             }
+
+            // Show/hide reload UI
             bool reloading = item.IsReloading;
             reloadDisplayUI.gameObject.SetActive(reloading);
             if (reloading)
@@ -82,21 +95,27 @@ public class AmmoDisplayUI : MonoBehaviour
         }
     }
 
-
-
-    void OnPlayerEquipped(IEquipable equipable)
+    private void OnPlayerEquipped(IEquipable equipable)
     {
+        // Only handle if it's a weapon
         if (equipable.SlotType != EquipmentSlot.Weapon)
-        {
             return;
+
+        // 1) If we already had a ranged weapon, unsubscribe from its OnFired
+        if (currentRangedWeapon != null)
+        {
+            currentRangedWeapon.OnFired -= OnWeaponFiredViaReticle;
         }
-        
+
+        // 2) Assign the new equipment
+        equipment = equipable;
+
+        // 3) If it's an IAmmoDisplayEquipment, rebuild ammo icons
         var item = equipable as IAmmoDisplayEquipment;
         ClearImageObjects();
         if (item != null)
         {
-            equipment = equipable;
-            // Populate ammo icons dynamically using the prefab
+            // Populate ammo icons dynamically
             for (int i = 0; i < item.MaxMagazineAmmo; i++)
             {
                 GameObject ammoIcon = Instantiate(ammoImagePrefab, ammoImageGroup);
@@ -111,27 +130,34 @@ public class AmmoDisplayUI : MonoBehaviour
                     Debug.LogError("Ammo Image Prefab does not have an Image component.");
                 }
             }
+            lastAmmoCount = item.CurrentMagazineAmmo;
         }
-    }
 
-    void ClearImageObjects()
-    {
-        // Destroy all child objects in ammoImageGroup
-        foreach (Transform child in ammoImageGroup)
+        // 4) If the new item is a RangedWeaponItem, subscribe reticle to its OnFired
+        currentRangedWeapon = equipable as RangedWeaponItem;
+        if (currentRangedWeapon != null)
         {
-            Destroy(child.gameObject);
+            currentRangedWeapon.OnFired += OnWeaponFiredViaReticle;
         }
     }
 
-    void OnPlayerUnEquipped(IEquipable equipable)
+    private void OnPlayerUnEquipped(IEquipable equipable)
     {
-        //ClearImageObjects();
+        // If the old equipable is a RangedWeaponItem, unsubscribe
+        var oldRanged = equipable as RangedWeaponItem;
+        if (oldRanged != null)
+        {
+            oldRanged.OnFired -= OnWeaponFiredViaReticle;
+        }
+
+        equipment = null;
+        currentRangedWeapon = null;
+        //ClearImageObjects(); // if you want to hide the ammo UI
     }
 
     public void UpdateAmmoUI(int maxMagazineAmmo, int currentMagazineAmmo)
     {
-        
-        // If maxMagazineAmmo has changed, rebuild the UI
+        // If maxMagazineAmmo has changed, rebuild
         if (ammoImageGroup.childCount != maxMagazineAmmo)
         {
             ClearImageObjects();
@@ -140,7 +166,6 @@ public class AmmoDisplayUI : MonoBehaviour
             {
                 GameObject ammoIcon = Instantiate(ammoImagePrefab, ammoImageGroup);
                 var imageComponent = ammoIcon.GetComponent<Image>();
-
                 if (imageComponent != null)
                 {
                     imageComponent.sprite = i < currentMagazineAmmo ? ammoIconSprite : emptyAmmoIconSprite;
@@ -150,25 +175,41 @@ public class AmmoDisplayUI : MonoBehaviour
                     Debug.LogError("Ammo Image Prefab does not have an Image component.");
                 }
             }
-
             lastAmmoCount = currentMagazineAmmo;
             return;
         }
 
-        // Efficiently update only the ammo sprites
+        // Only update changed sprites
         if (currentMagazineAmmo != lastAmmoCount)
         {
             for (int i = 0; i < maxMagazineAmmo; i++)
             {
                 var ammoIcon = ammoImageGroup.GetChild(i).GetComponent<Image>();
-
                 if (ammoIcon != null)
                 {
                     ammoIcon.sprite = i < currentMagazineAmmo ? ammoIconSprite : emptyAmmoIconSprite;
                 }
             }
-
             lastAmmoCount = currentMagazineAmmo;
+        }
+    }
+
+    void ClearImageObjects()
+    {
+        foreach (Transform child in ammoImageGroup)
+        {
+            Destroy(child.gameObject);
+        }
+    }
+
+    /// <summary>
+    /// Called when the RangedWeaponItem fires. We then pass it on to the ReticleScript to do a "firing" effect.
+    /// </summary>
+    private void OnWeaponFiredViaReticle()
+    {
+        if (reticleScript != null)
+        {
+            reticleScript.OnWeaponFired();
         }
     }
 }

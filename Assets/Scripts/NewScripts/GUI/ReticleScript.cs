@@ -1,10 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 
-/// <summary>
-/// A script to adjust a 4-line reticle (top/bottom/left/right) 
-/// based on the "current spread angle" from the player's attributes.
-/// </summary>
 public class ReticleScript : MonoBehaviour
 {
     [Header("Reticle Lines")]
@@ -14,116 +11,140 @@ public class ReticleScript : MonoBehaviour
     public RectTransform rightLine;
 
     [Header("Gap Settings")]
-    [Tooltip("If true, uses a linear approach. If false, uses a tangent-based approach.")]
     public bool useLinearMapping = true;
-
-    [Tooltip("A baseline gap, even if spread angle = 0.")]
     public float baseGap = 10f;
-
-    [Tooltip("Additional scale for angle => gap. For linear: gap = baseGap + spreadAngle * scale.\n" +
-             "For trig: gap = scale * tan(spreadAngle/2).")]
     public float gapScale = 3f;
-
-    [Tooltip("Reticle will not exceed this gap in pixels.")]
     public float maxGap = 200f;
-
-    [Tooltip("Reticle lines will smoothly move to the new gap.")]
     public float smoothSpeed = 10f;
 
-    // Lerp state
     private float currentGap = 0f;
 
+    // The additional offset from firing "kick"
+    private float fireKickOffset = 0f;
+    private float fireKickMaxValue = 10f;    // how big the reticle "jumps" 
+    private float fireKickDuration = 0.2f;   // total time for the effect
+    private bool isKicking = false;
 
-    public PlayerCharacter PlayerCharacter;
+    [Header("References")]
+    public PlayerCharacter playerCharacter;
 
-    private void Start()
+    void Start()
     {
-        // If not assigned in Inspector, try to find
-        if (PlayerCharacter == null)
+        if (playerCharacter == null)
         {
-            PlayerCharacter = GameManager.Instance.PlayerCharacter;
+            playerCharacter = GameManager.Instance.PlayerCharacter;
         }
 
-        if (topLine == null || bottomLine == null || leftLine == null || rightLine == null)
-        {
-            Debug.LogError("ReticleScript: One or more line references not set!");
-        }
+        // (A) Subscribe to a "WeaponFired" event (option 1: do it via PlayerCharacter)
+        // E.g. if PlayerCharacter re-raises an event:
+        // playerCharacter.OnWeaponFired += OnWeaponFired;
+
+        // or (B) If you prefer: 
+        //   - Listen to player's "OnPlayerEquipped" to get the current weapon
+        //   - Then weapon.OnFired += OnWeaponFired
     }
 
-    private void Update()
+    void Update()
     {
-        // 1) Get the "spread angle" from the player's attribute set.
+        // 1) Compute the normal spread-based gap
         float spreadAngle = GetSpreadAngleFromPlayer();
-
-        // 2) Convert angle to target gap
         float targetGap = CalculateGap(spreadAngle);
 
-        // 3) Smoothly lerp
-        currentGap = Mathf.Lerp(currentGap, targetGap, Time.deltaTime * smoothSpeed);
+        // 2) Add the current fireKickOffset
+        float combinedGap = targetGap + fireKickOffset;
+
+        // 3) Lerp the 'currentGap' to that combined value
+        currentGap = Mathf.Lerp(currentGap, combinedGap, Time.deltaTime * smoothSpeed);
 
         // 4) Clamp
         currentGap = Mathf.Clamp(currentGap, 0f, maxGap);
 
-        // 5) Apply gap to reticle lines
+        // 5) Apply to reticle lines
         ApplyReticlePositions(currentGap);
     }
 
     /// <summary>
-    /// Reads the player's spread angle from their attribute set.
-    /// E.g. BaseSpreadAngle.CurrentValue
-    /// If not found, returns 0f.
+    /// Called when the player or weapon indicates "Weapon Fired."
+    /// We begin a short "kick" effect that adds an offset to reticle.
     /// </summary>
+    public void OnWeaponFired()
+    {
+        // Start the coroutine if not already
+        if (!isKicking)
+        {
+            StartCoroutine(HandleReticleKick());
+        }
+        else
+        {
+            // If you want repeated shots to "stack" or refresh the effect,
+            // you can reset the timer or re-start the coroutine
+            // For simplicity, let's just re-start
+            StopCoroutine(HandleReticleKick());
+            StartCoroutine(HandleReticleKick());
+        }
+    }
+
+    private IEnumerator HandleReticleKick()
+    {
+        isKicking = true;
+
+        float timer = 0f;
+        float peak = fireKickMaxValue; 
+
+        // We'll animate fireKickOffset from peak back to 0 over fireKickDuration 
+        // with an "ease out" or a small "back" effect
+        while (timer < fireKickDuration)
+        {
+            timer += Time.deltaTime;
+            float t = Mathf.Clamp01(timer / fireKickDuration);
+
+            // Easing function - an "EaseOutQuad" as an example
+            float easedT = 1f - Mathf.Pow(1f - t, 2f); 
+            // Alternatively, you could do an overshoot/back approach
+
+            // We want it to start at peak and go to 0, so "offset = peak * (1 - easedT)"
+            // meaning at t=0 => offset = peak, t=1 => offset = 0
+            fireKickOffset = peak * (1f - easedT);
+
+            yield return null;
+        }
+
+        fireKickOffset = 0f;
+        isKicking = false;
+    }
+
     float GetSpreadAngleFromPlayer()
     {
-        if (PlayerCharacter == null) return 0f;
-
-        // Retrieve the player's attribute set if present
-        var asc = PlayerCharacter.GetAbilitySystemComponent();
+        if (playerCharacter == null) return 0f;
+        var asc = playerCharacter.GetAbilitySystemComponent();
         if (asc == null) return 0f;
 
         var attrSet = asc.AttributeSet as PlayerCharacterAttributeSet;
         if (attrSet == null) return 0f;
 
-        // The property you specifically mentioned:
-        float angle = attrSet.BaseSpreadAngle.CurrentValue;
-        return angle; // e.g. if it's 5 => 5 degrees
+        return attrSet.BaseSpreadAngle.CurrentValue;
     }
 
-    /// <summary>
-    /// Converts the spread angle to a gap in pixels.
-    /// </summary>
     float CalculateGap(float spreadAngleDegrees)
     {
         if (useLinearMapping)
         {
-            // gap = baseGap + spreadAngle * gapScale
+            // linear
             return baseGap + (spreadAngleDegrees * gapScale);
         }
         else
         {
-            // trig approach
-            float halfAngleRadians = (spreadAngleDegrees * 0.5f) * Mathf.Deg2Rad;
-            float tanVal = Mathf.Tan(halfAngleRadians);
-            return gapScale * tanVal;
+            // trig
+            float halfRad = (spreadAngleDegrees * 0.5f) * Mathf.Deg2Rad;
+            return gapScale * Mathf.Tan(halfRad);
         }
     }
 
-    /// <summary>
-    /// Offsets the four lines away from (0,0) by 'gap' pixels.
-    /// We assume the parent pivot is center at (0,0).
-    /// </summary>
     void ApplyReticlePositions(float gap)
     {
-        if (topLine != null)
-            topLine.anchoredPosition    = new Vector2(0f, +gap);
-
-        if (bottomLine != null)
-            bottomLine.anchoredPosition = new Vector2(0f, -gap);
-
-        if (leftLine != null)
-            leftLine.anchoredPosition   = new Vector2(-gap, 0f);
-
-        if (rightLine != null)
-            rightLine.anchoredPosition  = new Vector2(+gap, 0f);
+        if (topLine    != null) topLine.anchoredPosition    = new Vector2(0f, +gap);
+        if (bottomLine != null) bottomLine.anchoredPosition = new Vector2(0f, -gap);
+        if (leftLine   != null) leftLine.anchoredPosition   = new Vector2(-gap, 0f);
+        if (rightLine  != null) rightLine.anchoredPosition  = new Vector2(+gap, 0f);
     }
 }
