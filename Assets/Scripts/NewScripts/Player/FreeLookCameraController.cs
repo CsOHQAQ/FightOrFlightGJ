@@ -6,34 +6,34 @@ using UnityEngine.Events;
 public class FreeLookCameraController : MonoBehaviour
 {
     [Header("Camera Settings")]
-    [SerializeField] private float verticalSensitivity = 1f; // Vertical mouse sensitivity
-    [SerializeField] private float horizontalSensitivity = 1f; // Horizontal mouse sensitivity
-    [SerializeField] private float maxVerticalAngle = 80f; // Maximum upward/downward angle
-    [SerializeField] private float minVerticalAngle = -80f; // Minimum downward/upward angle
+    [SerializeField] private float verticalSensitivity = 1f;
+    [SerializeField] private float horizontalSensitivity = 1f;
+    [SerializeField] private float maxVerticalAngle = 80f;
+    [SerializeField] private float minVerticalAngle = -80f;
 
     [SerializeField] private float centerCameraDuration = 0.6f;
 
     [Header("Horizontal Rotation Settings")]
-    [SerializeField] private bool limitHorizontalRotation = false; // Whether or not to limit horizontal rotation
-    [SerializeField] private float horizontalLimit = 90f; // Total horizontal rotation limit (same value for both directions)
+    [SerializeField] private bool limitHorizontalRotation = false;
+    [SerializeField] private float horizontalLimit = 90f;
 
     [Header("Control Settings")]
-    [SerializeField] private Transform cameraTransform; // Assign the camera Transform explicitly if not on the same GameObject
+    [SerializeField] private Transform cameraTransform;
 
     [Header("Door Adjustment Settings")]
-    [SerializeField] private float maxCameraMovement = 1.3f; // Max distance camera moves forward when door is opening
-    [SerializeField] private float maxOpenness = 0.8f; // Max openness value that affects camera movement
+    [SerializeField] private float maxCameraMovement = 1.3f;
+    [SerializeField] private float maxOpenness = 0.8f;
 
     [Header("Events")]
-    [SerializeField] private UnityEvent onLookedToBottom; // Event to notify when the camera looks downward beyond the threshold
-    [SerializeField] private UnityEvent onExitLookedToBottom; // Event to notify when the camera exits looking downward
+    [SerializeField] private UnityEvent onLookedToBottom;
+    [SerializeField] private UnityEvent onExitLookedToBottom;
 
-    private Vector2 lookInput; // Stores the current input for looking
-    private float verticalRotation = 0f; // Tracks the vertical rotation of the camera
-    private float horizontalRotation = 0f; // Tracks the horizontal rotation of the player object
+    private Vector2 lookInput;
+    private float verticalRotation = 0f;
+    private float horizontalRotation = 0f;
 
     private PlayerCharacter player;
-    private bool hasLookedToBottom = false; // To prevent multiple triggers for the same downward movement
+    private bool hasLookedToBottom = false;
     private bool canRotateCamera = true;
 
     private void Start()
@@ -43,46 +43,43 @@ public class FreeLookCameraController : MonoBehaviour
         {
             Debug.LogError("NO PLAYERCHARACTER FOUND on CameraController");
         }
-        player.OnStateEnter += HandleStateEnter;
-        player.OnStateExit += HandleStateExit;
 
-        // Lock and hide the cursor
+        // Remove references to player.OnStateEnter / OnStateExit 
+        // because we no longer use the old PlayerState-based events.
+
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
-        // If no cameraTransform is assigned, use the camera on this GameObject
         if (cameraTransform == null)
         {
             cameraTransform = Camera.main.transform;
-        }
-        else{
-            
         }
     }
 
     private void Update()
     {
-        // Process the camera movement
-        if (canRotateCamera)
-        {
-            switch (player.CurrentState)
-            {
-                case PlayerState.MovementState:
-                    RotateCamera();
-                    break;
+        if (!canRotateCamera) return;
 
-                case PlayerState.DoorOpeningState:
-                    
-                    // Handle camera adjustment based on the door's openness
-                    if (player.CurrentDoor != null)
-                    {
-                        RotateCameraWithCameraRotation();
-                        AdjustCameraPositionBasedOnDoor();
-                    }
-                    break;
+        // Query the HFSM's current state
+        var current = player.BaseStateMachine.CurrentState;
+
+        // Example usage: if in MovementParentState => standard free look
+        if (current is MovementParentState)
+        {
+            RotateCamera();
+        }
+        // If in some InteractState (like DoorInteractState), do something else
+        else if (current is InteractState)
+        {
+            RotateCameraWithCameraRotation();
+
+            // If relevant, adjust camera position with door logic 
+            // (assuming 'player.CurrentDoor' is valid if Interacting with a door)
+            if (player.CurrentDoor != null)
+            {
+                AdjustCameraPositionBasedOnDoor();
             }
         }
-        
     }
 
     public void OnLook(InputAction.CallbackContext context)
@@ -92,21 +89,17 @@ public class FreeLookCameraController : MonoBehaviour
 
     private void RotateCamera()
     {
-        // Apply sensitivity to the input
         Vector2 scaledInput = new Vector2(lookInput.x * horizontalSensitivity, lookInput.y * verticalSensitivity);
 
-        // Horizontal rotation (rotate around Y-axis globally, on the parent object)
+        // Horizontal rotation
         horizontalRotation += scaledInput.x;
-
-        // Clamp the horizontal rotation if the limit is enabled
         if (limitHorizontalRotation)
         {
             horizontalRotation = Mathf.Clamp(horizontalRotation, -horizontalLimit, horizontalLimit);
         }
-
         transform.localRotation = Quaternion.Euler(0f, horizontalRotation, 0f);
 
-        // Vertical rotation (rotate around X-axis locally, on the camera)
+        // Vertical rotation
         verticalRotation -= scaledInput.y;
         verticalRotation = Mathf.Clamp(verticalRotation, minVerticalAngle, maxVerticalAngle);
         cameraTransform.localRotation = Quaternion.Euler(verticalRotation, 0f, 0f);
@@ -116,62 +109,53 @@ public class FreeLookCameraController : MonoBehaviour
 
     private void RotateCameraWithCameraRotation()
     {
-        if(player.CurrentDoor.CurrentOpenness <= 0.5f)
+        // Example logic used when interacting with a door
+        // Possibly center camera if door hasn't opened enough
+        if (player.CurrentDoor != null && player.CurrentDoor.CurrentOpenness <= 0.5f)
         {
-            Vector3 directionToDoor = (player.CurrentDoor.gameObject.transform.position - player.transform.position).normalized;
+            Vector3 directionToDoor = (player.CurrentDoor.transform.position - player.transform.position).normalized;
             StartCoroutine(ShiftCamera(directionToDoor, centerCameraDuration));
             return;
         }
 
-        // Apply sensitivity to the input
+        // Otherwise, let player aim, but maybe a different transform approach
         Vector2 scaledInput = new Vector2(lookInput.x * horizontalSensitivity, lookInput.y * verticalSensitivity);
 
-        // Horizontal rotation (rotate the camera around the Y-axis locally)
+        // Horizontal
         horizontalRotation += scaledInput.x;
-
-        // Clamp the horizontal rotation if the limit is enabled
         if (limitHorizontalRotation)
         {
             horizontalRotation = Mathf.Clamp(horizontalRotation, -horizontalLimit, horizontalLimit);
         }
-        
         cameraTransform.localRotation = Quaternion.Euler(0f, horizontalRotation, 0f);
 
+        // Vertical
         verticalRotation -= scaledInput.y;
         verticalRotation = Mathf.Clamp(verticalRotation, minVerticalAngle, maxVerticalAngle);
-        cameraTransform.localRotation = Quaternion.Euler(verticalRotation, cameraTransform.localRotation.eulerAngles.y, 0f);
+        cameraTransform.localRotation =
+            Quaternion.Euler(verticalRotation, cameraTransform.localRotation.eulerAngles.y, 0f);
 
         CheckLookedToBottom();
     }
 
     private void AdjustCameraPositionBasedOnDoor()
     {
-        // Get the current openness of the door (range from 0 to maxOpenness)
         float doorOpenness = Mathf.Min(player.CurrentDoor.CurrentOpenness, maxOpenness);
-
-        // Calculate movement amount based on the door's openness
         float movementAmount = doorOpenness * maxCameraMovement;
 
-        // Determine forward direction based on the player's bodyTransform
         Vector3 forwardDirection = transform.forward.normalized;
-
-        // Calculate the target camera position
         Vector3 targetPosition = player.transform.position + forwardDirection * movementAmount;
 
-        // Smoothly interpolate to the target position
-        cameraTransform.position = Vector3.Lerp(cameraTransform.position, targetPosition, Time.deltaTime * 4f);
-    }
-
-    public void ResetHorizontalCameraAngle()
-    {
-        horizontalRotation = 0f;
-        cameraTransform.localRotation = Quaternion.Euler(0f, horizontalRotation, 0f) * cameraTransform.localRotation;
+        cameraTransform.position = Vector3.Lerp(
+            cameraTransform.position,
+            targetPosition,
+            Time.deltaTime * 4f
+        );
     }
 
     private void CheckLookedToBottom()
     {
         float downwardThreshold = 70f;
-
         if (verticalRotation >= downwardThreshold && !hasLookedToBottom)
         {
             hasLookedToBottom = true;
@@ -184,48 +168,30 @@ public class FreeLookCameraController : MonoBehaviour
         }
     }
 
-    public void HandleStateEnter(PlayerState state)
-    {
-        if (state == PlayerState.DoorOpeningState)
-        {
-            canRotateCamera = false;
-            //Vector3 doorCenter = (door.LeftPart.transform.position + door.RightPart.transform.position) * 0.5f;
-            Vector3 directionToDoor = (player.CurrentDoor.gameObject.transform.position - player.transform.position).normalized;
-
-            StartCoroutine(ShiftCamera(directionToDoor, centerCameraDuration));
-            //StartCoroutine(ShiftCamera(player.GetClosestDirection((player.CurrentDoor.gameObject.transform.position - transform.position).normalized),centerCameraDuration));
-            limitHorizontalRotation = true;
-        }
-    }
-
-    public void HandleStateExit(PlayerState state)
-    {
-        if (state == PlayerState.DoorOpeningState)
-        {
-            canRotateCamera = false;
-            StartCoroutine(ShiftCameraLocalPosition(Vector3.zero, centerCameraDuration));
-            limitHorizontalRotation = false;
-        }
-    }
-
     public IEnumerator ShiftCamera(Vector3 targetDirection, float duration)
     {
         Quaternion startCameraRotation = cameraTransform.localRotation;
         Quaternion startPlayerRotation = transform.localRotation;
-        //Debug.Log("------------------------------");
-        // —— 在这里改用 Quaternion.LookRotation 来求目标水平角度 —— //
+
         Vector3 horizontalDir = new Vector3(targetDirection.x, 0f, targetDirection.z);
         Quaternion targetLookRotation = Quaternion.LookRotation(horizontalDir, Vector3.up);
-        float targetHorizontalRotation = targetLookRotation.eulerAngles.y-90f;
-        //Debug.Log(targetHorizontalRotation);
-        float elapsedTime = 0f;
+        float targetHorizontalRotation = targetLookRotation.eulerAngles.y - 90f;
 
+        float elapsedTime = 0f;
         while (elapsedTime < duration)
         {
-            float newHorizontalRotation = Mathf.LerpAngle(startPlayerRotation.eulerAngles.y, targetHorizontalRotation, elapsedTime / duration);
+            float newHorizontalRotation = Mathf.LerpAngle(
+                startPlayerRotation.eulerAngles.y,
+                targetHorizontalRotation,
+                elapsedTime / duration
+            );
             transform.localRotation = Quaternion.Euler(0f, newHorizontalRotation, 0f);
 
-            float newVerticalRotation = Mathf.LerpAngle(startCameraRotation.eulerAngles.x, 0f, elapsedTime / duration);
+            float newVerticalRotation = Mathf.LerpAngle(
+                startCameraRotation.eulerAngles.x,
+                0f,
+                elapsedTime / duration
+            );
             cameraTransform.localRotation = Quaternion.Euler(newVerticalRotation, 0f, 0f);
 
             elapsedTime += Time.deltaTime;
@@ -235,44 +201,32 @@ public class FreeLookCameraController : MonoBehaviour
         transform.localRotation = Quaternion.Euler(0f, targetHorizontalRotation, 0f);
         cameraTransform.localRotation = Quaternion.Euler(0f, 0f, 0f);
 
-        // 同步内部变量 (新增)
         horizontalRotation = transform.localEulerAngles.y;
         verticalRotation = cameraTransform.localEulerAngles.x;
-
         canRotateCamera = true;
     }
 
     public IEnumerator ShiftCameraLocalPosition(Vector3 targetLocalPosition, float duration)
     {
-        // Cache the initial local position of the camera
         Vector3 startLocalPosition = cameraTransform.localPosition;
-
         float elapsedTime = 0f;
 
-        // Smoothly interpolate the camera's local position to the target
         while (elapsedTime < duration)
         {
-            // Interpolate between the start and target local positions
-            cameraTransform.localPosition = Vector3.Lerp(startLocalPosition, targetLocalPosition, elapsedTime / duration);
+            cameraTransform.localPosition = Vector3.Lerp(
+                startLocalPosition,
+                targetLocalPosition,
+                elapsedTime / duration
+            );
 
             elapsedTime += Time.deltaTime;
             yield return null;
         }
 
-        // Ensure the final local position is set to the target
         cameraTransform.localPosition = targetLocalPosition;
-        
-        // 同步内部变量 (新增)
-        // 在位置还原后，确保内部rotation变量也与当前Transform一致
+
         horizontalRotation = transform.localEulerAngles.y;
         verticalRotation = cameraTransform.localEulerAngles.x;
-
         canRotateCamera = true;
-    }
-
-    private void OnDestroy()
-    {
-        player.OnStateEnter -= HandleStateEnter;
-        player.OnStateExit -= HandleStateExit;
     }
 }

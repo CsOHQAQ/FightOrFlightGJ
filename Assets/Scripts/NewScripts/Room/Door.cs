@@ -133,8 +133,8 @@ public class Door : MonoBehaviour, IInteractable,IRoomObject
                 playerInput.actions["Movement"].performed -= OnMovementPerformed;
                 doorCollider.enabled = false;
                 OnDoorFullyOpened?.Invoke();
-                OnDoorFullyOpened -= character.OnDoorFullyOpened;
-                OnDoorFullyClosed -= character.OnDoorFullyClosed;
+                //OnDoorFullyOpened -= character.OnDoorFullyOpened;
+                //OnDoorFullyClosed -= character.OnDoorFullyClosed;
                 if(Room!=null)
                 {
                     Room.StartCombat();
@@ -170,8 +170,8 @@ public class Door : MonoBehaviour, IInteractable,IRoomObject
         playerInput.actions["Movement"].performed += OnMovementPerformed;
         character = playerObject.GetComponentInChildren<PlayerCharacter>();
         character.OnInteractDoor(this);
-        OnDoorFullyOpened += character.OnDoorFullyOpened;
-        OnDoorFullyClosed += character.OnDoorFullyClosed;
+        //OnDoorFullyOpened += character.OnDoorFullyOpened;
+        //OnDoorFullyClosed += character.OnDoorFullyClosed;
     }
 
     private void OnMovementPerformed(InputAction.CallbackContext context)
@@ -187,8 +187,8 @@ public class Door : MonoBehaviour, IInteractable,IRoomObject
             {
                 playerInput.actions["Movement"].performed -= OnMovementPerformed;
                 OnDoorFullyClosed?.Invoke();
-                OnDoorFullyOpened -= character.OnDoorFullyOpened;
-                OnDoorFullyClosed -= character.OnDoorFullyClosed;
+                //OnDoorFullyOpened -= character.OnDoorFullyOpened;
+                //OnDoorFullyClosed -= character.OnDoorFullyClosed;
             }
 
             //Debug.Log($"Door Input: {moveInput}, Target Openess: {targetOpenness}, Target Door Angle: {TargetDoorAngle}");

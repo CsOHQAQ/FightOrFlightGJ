@@ -4,14 +4,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.InputSystem;
 
-public enum PlayerState
-{
-    MovementState,
-    DoorOpeningState,
-    MenuState
-}
 
-public class PlayerCharacter : MonoBehaviour, IPlayerCharacter, IAbilitySystemComponent, IHitReceiver
+public class PlayerCharacter : MonoBehaviour, 
+                              IPlayerCharacter, 
+                              IAbilitySystemComponent, 
+                              IHitReceiver,
+                              IStateMachineEntity
 {
     public event Action<ICharacter> OnCharacterDied;
 
@@ -29,24 +27,33 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter, IAbilitySystemCo
     private InteractComponent interactComponent;
     private PlayerHandsComponent hand;
 
-    // -------------------- 新增或调整的字段 开始 --------------------
     [Header("First-Person Movement Settings (CharacterController)")]
     [SerializeField] private float moveSpeed = 4.0f;    // 玩家移动速度
-    [SerializeField] private float rotationSpeed = 180f;// 若要用键盘左右旋转，可用此值
+    public float MoveSpeed { get { return moveSpeed; } }
+
+    [SerializeField] private float rotationSpeed = 180f; 
+    // 若要用键盘左右旋转，可用此值
 
     // 存储 OnMovementPerformed 获取的输入 (x:左右, y:前后)
     private Vector2 moveInput;
+    public Vector2 MoveInput { get { return moveInput; } }
 
     // 使用 CharacterController 而非 Rigidbody
-    private CharacterController characterController;
-
-    // -------------------- 新增或调整的字段 结束 --------------------
+    public CharacterController characterController;
 
     [Header("Old Movement/Bump Settings (May keep for reference)")]
-    [SerializeField, Tooltip("Distance the player moves for a bump effect.")]
-    private float bumpDistance = 0.1f;
-    [SerializeField, Tooltip("Duration of the bump animation in seconds.")]
-    private float bumpDuration = 0.1f;
+    [SerializeField] private float bumpDistance = 0.1f;
+    [SerializeField] private float bumpDuration = 0.1f;
+
+    /// <summary>
+    /// Event fired whenever the player has equipped an item (e.g., a weapon).
+    /// </summary>
+    public event Action<IEquipable> OnPlayerEquipped;
+
+    /// <summary>
+    /// Event fired whenever the player has unequipped an item (e.g., a weapon).
+    /// </summary>
+    public event Action<IEquipable> OnPlayerUnEquipped;
 
     [SerializeField, Tooltip("Movement script uses the forward of this transform to determine where forward is for the character.")]
     private Transform bodyTransform;
@@ -54,16 +61,17 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter, IAbilitySystemCo
     private Door currentDoor;
     public Door CurrentDoor { get { return currentDoor; } }
 
-    private PlayerState currentState;
-    public PlayerState CurrentState { get { return currentState; } }
+    // ----------------- 不再用 PlayerState 来驱动核心逻辑 -----------------
+    // private PlayerState currentState;  // 移除或不用
 
-    // Define delegates for entering and exiting states
-    public delegate void StateChangeHandler(PlayerState newState);
-    public event StateChangeHandler OnStateEnter;
-    public event StateChangeHandler OnStateExit;
+    // HFSM: 顶层状态机
+    public StateMachine BaseStateMachine { get; private set; }
 
-    public event Action<IEquipable> OnPlayerEquipped;
-    public event Action<IEquipable> OnPlayerUnEquipped;
+    // 几个大状态
+    public MovementParentState   MovementParentState   { get; private set; }
+    public TakeDamageParentState TakeDamageParentState { get; private set; }
+    public MenuState             MenuState             { get; private set; }
+    public InteractState         InteractState         { get; private set; }
 
     private bool canActivate = true;
     public bool CanActivate
@@ -79,6 +87,7 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter, IAbilitySystemCo
         }
     }
     public event Action<bool> OnCanActivateChanged;
+
     private PlayerInput playerInputAction;
 
     // ICharacter properties and fields
@@ -98,8 +107,10 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter, IAbilitySystemCo
     // 用于 Bump 协程时，标记是否在进行 Bump 动画
     private bool isMoving = false;
 
+    #region Unity Lifecycle
     private void Awake()
     {
+        // 常规初始化
         playerInputAction = GetComponent<PlayerInput>();
         artifactItems = new List<ArtifactItem>();
         abilitySystemComponent = GetComponent<AbilitySystemComponent>();
@@ -107,43 +118,46 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter, IAbilitySystemCo
         hand = GetComponentInChildren<PlayerHandsComponent>();
         interactComponent = GetComponentInChildren<InteractComponent>();
 
-        // -------------------- 获取 CharacterController 用于角色自由移动 --------------------
+        // 获取 CharacterController
         characterController = GetComponent<CharacterController>();
         if (characterController == null)
         {
-            Debug.LogError("No CharacterController found on Player! Please add one in the Inspector.");
+            Debug.LogError("No CharacterController found on Player!");
         }
 
         if (bodyTransform == null)
         {
-            Debug.LogError("No Transform Set for bodyTransform; defaulting to this.transform.");
+            Debug.LogWarning("No Transform Set for bodyTransform; defaulting to this.transform.");
             bodyTransform = this.transform;
         }
 
+        // 检测组件
         if (interactComponent == null)
-        {
-            Debug.LogError("Could not detect Interact Component on Character");
-        }
+            Debug.LogWarning("No InteractComponent found.");
         if (hand == null)
-        {
-            Debug.LogError("Could not detect Hand Movement Component on Character");
-        }
+            Debug.LogWarning("No Hand Movement Component found.");
         if (weaponComponent == null)
-        {
-            Debug.LogError("Could not detect Weapon Component on Character");
-        }
+            Debug.LogWarning("No Weapon Component found.");
 
-        hand.Initialize(this);
+        // 初始化手部
+        hand?.Initialize(this);
+
+        // 初始化 HFSM
+        BaseStateMachine = new StateMachine();
+
+        // 创建大状态对象
+        MovementParentState   = new MovementParentState(this, BaseStateMachine);
+        TakeDamageParentState = new TakeDamageParentState(this, BaseStateMachine);
+        MenuState             = new MenuState(this, BaseStateMachine);
+        InteractState         = new InteractState(this, BaseStateMachine);
     }
 
     private void Start()
     {
-        // Initialize to MovementState
-        ChangeState(PlayerState.MovementState);
-
         // 测试武器/装备示例
-        PlayerCharacterAttributeSet playerCharacterAttributeSet = GetComponent<PlayerCharacterAttributeSet>();
+        var playerCharacterAttributeSet = GetComponent<PlayerCharacterAttributeSet>();
 
+        // 简单示例
         ItemData testData = new ItemData
         {
             ID = "test_gun",
@@ -164,146 +178,95 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter, IAbilitySystemCo
             fireCooldown: 1f / playerCharacterAttributeSet.AttackSpeed.CurrentValue,
             BaseSpreadAngle: playerCharacterAttributeSet.BaseSpreadAngle.CurrentValue
         );
+        // 装备
         EquipItem(testWeapon);
         weaponComponent?.Initialize(this, testWeapon);
 
+        // 装备一些artifact
         foreach (ArtifactSO artifact in artifactsOnStart)
         {
             EquipItem(new ArtifactItem(artifact));
         }
+
+        // 初始化状态机, 默认进入移动大状态
+        BaseStateMachine.Initialize(MovementParentState);
     }
 
     private void Update()
     {
+        // 如果玩家按下Confirm并能交互
         var confirmAction = playerInputAction.actions["Confirm"];
-        if (confirmAction != null && confirmAction.phase == InputActionPhase.Performed)
+        if (confirmAction != null && confirmAction.phase == InputActionPhase.Performed && canActivate)
         {
-            if (canActivate)
-            {
-                HoldUseItem(currentActivatable, ActivationTrigger.LeftMouse);
-            }
+            HoldUseItem(currentActivatable, ActivationTrigger.LeftMouse);
         }
+
+        // 让状态机自身Update
+        BaseStateMachine.Update();
     }
 
     private void FixedUpdate()
     {
-        // 如果你想把移动放在 Update 里，也可以，但最好固定在一个地方，以免与物理冲突。
-        // CharacterController 不完全是物理物体，但为了保持一致，这里放在 FixedUpdate 也行。
-        if (currentState == PlayerState.MovementState && !isMoving && characterController)
-        {
-            // 1) 计算受敌人数量影响的减速因子
-            float factor = GetSpeedFactorFromEnemies();
-
-            // 2) 根据 input + bodyTransform.forward/right 计算移动向量 (x,z)
-            Vector3 forward = bodyTransform.forward * moveInput.y;
-            Vector3 right   = bodyTransform.right   * moveInput.x;
-            Vector3 moveDirection = (forward + right).normalized * (moveSpeed * factor);
-
-            // 如果要使用键盘左右旋转替代平移，可以注释掉 right 并在 Update 里做:
-            // float turn = moveInput.x * rotationSpeed * Time.deltaTime;
-            // bodyTransform.Rotate(0, turn, 0);
-
-            // 3) 用 CharacterController.Move() 来移动，不会穿墙
-            // 注意 CC.Move() expects "distance per frame", 所以乘以 Time.fixedDeltaTime
-            characterController.Move(moveDirection * Time.fixedDeltaTime);
-        }
+        // 不再在此直接处理移动, 而由 MovementParentState 或其子状态管理
+        BaseStateMachine.FixedUpdate();
     }
+    #endregion
 
-    public void ChangeState(PlayerState newState)
-    {
-        OnStateExitInternal(currentState);
-        currentState = newState;
-        OnStateEnterInternal(currentState);
-    }
+    #region Input Callback
 
-    private void OnStateEnterInternal(PlayerState state)
-    {
-        OnStateEnter?.Invoke(state);
-        switch (state)
-        {
-            case PlayerState.MovementState:
-                Debug.Log("Entering Movement State");
-                hand.ChangeState(HandState.Lowered);
-                this.CanActivate = true;
-                break;
-
-            case PlayerState.DoorOpeningState:
-                Debug.Log("Entering Door Opening State");
-                hand.ChangeState(HandState.Raised);
-                this.CanActivate = false;
-                break;
-
-            case PlayerState.MenuState:
-                Debug.Log("Entering Menu State");
-                this.CanActivate = false;
-                break;
-        }
-    }
-
-    private void OnStateExitInternal(PlayerState state)
-    {
-        OnStateExit?.Invoke(state);
-        switch (state)
-        {
-            case PlayerState.MovementState:
-                Debug.Log("Exiting Movement State");
-                break;
-            case PlayerState.DoorOpeningState:
-                Debug.Log("Exiting Door Opening State");
-                break;
-            case PlayerState.MenuState:
-                Debug.Log("Exiting Menu State");
-                break;
-        }
-    }
-
-    public void OnLeftClickPerformed(InputAction.CallbackContext context)
-    {
-        if (!canActivate) return;
-        if (currentActivatable == null) return;
-
-        if (context.phase == InputActionPhase.Started)
-        {
-            BeginUseItem(currentActivatable, ActivationTrigger.LeftMouse);
-        }
-        else if (context.phase == InputActionPhase.Canceled)
-        {
-            EndUseItem(currentActivatable, ActivationTrigger.LeftMouse);
-        }
-    }
-
+    // Movement 输入回调
     public void OnMovementPerformed(InputAction.CallbackContext context)
     {
-        if (currentState != PlayerState.MovementState)
-            return;
-
-        // 记录输入 (W/S -> y, A/D -> x)
+        // 不再判断“if currentState == PlayerState.MovementState”
+        // 任何时候都记录 input, 由 MovementParentState 决定是否采用
         moveInput = context.ReadValue<Vector2>();
     }
 
-    public void OnDoorFullyOpened()
+    // 左键交互
+    public void OnLeftClickPerformed(InputAction.CallbackContext context)
     {
-        ChangeState(PlayerState.MovementState);
+        if (!canActivate || currentActivatable == null) return;
+
+        if (context.phase == InputActionPhase.Started)
+            BeginUseItem(currentActivatable, ActivationTrigger.LeftMouse);
+        else if (context.phase == InputActionPhase.Canceled)
+            EndUseItem(currentActivatable, ActivationTrigger.LeftMouse);
+    }
+    #endregion
+
+    #region HFSM Entry Points
+
+    /// <summary> 进入受击状态 </summary>
+    public void EnterTakeDamage(TakeDamageType damageType)
+    {
+        TakeDamageParentState.SetDamageType(damageType);
+        BaseStateMachine.ChangeState(TakeDamageParentState);
     }
 
-    public void OnDoorFullyClosed()
+    /// <summary> 进入菜单 </summary>
+    public void EnterMenu()
     {
-        ChangeState(PlayerState.MovementState);
+        BaseStateMachine.ChangeState(MenuState);
     }
 
-    /// <summary>
-    /// Bump 协程保留，供未来功能使用
-    /// </summary>
+    /// <summary> 进入互动状态(如推门) </summary>
+    public void EnterInteract()
+    {
+        BaseStateMachine.ChangeState(InteractState);
+    }
+
+    #endregion
+
+    #region ICharacter / Inventory / Other Logic
+
+    // Bump 协程可保留, 仅供特定状态下调用
     private IEnumerator Bump(float direction)
     {
-        // 假如你想在Bump期间禁止普通移动:
         isMoving = true;
-
         Vector3 originalPosition = bodyTransform.position;
         Vector3 bumpPosition = originalPosition + bodyTransform.forward * Mathf.Sign(direction) * bumpDistance;
 
         float elapsedTime = 0f;
-
         while (elapsedTime < bumpDuration)
         {
             float t = elapsedTime / bumpDuration;
@@ -328,16 +291,10 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter, IAbilitySystemCo
     private float GetSpeedFactorFromEnemies()
     {
         int count = OverlappingEnemyCount();
-        if (count == 0)      return 1f;    // Full speed
-        else if (count == 1) return 0.66f; // 66% speed
-        else if (count == 2) return 0.30f; // 30% speed
-        else                 return 0.10f; // 3 or more -> 10% speed
-    }
-
-    // ICharacter Implementation
-    public void AddHealth(float amount)
-    {
-        Health += amount;
+        if (count == 0)      return 1f;   
+        else if (count == 1) return 0.66f; 
+        else if (count == 2) return 0.30f; 
+        else                 return 0.10f; 
     }
 
     public void TakeDamage(EventContext context)
@@ -354,31 +311,17 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter, IAbilitySystemCo
         Debug.Log("Player Health is now: " + Health);
     }
 
-    public bool AddItem(IItem item)
-    {
-        // For now, always return true.
-        return true;
-    }
-
-    public bool RemoveItem(IItem item)
-    {
-        // For now, always return true.
-        return true;
-    }
+    public bool AddItem(IItem item) { return true; }
+    public bool RemoveItem(IItem item) { return true; }
 
     public bool EquipItem(IEquipable item)
     {
         var activatableItem = item as IActivatable;
-        if (activatableItem != null)
-        {
-            currentActivatable = activatableItem;
-        }
+        if (activatableItem != null) currentActivatable = activatableItem;
 
-        ArtifactItem artifactItem = item as ArtifactItem;
-        if (artifactItem != null)
-        {
-            artifactItems.Add(artifactItem);
-        }
+        var artifactItem = item as ArtifactItem;
+        if (artifactItem != null) artifactItems.Add(artifactItem);
+
         item.Equip(this);
         OnPlayerEquipped?.Invoke(item);
         return true;
@@ -389,10 +332,7 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter, IAbilitySystemCo
         item.Unequip(this);
         OnPlayerUnEquipped?.Invoke(item);
         var artifactItem = item as ArtifactItem;
-        if (artifactItem != null)
-        {
-            artifactItems.Remove(artifactItem);
-        }
+        if (artifactItem != null) artifactItems.Remove(artifactItem);
         return true;
     }
 
@@ -400,27 +340,20 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter, IAbilitySystemCo
     {
         item.BeginUse(this, trigger);
     }
-
     public void HoldUseItem(IActivatable item, ActivationTrigger trigger)
     {
         item.HoldUse(this, trigger);
     }
-
     public void EndUseItem(IActivatable item, ActivationTrigger trigger)
     {
         item.EndUse(this, trigger);
     }
-
     public void ScrollUseItem(IActivatable item, float scrollDelta)
     {
         item.OnScroll(this, scrollDelta);
     }
 
-    public int GetAmmoCount(string ammoType)
-    {
-        return 50; // For testing
-    }
-
+    public int GetAmmoCount(string ammoType) { return 50; }
     public void ConsumeAmmo(string ammoType, int amountToLoad)
     {
         Debug.Log($"Consumed {amountToLoad} rounds of {ammoType}.");
@@ -436,10 +369,7 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter, IAbilitySystemCo
         // Implement logic for dying.
     }
 
-    public void OnHit(HitData hitData)
-    {
-        // Debug.Log("Got Hit on " + hitData.HitInfo.HitPoint);
-    }
+    public void OnHit(HitData hitData) { }
 
     private void OnTriggerEnter(Collider other)
     {
@@ -479,19 +409,21 @@ public class PlayerCharacter : MonoBehaviour, IPlayerCharacter, IAbilitySystemCo
         }
     }
 
-    public int OverlappingEnemyCount()
-    {
-        return overlappingEnemies.Count;
-    }
-
-    public List<Enemy> GetNearbyEnemies()
-    {
-        return overlappingEnemies;
-    }
+    public int OverlappingEnemyCount() { return overlappingEnemies.Count; }
+    public List<Enemy> GetNearbyEnemies() { return overlappingEnemies; }
 
     public void OnInteractDoor(Door door)
     {
         currentDoor = door;
-        ChangeState(PlayerState.DoorOpeningState);
+        // 过去可能是ChangeState(PlayerState.DoorOpeningState)，
+        // 现在改为 HFSM: InteractState
+        EnterInteract();
+    }
+    #endregion
+
+    // ICharacter Implementation
+    public void AddHealth(float amount)
+    {
+        Health += amount;
     }
 }
