@@ -13,6 +13,8 @@ public class AmmoDisplayUI : MonoBehaviour
     [SerializeField]
     private Transform reticle;
 
+    private ReticleScript reticleScript;
+
     [SerializeField]
     private Sprite ammoIconSprite; // Icon for filled ammo
 
@@ -51,6 +53,8 @@ public class AmmoDisplayUI : MonoBehaviour
         {
             Debug.LogError("Ammo Image Prefab Not Set");
         }
+        reticleScript = GetComponentInChildren<ReticleScript>();
+        reticleScript.PlayerCharacter = playerCharacter;
     }
 
     void Update()
