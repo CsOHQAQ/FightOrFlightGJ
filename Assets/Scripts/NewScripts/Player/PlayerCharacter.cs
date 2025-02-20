@@ -31,9 +31,9 @@ public class PlayerCharacter : MonoBehaviour,
     [SerializeField] private float moveSpeed = 4.0f;    // 玩家移动速度
     public float MoveSpeed { get { return moveSpeed; } }
 
-    [SerializeField] private float rotationSpeed = 180f; 
-    // 若要用键盘左右旋转，可用此值
-
+    //[SerializeField] private float rotationSpeed = 180f; 
+    [SerializeField]
+    private Transform mainCameraTransform; 
     // 存储 OnMovementPerformed 获取的输入 (x:左右, y:前后)
     private Vector2 moveInput;
     public Vector2 MoveInput { get { return moveInput; } }
@@ -425,5 +425,43 @@ public class PlayerCharacter : MonoBehaviour,
     public void AddHealth(float amount)
     {
         Health += amount;
+    }
+
+    /// <summary>
+    /// Returns the "forward" direction aligned with the camera's yaw.
+    /// This effectively ignores the camera's pitch/roll, so movement
+    /// is purely horizontal in the direction the camera is facing.
+    /// </summary>
+    public Vector3 GetCameraYawForward()
+    {
+        if (mainCameraTransform == null) 
+        {
+            // fallback
+            return transform.forward;
+        }
+
+        // Extract camera's yaw
+        float yaw = mainCameraTransform.eulerAngles.y;
+
+        // Build a flat rotation
+        Quaternion rotation = Quaternion.Euler(0f, yaw, 0f);
+
+        return rotation * Vector3.forward; 
+    }
+
+    /// <summary>
+    /// Returns the "right" direction aligned with the camera's yaw.
+    /// </summary>
+    public Vector3 GetCameraYawRight()
+    {
+        if (mainCameraTransform == null)
+        {
+            return transform.right;
+        }
+
+        float yaw = mainCameraTransform.eulerAngles.y;
+        Quaternion rotation = Quaternion.Euler(0f, yaw, 0f);
+
+        return rotation * Vector3.right;
     }
 }

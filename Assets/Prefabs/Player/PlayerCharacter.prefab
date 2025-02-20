@@ -222,7 +222,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   artifactsOnStart: []
   moveSpeed: 4
-  rotationSpeed: 180
+  mainCameraTransform: {fileID: 2082362056165530588}
+  characterController: {fileID: 0}
   bumpDistance: 0.3
   bumpDuration: 0.15
   bodyTransform: {fileID: 5601706960039789189}

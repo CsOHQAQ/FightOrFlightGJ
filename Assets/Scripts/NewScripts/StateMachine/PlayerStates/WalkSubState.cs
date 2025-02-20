@@ -37,24 +37,20 @@ public class WalkSubState : BaseState
     public override void UpdatePhysics()
     {
         base.UpdatePhysics();
-
         var player = (PlayerCharacter)owner;
 
-        // 1) Determine final speed (including backpedal slower)
+        // If pressing backward, maybe reduce speed
         float finalSpeed = player.MoveSpeed;
-        if (player.MoveInput.y < 0f) // e.g., backward
+        if (player.MoveInput.y < 0f)
             finalSpeed *= 0.5f;
 
-        // 2) Build direction from MoveInput
-        //    Typically we use the player's 'bodyTransform' forward/right
-        Vector3 forward = player.transform.forward * player.MoveInput.y;
-        Vector3 right   = player.transform.right   * player.MoveInput.x;
+        // Use the camera-based yaw forward/right
+        Vector3 forward = player.GetCameraYawForward() * player.MoveInput.y;
+        Vector3 right   = player.GetCameraYawRight()   * player.MoveInput.x;
         Vector3 movementDir = (forward + right).normalized * finalSpeed;
 
-        // 3) Actually move
         if (player.characterController)
         {
-            // Use Time.fixedDeltaTime for consistent physics ticks
             player.characterController.Move(movementDir * Time.fixedDeltaTime);
         }
     }
