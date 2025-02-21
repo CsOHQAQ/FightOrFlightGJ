@@ -464,4 +464,17 @@ public class PlayerCharacter : MonoBehaviour,
 
         return rotation * Vector3.right;
     }
+
+    public void OnInteract(InputAction.CallbackContext context)
+{
+    Vector2 scroll = context.ReadValue<Vector2>();
+    float scrollY = scroll.y;
+
+    if (scrollY ！= 0f)
+    {
+        //interactComponent.PerformInteractionCheck()
+    }
+
+}
+
 }
