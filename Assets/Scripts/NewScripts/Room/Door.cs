@@ -1,44 +1,54 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.Events;
 using System;
 
-public class Door : MonoBehaviour, IInteractable,IRoomObject
+public class Door : MonoBehaviour, IInteractable, IRoomObject
 {
     private Room room;
-    public Room Room { get{return room;} set{room = value;} }
-    private PlayerInput playerInput;
-    PlayerCharacter character;
-    private BoxCollider doorCollider;
+    public Room Room { get { return room; } set { room = value; } }
 
+    private BoxCollider doorCollider;
+    private bool canInteract=true;
+    public bool CanInteract{get{return canInteract;}}
     public GameObject LeftPart, RightPart;
     [HideInInspector]
     public GameObject DoorOpener;
-    bool isClosed = true;
-    public bool IsClosed{get{return isClosed;}}
-    private bool compareX;
 
-    bool isFullyOpen=false;
-    private float targetOpenness;
-    
-    [SerializeField, Tooltip("Defines the amount by which the door opens per input."), Range(0f, 1f)]
-    private float doorOpenessPerInput;
+    private bool isClosed = true;
+    public bool IsClosed { get { return isClosed; } }
 
-    [SerializeField, Tooltip("Defines the angle at which the door is considered to be fully opened."), Range(80f, 179f)]
-    private float MaxDoorAngle = 120;
+    private bool isFullyOpen = false;
 
-    public float TargetDoorAngle => (compareX ? Mathf.Sign(LeftPart.transform.position.z - RightPart.transform.position.z) : Mathf.Sign(LeftPart.transform.position.x - RightPart.transform.position.x) * -1f) * relativePos * targetOpenness * MaxDoorAngle;
-    
+    // The 0..1 measure of how open the door is (set from HFSM or sub-state)
+    [Range(0f, 1f)]
+    [SerializeField] private float targetOpenness = 0f;
+
+    [SerializeField, Tooltip("Defines the angle at which the door is considered fully opened."), Range(80f, 179f)]
+    private float maxDoorAngle = 120f;
+
     [SerializeField]
     private float doorOpenSpeed = 2f;
 
-    Vector3 leftStartingLocalEulerAngles;
-    Vector3 rightStartingLocalEulerAngles;
+    // If the user wants to do partial increments, the HFSM might do that. 
+    // But we keep the ability to clamp targetOpenness in [0..1].
+    // doorOpenessPerInput can remain if we want to do partial increments 
+    // in a quick script or debugging.
+    [SerializeField, Range(0f, 1f)]
+    private float doorOpenessPerInput = 0.1f;
 
-    private bool canInteract=true;
-    public bool CanInteract{get{return canInteract;}}
+    // Starting euler angles for each part, to restore when closed
+    private Vector3 leftStartingLocalEulerAngles;
+    private Vector3 rightStartingLocalEulerAngles;
 
+    private bool compareX;
+    private float relativePos;
+
+    [Header("Door Events")]
+    public Action OnDoorFullyOpened;
+    public Action OnDoorFullyClosed;
+
+    // For the angle interpolation
     public float CurrentDoorAngle
     {
         get
@@ -46,31 +56,136 @@ public class Door : MonoBehaviour, IInteractable,IRoomObject
             if (LeftPart != null)
             {
                 float tempAngle = LeftPart.transform.localEulerAngles.y;
-                return tempAngle > 180f ? tempAngle - 360f : tempAngle;
+                // If angles exceed 180, we interpret them as negative
+                return (tempAngle > 180f) ? tempAngle - 360f : tempAngle;
             }
-            Debug.LogWarning("LeftPart GameObject is not assigned.");
+            Debug.LogWarning("LeftPart is null. Door script can't read angle properly.");
             return 0f;
         }
     }
 
-    public float CurrentOpenness => Mathf.Abs(this.CurrentDoorAngle) / MaxDoorAngle;
+    // 0..1 measure of how open the door is, from angle
+    public float CurrentOpenness
+    {
+        get
+        {
+            // fraction from 0..1
+            return Mathf.Abs(CurrentDoorAngle) / maxDoorAngle;
+        }
+    }
 
-    private float relativePos;
-
-    [Header("Door Events")]
-    public Action OnDoorFullyOpened;
-    public Action OnDoorFullyClosed;
+    // We set or get a value in [0..1], which the script will attempt to 
+    // realize in FixedUpdate by rotating the door parts.
+    public float TargetOpenness
+    {
+        get { return targetOpenness; }
+        set
+        {
+            targetOpenness = Mathf.Clamp01(value);
+        }
+    }
 
     private void Awake()
     {
         doorCollider = GetComponent<BoxCollider>();
     }
 
-    void Start()
+    private void Start()
     {
+        // For now we assume if there's a single local player
         DoorOpener = GameManager.Instance.PlayerCharacter.gameObject;
         InitializeDoor();
-        
+    }
+
+    private void FixedUpdate()
+    {
+        DoorUpdate();
+    }
+
+    /// <summary>
+    /// The main update that rotates the door from currentAngle to 
+    /// a target angle derived from TargetOpenness.
+    /// </summary>
+    private void DoorUpdate()
+    {
+        if (LeftPart != null && RightPart != null)
+        {
+            float currentAngle = CurrentDoorAngle;
+            // We derive a final angle from TargetOpenness
+            float targetAngle = CalculateTargetAngle();
+
+            float tempOpenness = CurrentOpenness;
+            if (isClosed && tempOpenness > 0f)
+            {
+                isClosed = false;
+            }
+
+            // We'll adjust door speed a bit by how far we are from target
+            float opennessGap = Mathf.Abs(tempOpenness - targetOpenness);
+            float dynamicSpeed = doorOpenSpeed * (1f + opennessGap);
+
+            // If the difference in angles is more than a small threshold, keep rotating
+            if (Mathf.Abs(Mathf.Abs(currentAngle) - Mathf.Abs(targetAngle)) > 0.2f)
+            {
+                float newAngle = Mathf.LerpAngle(currentAngle, targetAngle, Time.fixedDeltaTime * dynamicSpeed);
+
+                // Apply symmetrical angles to left/right parts
+                Vector3 leftEuler = LeftPart.transform.localEulerAngles;
+                leftEuler.y = newAngle;
+                LeftPart.transform.localEulerAngles = leftEuler;
+
+                Vector3 rightEuler = RightPart.transform.localEulerAngles;
+                rightEuler.y = -newAngle;
+                RightPart.transform.localEulerAngles = rightEuler;
+            }
+            else
+            {
+                // If it's basically at the target, check fully open or fully closed
+                if (targetOpenness >= 1f - 0.02f && !isFullyOpen)
+                {
+                    doorCollider.enabled = false; // door is effectively open
+                    OnDoorFullyOpened?.Invoke();
+                    isFullyOpen = true;
+                }
+                else if (!isClosed && tempOpenness <= 0.02f)
+                {
+                    isClosed = true;
+                    isFullyOpen = false;
+                    Debug.Log("Door Fully Closed");
+
+                    // Reset angles to initial for a perfect "closed" alignment
+                    LeftPart.transform.localEulerAngles = leftStartingLocalEulerAngles;
+                    RightPart.transform.localEulerAngles = rightStartingLocalEulerAngles;
+
+                    OnDoorFullyClosed?.Invoke();
+                }
+            }
+        }
+        else
+        {
+            Debug.LogWarning("LeftPart or RightPart is not assigned.");
+        }
+    }
+
+    private float CalculateTargetAngle()
+    {
+        float signFactor;
+        if (compareX)
+            signFactor = Mathf.Sign(LeftPart.transform.position.z - RightPart.transform.position.z);
+        else
+            signFactor = Mathf.Sign(LeftPart.transform.position.x - RightPart.transform.position.x) * -1f;
+
+        float angle = signFactor * relativePos * TargetOpenness * maxDoorAngle;
+        Debug.LogWarning(relativePos);
+        return angle;
+    }
+
+    public void Interact(InteractInfo info)
+    {
+        Debug.Log("Door Interact called. The HFSM or sub-state logic will manage open/close.");
+
+        SetRelativePosition();
+        // No hooking to input here – the sub-state drives push/pull
     }
 
     private void SetRelativePosition()
@@ -83,115 +198,7 @@ public class Door : MonoBehaviour, IInteractable,IRoomObject
         }
         else
         {
-            Debug.LogWarning("DoorOpener or LeftPart GameObject is not assigned.");
-        }
-    }
-
-    void FixedUpdate()
-    {
-        DoorUpdate();
-    }
-
-    public void DoorUpdate()
-{
-    if (LeftPart != null && RightPart != null)
-    {
-        float currentAngle = this.CurrentDoorAngle;
-        float targetAngle = this.TargetDoorAngle;
-        float tempOpenness = this.CurrentOpenness;
-
-        if (isClosed && tempOpenness > 0f)
-        {
-            isClosed = false;
-        }
-
-        // Calculate the gap between current and target openness
-        float opennessGap = Mathf.Abs(tempOpenness - targetOpenness);
-
-        // Adjust door speed based on the gap (use a multiplier)
-        float dynamicSpeed = doorOpenSpeed * (1f + opennessGap); // Larger gap increases speed
-
-        if (Mathf.Abs(Mathf.Abs(currentAngle) - Mathf.Abs(targetAngle)) > 0.2f)
-        {
-            // Smoothly interpolate the angle with dynamic speed
-            float newAngle = Mathf.LerpAngle(currentAngle, targetAngle, Time.fixedDeltaTime * dynamicSpeed);
-            Vector3 leftLocalEulerAngles = LeftPart.transform.localEulerAngles;
-            leftLocalEulerAngles.y = newAngle;
-            LeftPart.transform.localEulerAngles = leftLocalEulerAngles;
-
-            Vector3 rightLocalEulerAngles = RightPart.transform.localEulerAngles;
-            rightLocalEulerAngles.y = -newAngle;
-            RightPart.transform.localEulerAngles = rightLocalEulerAngles;
-        }
-        else
-        {
-            
-            // Trigger events if door is fully opened or fully closed
-            if (targetOpenness >= 1f - 0.02f&&!isFullyOpen)
-            {
-                
-                playerInput.actions["Movement"].performed -= OnMovementPerformed;
-                doorCollider.enabled = false;
-                OnDoorFullyOpened?.Invoke();
-                //OnDoorFullyOpened -= character.OnDoorFullyOpened;
-                //OnDoorFullyClosed -= character.OnDoorFullyClosed;
-                if(Room!=null)
-                {
-                    Room.StartCombat();
-                }
-                isFullyOpen= true;
-                
-            }
-            else if (!isClosed && tempOpenness <= 0.02f)
-            {
-                isClosed = true;
-                isFullyOpen= false;
-                Debug.Log("Door Fully Closed");
-                LeftPart.transform.localEulerAngles = leftStartingLocalEulerAngles;
-                RightPart.transform.localEulerAngles = rightStartingLocalEulerAngles;
-            }
-        }
-    }
-    else
-    {
-        Debug.LogWarning("LeftPart or RightPart GameObject is not assigned.");
-    }
-}
-
-
-    public void Interact(object args = null)
-    {
-        if(!canInteract){
-            return;
-        }
-        SetRelativePosition();
-        GameObject playerObject = args as GameObject;
-        playerInput = playerObject.GetComponentInChildren<PlayerInput>();
-        playerInput.actions["Movement"].performed += OnMovementPerformed;
-        character = playerObject.GetComponentInChildren<PlayerCharacter>();
-        character.OnInteractDoor(this);
-        //OnDoorFullyOpened += character.OnDoorFullyOpened;
-        //OnDoorFullyClosed += character.OnDoorFullyClosed;
-    }
-
-    private void OnMovementPerformed(InputAction.CallbackContext context)
-    {
-        Vector2 moveInput = context.ReadValue<Vector2>();
-        if (moveInput.y != 0f)
-        {
-            targetOpenness += moveInput.y * doorOpenessPerInput;
-            targetOpenness = Mathf.Clamp(targetOpenness, 0f, 1f);
-
-            // Unsubscribe from movement if door is fully closed and input is closing
-            if (Mathf.Approximately(targetOpenness,0f) && moveInput.y < 0)
-            {
-                playerInput.actions["Movement"].performed -= OnMovementPerformed;
-                OnDoorFullyClosed?.Invoke();
-                //OnDoorFullyOpened -= character.OnDoorFullyOpened;
-                //OnDoorFullyClosed -= character.OnDoorFullyClosed;
-            }
-
-            //Debug.Log($"Door Input: {moveInput}, Target Openess: {targetOpenness}, Target Door Angle: {TargetDoorAngle}");
+            Debug.LogWarning("DoorOpener or LeftPart is not assigned.");
         }
     }
 
@@ -201,12 +208,12 @@ public class Door : MonoBehaviour, IInteractable,IRoomObject
         {
             leftStartingLocalEulerAngles = LeftPart.transform.localEulerAngles;
             rightStartingLocalEulerAngles = RightPart.transform.localEulerAngles;
-            
-            Vector3 leftPartPosition = LeftPart.transform.position;
-            Vector3 rightPartPosition = RightPart.transform.position;
 
-            bool isXDifferent = !Mathf.Approximately(leftPartPosition.x, rightPartPosition.x);
-            bool isZDifferent = !Mathf.Approximately(leftPartPosition.z, rightPartPosition.z);
+            Vector3 leftPos = LeftPart.transform.position;
+            Vector3 rightPos = RightPart.transform.position;
+
+            bool isXDifferent = !Mathf.Approximately(leftPos.x, rightPos.x);
+            bool isZDifferent = !Mathf.Approximately(leftPos.z, rightPos.z);
 
             switch ((isXDifferent, isZDifferent))
             {
@@ -217,31 +224,37 @@ public class Door : MonoBehaviour, IInteractable,IRoomObject
                     compareX = true;
                     break;
                 case (true, true):
-                    Debug.LogError("Error: Both x and z positions are different.");
+                    Debug.LogError("Error: Both x and z positions are different. The code might not handle diagonal doors well.");
                     break;
                 case (false, false):
-                    Debug.LogError("Error: Both x and z positions are the same.");
+                    Debug.LogError("Error: Both x and z positions are the same, the door parts overlap?");
                     break;
             }
         }
         else
         {
-            Debug.LogWarning("LeftPart or RightPart GameObject is not assigned in the inspector.");
+            Debug.LogWarning("LeftPart or RightPart is not assigned in the inspector for Door script.");
         }
     }
 
-    public void OnCombatStartedInRoom(Room room)
+    public void SetTargetOpenness(float newOpenness)
     {
-        targetOpenness = 0f;
-        canInteract = false;
-        doorCollider.enabled = true;
-    }
-    public void OnCombatEndedInRoom(Room room)
-    {
-        canInteract=true;
+        TargetOpenness = newOpenness; // clamp in [0..1]
         
     }
 
+    // Called if room starts a combat scenario
+    public void OnCombatStartedInRoom(Room room)
+    {
+        TargetOpenness = 0f;
+        canInteract = false;
+        doorCollider.enabled = true;
+    }
 
-    
+    public void OnCombatEndedInRoom(Room room)
+    {
+        canInteract = true;
+    }
+
+    public bool IsFullyOpen { get { return isFullyOpen; } }
 }

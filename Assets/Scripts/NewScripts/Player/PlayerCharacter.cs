@@ -26,7 +26,7 @@ public class PlayerCharacter : MonoBehaviour,
 
     private InteractComponent interactComponent;
     private PlayerHandsComponent hand;
-
+    public PlayerHandsComponent Hand { get { return hand; } }
     [Header("First-Person Movement Settings (CharacterController)")]
     [SerializeField] private float moveSpeed = 4.0f;    // 玩家移动速度
     public float MoveSpeed { get { return moveSpeed; } }
@@ -466,15 +466,37 @@ public class PlayerCharacter : MonoBehaviour,
     }
 
     public void OnInteract(InputAction.CallbackContext context)
-{
-    Vector2 scroll = context.ReadValue<Vector2>();
-    float scrollY = scroll.y;
-
-    if (scrollY ！= 0f)
     {
-        //interactComponent.PerformInteractionCheck()
+        if (!context.performed) return;
+
+        Vector2 scroll = context.ReadValue<Vector2>();
+        float scrollY = scroll.y;
+        if (Mathf.Approximately(scrollY, 0f)) return;
+
+        // 1) We do a quick check forward or backward depending on push/pull
+        bool isPush = (scrollY > 0f);
+        Vector3 direction = isPush ? mainCameraTransform.forward : -mainCameraTransform.forward;
+
+        // 2) Raycast with new signature: (this.gameObject, direction, scrollY)
+        InteractInfo info = interactComponent.PerformInteractionCheck(this.gameObject, direction, scrollY);
+
+        // 3) If we found a door, transition HFSM to DoorInteractSubState
+        if (info.Interactable is Door door)
+        {
+            var doorSub = new DoorInteractSubState(this, BaseStateMachine, door);
+            currentDoor = door;
+            door.Interact(info);
+            BaseStateMachine.ChangeState(doorSub);
+        }
+        else
+        {
+            // For other “simple” interactions, just do them instantly
+            if (info.Interactable != null)
+            {
+                info.Interactable.Interact(info);
+            }
+        }
     }
 
-}
 
 }
