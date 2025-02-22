@@ -229,4 +229,29 @@ public class FreeLookCameraController : MonoBehaviour
         verticalRotation = cameraTransform.localEulerAngles.x;
         canRotateCamera = true;
     }
+
+    /// <summary>
+    /// Sets the camera's yaw and pitch rotation immediately, 
+    /// respecting any optional horizontal/vertical limits.
+    /// </summary>
+    public void SetRotation(float newYaw, float newPitch)
+    {
+        // 1) Store the intended angles in your local fields
+        horizontalRotation = newYaw;
+        verticalRotation   = newPitch;
+
+        // 2) If you want to clamp horizontal rotation:
+        if (limitHorizontalRotation)
+        {
+            horizontalRotation = Mathf.Clamp(horizontalRotation, -horizontalLimit, horizontalLimit);
+        }
+
+        // 3) Clamp vertical rotation so it doesn't exceed the min/max
+        verticalRotation = Mathf.Clamp(verticalRotation, minVerticalAngle, maxVerticalAngle);
+
+        // 4) Apply these to the transforms
+        // The "parent" object does horizontal, the cameraTransform does vertical
+        transform.localRotation = Quaternion.Euler(0f, horizontalRotation, 0f);
+        cameraTransform.localRotation = Quaternion.Euler(verticalRotation, 0f, 0f);
+    }
 }

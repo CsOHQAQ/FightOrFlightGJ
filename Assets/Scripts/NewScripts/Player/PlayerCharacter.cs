@@ -26,6 +26,9 @@ public class PlayerCharacter : MonoBehaviour,
 
     private InteractComponent interactComponent;
     public InteractComponent InteractComponent { get { return interactComponent;}}
+    private FreeLookCameraController freeLookCameraController;
+    public FreeLookCameraController FreeLookCameraController { get { return freeLookCameraController;}}
+
     private PlayerHandsComponent hand;
     public PlayerHandsComponent Hand { get { return hand; } }
     [Header("First-Person Movement Settings (CharacterController)")]
@@ -119,6 +122,7 @@ public class PlayerCharacter : MonoBehaviour,
         weaponComponent = GetComponentInChildren<WeaponComponent>();
         hand = GetComponentInChildren<PlayerHandsComponent>();
         interactComponent = GetComponentInChildren<InteractComponent>();
+        freeLookCameraController = GetComponentInChildren<FreeLookCameraController>();
 
         // 获取 CharacterController
         characterController = GetComponent<CharacterController>();
@@ -476,6 +480,27 @@ public class PlayerCharacter : MonoBehaviour,
         // Forward it to the HFSM
         BaseStateMachine.CurrentState.OnInteractInput(scrollY);
     }
+    
+    /// <summary>
+    /// Smoothly moves the player's transform from current position 
+    /// to the given targetPosition over 'duration' seconds.
+    /// </summary>
+    public IEnumerator ShiftToPosition(Vector3 targetPosition, float duration)
+    {
+        Vector3 startPos = transform.position;
+        float elapsed = 0f;
 
+        while (elapsed < duration)
+        {
+            float t = elapsed / duration;
+            transform.position = Vector3.Lerp(startPos, targetPosition, t);
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        // Ensure final position is exact
+        transform.position = targetPosition;
+    }
 
 }

@@ -30,6 +30,8 @@ public class Door : MonoBehaviour, IInteractable, IRoomObject
     [SerializeField]
     private float doorOpenSpeed = 2f;
 
+    public Vector3 DoorCenterPosition{get {  return (LeftPart.transform.position + RightPart.transform.position)*0.5f;}}
+
     // If the user wants to do partial increments, the HFSM might do that. 
     // But we keep the ability to clamp targetOpenness in [0..1].
     // doorOpenessPerInput can remain if we want to do partial increments 
@@ -258,4 +260,46 @@ public class Door : MonoBehaviour, IInteractable, IRoomObject
     }
 
     public bool IsFullyOpen { get { return isFullyOpen; } }
+
+    /// <summary>
+    /// Returns a world position that is (standDistance) meters from the door's center,
+    /// in the direction the player is standing (based on relativePos).
+    /// </summary>
+    public Vector3 GetPlayerStandPosition(float standDistance)
+    {
+
+        Vector3 leftPos = LeftPart.transform.position;
+        Vector3 rightPos = RightPart.transform.position;
+        // 2) Determine the "door axis" from left to right (in horizontal plane).
+        //    We'll need a perpendicular to this axis to find where the player stands.
+        Vector3 doorAxis = (rightPos - leftPos);
+        doorAxis.y = 0f; // flatten so we only consider horizontal direction
+        doorAxis.Normalize();
+
+        // 3) Recreate the signFactor logic, same as in CalculateTargetAngle().
+        float signFactor;
+        if (compareX)
+            signFactor = Mathf.Sign(leftPos.z - rightPos.z);
+        else
+            signFactor = Mathf.Sign(leftPos.x - rightPos.x) * -1f;
+
+        // Combine with relativePos to decide which side is "front/back"
+        float side = signFactor * -relativePos; // typically +1 or -1
+
+        // 4) Get a perpendicular direction in the horizontal plane.
+        //    We'll cross the doorAxis with Vector3.up to get a left/right direction.
+        //    Then multiply by 'side' to pick the correct side the player stands on.
+        Vector3 doorPerp = Vector3.Cross(Vector3.up, doorAxis).normalized;
+        doorPerp *= side;
+
+        // 5) The final stand position = door center + (doorPerp * standDistance).
+        Vector3 standPos = this.DoorCenterPosition + doorPerp * standDistance;
+
+        // Optional: If you want the player on the same ground Y, you can adjust:
+        // standPos.y = doorCenter.y (or some floor height).
+        // e.g. standPos.y = player.transform.position.y;
+
+        return standPos;
+    }
+
 }
