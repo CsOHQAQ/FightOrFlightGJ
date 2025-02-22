@@ -415,6 +415,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8858306534722491980, guid: 9e1a9dd19ef92054fb35855377e3f4c6,
+        type: 3}
+      propertyPath: maxDoorAngle
+      value: 110
+      objectReference: {fileID: 0}
     - target: {fileID: 8934210863750477405, guid: 9e1a9dd19ef92054fb35855377e3f4c6,
         type: 3}
       propertyPath: m_Name

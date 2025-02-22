@@ -110,6 +110,7 @@ public class DoorInteractSubState : BaseState
         }
         bool doorIsNearlyClosed = (door.CurrentOpenness <= 0.02f);
         // If door nearly closed or fully open => exit
+        player.FreeLookCameraController.DoorOffset = door.CurrentOpenness;
         if (doorIsNearlyClosed && scrollY<0f)
         {
             door.SetTargetOpenness(0f);

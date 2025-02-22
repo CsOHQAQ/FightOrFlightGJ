@@ -1,7 +1,7 @@
 using UnityEngine;
-using System.Collections;
 using UnityEngine.InputSystem;
 using UnityEngine.Events;
+using System.Collections;
 
 public class FreeLookCameraController : MonoBehaviour
 {
@@ -24,6 +24,14 @@ public class FreeLookCameraController : MonoBehaviour
     [SerializeField] private float maxCameraMovement = 1.3f;
     [SerializeField] private float maxOpenness = 0.8f;
 
+    // -- NEW: For smoothing the camera offset while in DoorInteract
+    [Header("Door Offset Settings")]
+    [SerializeField] private float doorOffsetMaxDistance = 0.5f; // how many meters forward
+    [SerializeField] private float doorOffsetSmoothTime  = 0.1f; // how quickly to ease
+    private float targetDoorOffset = 0f;   // sub-state sets in [0..1]
+    private float currentDoorOffset = 0f;  // what we have now
+    private float doorOffsetVelocity = 0f; // for SmoothDamp
+
     [Header("Events")]
     [SerializeField] private UnityEvent onLookedToBottom;
     [SerializeField] private UnityEvent onExitLookedToBottom;
@@ -36,6 +44,18 @@ public class FreeLookCameraController : MonoBehaviour
     private bool hasLookedToBottom = false;
     private bool canRotateCamera = true;
 
+    // We'll store the initial local position so we can offset from it
+    private Vector3 baseLocalPosition;
+
+    private void Awake()
+    {
+        // We store the camera's initial local pos to come back to
+        if (cameraTransform == null)
+            cameraTransform = Camera.main.transform;
+
+        baseLocalPosition = cameraTransform.localPosition;
+    }
+
     private void Start()
     {
         player = gameObject.transform.parent.GetComponent<PlayerCharacter>();
@@ -44,16 +64,15 @@ public class FreeLookCameraController : MonoBehaviour
             Debug.LogError("NO PLAYERCHARACTER FOUND on CameraController");
         }
 
-        // Remove references to player.OnStateEnter / OnStateExit 
-        // because we no longer use the old PlayerState-based events.
-
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+    }
 
-        if (cameraTransform == null)
-        {
-            cameraTransform = Camera.main.transform;
-        }
+    // A property so sub-states can set the desired offset (0..1).
+    public float DoorOffset
+    {
+        get => targetDoorOffset;
+        set => targetDoorOffset = Mathf.Clamp01(value);
     }
 
     private void Update()
@@ -63,23 +82,34 @@ public class FreeLookCameraController : MonoBehaviour
         // Query the HFSM's current state
         var current = player.BaseStateMachine.CurrentState;
 
-        // Example usage: if in MovementParentState => standard free look
+        // If in MovementParentState => standard free look
         if (current is MovementParentState)
         {
             RotateCamera();
         }
-        // If in some InteractState (like DoorInteractState), do something else
         else if (current is InteractState)
         {
-            RotateCameraWithCameraRotation();
+            // e.g. door interaction logic
+            //RotateCameraWithCameraRotation();
 
-            // If relevant, adjust camera position with door logic 
-            // (assuming 'player.CurrentDoor' is valid if Interacting with a door)
-            if (player.CurrentDoor != null)
-            {
-                AdjustCameraPositionBasedOnDoor();
-            }
+            //if (player.CurrentDoor != null)
+            //{
+            //    AdjustCameraPositionBasedOnDoor();
+            //}
         }
+    }
+
+    // We'll do the smoothing for door offset in FixedUpdate
+    private void FixedUpdate()
+    {
+        if (!canRotateCamera) return;
+
+        // Smoothly approach the desired door offset
+        float desiredOffset = targetDoorOffset * doorOffsetMaxDistance;
+        currentDoorOffset = Mathf.SmoothDamp(currentDoorOffset, desiredOffset, ref doorOffsetVelocity, doorOffsetSmoothTime);
+
+        // Apply offset in local space, relative to the baseLocalPosition
+        cameraTransform.position = player.transform.position + player.GetCameraYawForward() * currentDoorOffset;
     }
 
     public void OnLook(InputAction.CallbackContext context)
@@ -110,7 +140,6 @@ public class FreeLookCameraController : MonoBehaviour
     private void RotateCameraWithCameraRotation()
     {
         // Example logic used when interacting with a door
-        // Possibly center camera if door hasn't opened enough
         if (player.CurrentDoor != null && player.CurrentDoor.CurrentOpenness <= 0.5f)
         {
             Vector3 directionToDoor = (player.CurrentDoor.transform.position - player.transform.position).normalized;
@@ -118,7 +147,6 @@ public class FreeLookCameraController : MonoBehaviour
             return;
         }
 
-        // Otherwise, let player aim, but maybe a different transform approach
         Vector2 scaledInput = new Vector2(lookInput.x * horizontalSensitivity, lookInput.y * verticalSensitivity);
 
         // Horizontal
@@ -146,6 +174,7 @@ public class FreeLookCameraController : MonoBehaviour
         Vector3 forwardDirection = transform.forward.normalized;
         Vector3 targetPosition = player.transform.position + forwardDirection * movementAmount;
 
+        // This was your existing approach for adjusting camera
         cameraTransform.position = Vector3.Lerp(
             cameraTransform.position,
             targetPosition,
@@ -236,21 +265,16 @@ public class FreeLookCameraController : MonoBehaviour
     /// </summary>
     public void SetRotation(float newYaw, float newPitch)
     {
-        // 1) Store the intended angles in your local fields
         horizontalRotation = newYaw;
         verticalRotation   = newPitch;
 
-        // 2) If you want to clamp horizontal rotation:
         if (limitHorizontalRotation)
         {
             horizontalRotation = Mathf.Clamp(horizontalRotation, -horizontalLimit, horizontalLimit);
         }
 
-        // 3) Clamp vertical rotation so it doesn't exceed the min/max
         verticalRotation = Mathf.Clamp(verticalRotation, minVerticalAngle, maxVerticalAngle);
 
-        // 4) Apply these to the transforms
-        // The "parent" object does horizontal, the cameraTransform does vertical
         transform.localRotation = Quaternion.Euler(0f, horizontalRotation, 0f);
         cameraTransform.localRotation = Quaternion.Euler(verticalRotation, 0f, 0f);
     }
