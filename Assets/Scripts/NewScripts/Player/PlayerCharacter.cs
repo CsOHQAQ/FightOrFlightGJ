@@ -503,4 +503,12 @@ public class PlayerCharacter : MonoBehaviour,
         transform.position = targetPosition;
     }
 
+    public void OnLook(InputAction.CallbackContext context)
+    {
+        //FreeLookCameraController = context.ReadValue<Vector2>();
+        BaseStateMachine.CurrentState.OnShootInput(context.ReadValue<Vector2>());
+    }
+
+
+
 }

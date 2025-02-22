@@ -68,6 +68,16 @@ public abstract class BaseState
     {
         // default does nothing
     }
+
+    public virtual void OnMovementInput (Vector2 movementInput)
+    {
+
+    }
+
+    public virtual void OnShootInput (Vector2 lookInput)
+    {
+        
+    }
 }
 
 #endregion

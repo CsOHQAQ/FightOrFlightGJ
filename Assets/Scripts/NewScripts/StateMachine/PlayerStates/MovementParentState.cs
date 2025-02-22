@@ -100,4 +100,9 @@ public class MovementParentState : BaseState
             info.Interactable.Interact(info);
         }
     }
+
+    public override void OnShootInput (Vector2 lookInput)
+    {
+        player.FreeLookCameraController.LookInput = lookInput;
+    }
 }

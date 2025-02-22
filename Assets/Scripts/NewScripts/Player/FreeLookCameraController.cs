@@ -37,6 +37,7 @@ public class FreeLookCameraController : MonoBehaviour
     [SerializeField] private UnityEvent onExitLookedToBottom;
 
     private Vector2 lookInput;
+    public Vector2 LookInput { get { return lookInput; } set{ lookInput = value; } }
     private float verticalRotation = 0f;
     private float horizontalRotation = 0f;
 
@@ -112,10 +113,6 @@ public class FreeLookCameraController : MonoBehaviour
         cameraTransform.position = player.transform.position + player.GetCameraYawForward() * currentDoorOffset;
     }
 
-    public void OnLook(InputAction.CallbackContext context)
-    {
-        lookInput = context.ReadValue<Vector2>();
-    }
 
     private void RotateCamera()
     {

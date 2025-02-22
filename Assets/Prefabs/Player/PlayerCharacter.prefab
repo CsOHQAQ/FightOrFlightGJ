@@ -171,8 +171,8 @@ MonoBehaviour:
     m_ActionName: Player/ItemMenu[/Mouse/middleButton]
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2326194727896006606}
-        m_TargetAssemblyTypeName: FreeLookCameraController, Assembly-CSharp
+      - m_Target: {fileID: 8751576015793047942}
+        m_TargetAssemblyTypeName: PlayerCharacter, Assembly-CSharp
         m_MethodName: OnLook
         m_Mode: 0
         m_Arguments:
