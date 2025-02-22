@@ -506,7 +506,7 @@ public class PlayerCharacter : MonoBehaviour,
     public void OnLook(InputAction.CallbackContext context)
     {
         //FreeLookCameraController = context.ReadValue<Vector2>();
-        BaseStateMachine.CurrentState.OnShootInput(context.ReadValue<Vector2>());
+        BaseStateMachine.CurrentState.OnLookInput(context.ReadValue<Vector2>());
     }
 
 

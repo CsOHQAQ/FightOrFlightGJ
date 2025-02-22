@@ -74,7 +74,7 @@ public abstract class BaseState
 
     }
 
-    public virtual void OnShootInput (Vector2 lookInput)
+    public virtual void OnLookInput (Vector2 lookInput)
     {
         
     }
