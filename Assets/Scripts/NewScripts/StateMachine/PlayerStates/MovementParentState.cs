@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class MovementParentState : BaseState
 {
+    private PlayerCharacter player;
     // 引用当前子状态
     private BaseState currentSubState;
 
@@ -17,6 +18,7 @@ public class MovementParentState : BaseState
     public MovementParentState(IStateMachineEntity owner, StateMachine stateMachine)
         : base(owner, stateMachine)
     {
+        player = (PlayerCharacter)owner; 
         // 初始化子状态
         WalkSubState   = new WalkSubState(owner, stateMachine, this);
         SprintSubState = new SprintSubState(owner, stateMachine, this);
@@ -67,5 +69,29 @@ public class MovementParentState : BaseState
         currentSubState?.Exit();
         currentSubState = newSub;
         currentSubState.Enter();
+    }
+
+    public override void OnInteractInput(float scrollY)
+    {
+        if (Mathf.Approximately(scrollY, 0f)) return;
+
+        bool isPush = (scrollY > 0f);
+        Vector3 direction = isPush ? player.MainCameraTransform.forward
+                                : -player.MainCameraTransform.forward;
+        
+        InteractInfo info = player.InteractComponent
+                        .PerformInteractionCheck(player.gameObject, direction, scrollY);
+
+        if (info.Interactable is Door door)
+        {
+            var doorSub = new DoorInteractSubState(player, stateMachine, door);
+            player.CurrentDoor = door;
+            door.Interact(info);
+            stateMachine.ChangeState(doorSub);
+        }
+        else if (info.Interactable != null)
+        {
+            info.Interactable.Interact(info);
+        }
     }
 }

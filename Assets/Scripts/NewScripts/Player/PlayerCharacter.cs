@@ -25,6 +25,7 @@ public class PlayerCharacter : MonoBehaviour,
     private List<ArtifactItem> artifactItems;
 
     private InteractComponent interactComponent;
+    public InteractComponent InteractComponent { get { return interactComponent;}}
     private PlayerHandsComponent hand;
     public PlayerHandsComponent Hand { get { return hand; } }
     [Header("First-Person Movement Settings (CharacterController)")]
@@ -33,7 +34,8 @@ public class PlayerCharacter : MonoBehaviour,
 
     //[SerializeField] private float rotationSpeed = 180f; 
     [SerializeField]
-    private Transform mainCameraTransform; 
+    private Transform mainCameraTransform;
+    public Transform MainCameraTransform{get {return mainCameraTransform;}}
     // 存储 OnMovementPerformed 获取的输入 (x:左右, y:前后)
     private Vector2 moveInput;
     public Vector2 MoveInput { get { return moveInput; } }
@@ -59,7 +61,7 @@ public class PlayerCharacter : MonoBehaviour,
     private Transform bodyTransform;
 
     private Door currentDoor;
-    public Door CurrentDoor { get { return currentDoor; } }
+    public Door CurrentDoor { get { return currentDoor; } set{currentDoor = value;} }
 
     // ----------------- 不再用 PlayerState 来驱动核心逻辑 -----------------
     // private PlayerState currentState;  // 移除或不用
@@ -468,34 +470,11 @@ public class PlayerCharacter : MonoBehaviour,
     public void OnInteract(InputAction.CallbackContext context)
     {
         if (!context.performed) return;
-
         Vector2 scroll = context.ReadValue<Vector2>();
         float scrollY = scroll.y;
-        if (Mathf.Approximately(scrollY, 0f)) return;
-
-        // 1) We do a quick check forward or backward depending on push/pull
-        bool isPush = (scrollY > 0f);
-        Vector3 direction = isPush ? mainCameraTransform.forward : -mainCameraTransform.forward;
-
-        // 2) Raycast with new signature: (this.gameObject, direction, scrollY)
-        InteractInfo info = interactComponent.PerformInteractionCheck(this.gameObject, direction, scrollY);
-
-        // 3) If we found a door, transition HFSM to DoorInteractSubState
-        if (info.Interactable is Door door)
-        {
-            var doorSub = new DoorInteractSubState(this, BaseStateMachine, door);
-            currentDoor = door;
-            door.Interact(info);
-            BaseStateMachine.ChangeState(doorSub);
-        }
-        else
-        {
-            // For other “simple” interactions, just do them instantly
-            if (info.Interactable != null)
-            {
-                info.Interactable.Interact(info);
-            }
-        }
+        
+        // Forward it to the HFSM
+        BaseStateMachine.CurrentState.OnInteractInput(scrollY);
     }
 
 

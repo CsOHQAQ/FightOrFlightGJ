@@ -145,6 +145,7 @@ public class Door : MonoBehaviour, IInteractable, IRoomObject
                 {
                     doorCollider.enabled = false; // door is effectively open
                     OnDoorFullyOpened?.Invoke();
+                    Debug.LogWarning("Door Fully Opened");
                     isFullyOpen = true;
                 }
                 else if (!isClosed && tempOpenness <= 0.02f)
@@ -176,7 +177,7 @@ public class Door : MonoBehaviour, IInteractable, IRoomObject
             signFactor = Mathf.Sign(LeftPart.transform.position.x - RightPart.transform.position.x) * -1f;
 
         float angle = signFactor * relativePos * TargetOpenness * maxDoorAngle;
-        Debug.LogWarning(relativePos);
+        
         return angle;
     }
 
