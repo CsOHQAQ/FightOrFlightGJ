@@ -14,6 +14,8 @@ public class WalkSubState : BaseState
     public override void Enter()
     {
         base.Enter();
+        var player = owner as PlayerCharacter;
+        player.CanActivate = true;
         Debug.Log("Enter WalkSubState");
     }
 
@@ -58,6 +60,41 @@ public class WalkSubState : BaseState
     public override void Exit()
     {
         base.Exit();
+        var player = owner as PlayerCharacter;
+        player.CanActivate = false;
         Debug.Log("Exit WalkSubState");
+    }
+    // ----------------------------------------------------------------------
+    // LEFT-CLICK OVERRIDES
+    // ----------------------------------------------------------------------
+    public override void OnLeftClickStarted()
+    {
+        base.OnLeftClickStarted();
+        
+        var player = (PlayerCharacter)owner;
+
+        // Example logic: If the player has a currentActivatable (like a gun), shoot
+        IActivatable item = player.GetCurrentActivatable(); 
+        if (item != null)
+        {
+            // Or check player.CanActivate, etc.
+            item.BeginUse(player, ActivationTrigger.LeftMouse);
+        }
+        else
+        {
+            Debug.Log("No item to fire.");
+        }
+    }
+
+    public override void OnLeftClickCanceled()
+    {
+        base.OnLeftClickCanceled();
+        
+        var player = (PlayerCharacter)owner;
+        IActivatable item = player.GetCurrentActivatable();
+        if (item != null)
+        {
+            item.EndUse(player, ActivationTrigger.LeftMouse);
+        }
     }
 }

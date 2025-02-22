@@ -231,12 +231,16 @@ public class PlayerCharacter : MonoBehaviour,
     // 左键交互
     public void OnLeftClickPerformed(InputAction.CallbackContext context)
     {
-        if (!canActivate || currentActivatable == null) return;
-
         if (context.phase == InputActionPhase.Started)
-            BeginUseItem(currentActivatable, ActivationTrigger.LeftMouse);
+        {
+            // Let the current HFSM state handle the left-click "start"
+            BaseStateMachine.CurrentState.OnLeftClickStarted();
+        }
         else if (context.phase == InputActionPhase.Canceled)
-            EndUseItem(currentActivatable, ActivationTrigger.LeftMouse);
+        {
+            // Let the current HFSM state handle the left-click "canceled"
+            BaseStateMachine.CurrentState.OnLeftClickCanceled();
+        }
     }
     #endregion
 
@@ -509,6 +513,9 @@ public class PlayerCharacter : MonoBehaviour,
         BaseStateMachine.CurrentState.OnLookInput(context.ReadValue<Vector2>());
     }
 
-
+    public IActivatable GetCurrentActivatable()
+    {
+        return currentActivatable;
+    }
 
 }

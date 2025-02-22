@@ -78,6 +78,10 @@ public abstract class BaseState
     {
         
     }
+
+    // --- Add these for left-click events ---
+    public virtual void OnLeftClickStarted() { }
+    public virtual void OnLeftClickCanceled() { }
 }
 
 #endregion
