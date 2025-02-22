@@ -223,7 +223,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   artifactsOnStart: []
-  moveSpeed: 2
+  moveSpeed: 1.5
   mainCameraTransform: {fileID: 2082362056165530588}
   characterController: {fileID: 0}
   bumpDistance: 0.3

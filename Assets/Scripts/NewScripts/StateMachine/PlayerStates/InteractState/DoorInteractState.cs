@@ -1,7 +1,6 @@
 using System;
 using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine.InputSystem;
 
 public class DoorInteractSubState : BaseState
@@ -9,14 +8,15 @@ public class DoorInteractSubState : BaseState
     private PlayerCharacter player;
     private Door door;
 
-    // Example rate for how fast the door changes per scroll step
     private float doorScrollRate = 0.05f;
     private Coroutine enterRoutine;
+    private Coroutine closeRoutine; // For the "stepping in" after door closes
+
     public DoorInteractSubState(IStateMachineEntity owner, StateMachine stateMachine, Door inDoor)
         : base(owner, stateMachine)
     {
         player = (PlayerCharacter)owner;
-        door = inDoor;
+        door   = inDoor;
     }
 
     public override void Enter()
@@ -24,14 +24,15 @@ public class DoorInteractSubState : BaseState
         base.Enter();
         Debug.Log("Enter DoorInteractSubState");
 
+        // Start our "EnterSequence" steps
         enterRoutine = player.StartCoroutine(EnterSequence());
     }
 
-    // This coroutine does the step-by-step approach:
     private IEnumerator EnterSequence()
     {
-        // 1) Move the hands to "Raised"
-        
+        // 1) Move the hands to "Raised" or just wait until the door is half open, etc.
+        //    For example:
+        player.Hand.ChangeState(HandState.Raised);
 
         // 2) Smoothly shift the player to the door front
         Vector3 standPos = door.GetPlayerStandPosition(0.5f);
@@ -39,26 +40,34 @@ public class DoorInteractSubState : BaseState
 
         // 3) Reset camera to door
         ResetCameraToDoor();
-        player.Hand.ChangeState(HandState.Raised);
+
         // 4) Subscribe door events
         door.OnDoorFullyOpened += HandleDoorOpened;
         door.OnDoorFullyClosed += HandleDoorClosed;
     }
+
     public override void Exit()
     {
         base.Exit();
         Debug.Log("Exit DoorInteractSubState");
 
-        // If the coroutine is still running, stop it
+        // If the coroutines are still running, stop them
         if (enterRoutine != null)
         {
             player.StopCoroutine(enterRoutine);
             enterRoutine = null;
         }
+        if (closeRoutine != null)
+        {
+            player.StopCoroutine(closeRoutine);
+            closeRoutine = null;
+        }
 
+        // Unsubscribe from door events
         door.OnDoorFullyOpened -= HandleDoorOpened;
         door.OnDoorFullyClosed -= HandleDoorClosed;
 
+        // Optionally revert hands
         player.Hand.ChangeState(HandState.Lowered);
     }
 
@@ -68,8 +77,8 @@ public class DoorInteractSubState : BaseState
 
         // Read the "Interact" scroll input each frame
         Vector2 scroll = player.GetComponent<PlayerInput>()
-                            .actions["Interact"]
-                            .ReadValue<Vector2>();
+                               .actions["Interact"]
+                               .ReadValue<Vector2>();
         float scrollY = scroll.y;
 
         // If we get scroll input, update door’s TargetOpenness 
@@ -77,75 +86,50 @@ public class DoorInteractSubState : BaseState
         {
             door.SetTargetOpenness(door.TargetOpenness + (scrollY * doorScrollRate));
         }
-
-        // Check if door is near closed, AND user is scrolling down ~ -1
-        // (We pick -0.9 as a threshold since scroll might not be exactly -1.)
-        //bool doorIsNearlyClosed = (door.CurrentOpenness <= 0.02f);
-        //bool userIsPullingFully = (scrollY <= -0.9f);
-
-        //if (doorIsNearlyClosed && userIsPullingFully)
-        //{
-        //    Debug.Log("Door is nearly closed, user scrolled down => Exit DoorInteractSubState");
-        //    stateMachine.ChangeState(player.MovementParentState);
-        //}
-    }
-
-
-    private void HandleDoorOpened()
-    {
-        stateMachine.ChangeState(player.MovementParentState);
-    }
-
-    private void HandleDoorClosed()
-    {
-        stateMachine.ChangeState(player.MovementParentState);
     }
 
     public override void OnInteractInput(float scrollY)
     {
         if (!Mathf.Approximately(scrollY, 0f))
         {
-            // push => TargetOpenness += rate
             door.SetTargetOpenness(door.TargetOpenness + scrollY * doorScrollRate);
         }
-        bool doorIsNearlyClosed = (door.CurrentOpenness <= 0.02f);
-        // If door nearly closed or fully open => exit
-        player.FreeLookCameraController.DoorOffset = door.CurrentOpenness;
-        if (doorIsNearlyClosed && scrollY<0f)
-        {
-            door.SetTargetOpenness(0f);
-            stateMachine.ChangeState(player.MovementParentState);
-        }
+        
+        // Example: Also set camera offset based on door's CurrentOpenness if you want
+        // player.FreeLookCameraController.DoorOffset = door.CurrentOpenness;
     }
 
+    private void HandleDoorOpened()
+    {
+        // Door is fully open => exit sub-state if you want
+        closeRoutine = player.StartCoroutine(HandleDoorClosedSequence());
+    }
+
+    private void HandleDoorClosed()
+    {
+        stateMachine.ChangeState(player.MovementParentState);
+        
+    }
+
+    private IEnumerator HandleDoorClosedSequence()
+    {
+        
+        // For example, we move the player inside the room by -0.5
+        Vector3 standPos = door.GetPlayerStandPosition(0.5f,true);
+        yield return player.StartCoroutine(player.ShiftToPosition(standPos, 0.4f));
+        
+        // After we finish stepping inside, we exit the sub-state
+        stateMachine.ChangeState(player.MovementParentState);
+    }
 
     private void ResetCameraToDoor()
     {
-        // Option A) Directly snap the camera to face the door
-        //     i.e. camera local rotation = (0,0,0) after adjusting the player
-        // Option B) Use your existing "ShiftCamera" coroutine
-
-        // Let’s do a direct approach:
-        Vector3 doorPos = door.DoorCenterPosition;
-        Vector3 toDoor = (doorPos - player.transform.position).normalized;
-
-        // 1) Flatten or not
-        toDoor.y = 0f;
-        /*
-        // 2) compute desired Y rotation for the player camera
-        float desiredYaw = Mathf.Atan2(toDoor.x, toDoor.z) * Mathf.Rad2Deg;
-        
-        // We'll forcibly set the camera's horizontalRotation & verticalRotation:
-        
-        if (cameraController != null)
-        {
-            cameraController.SetRotation(desiredYaw, 0f); 
-            // a hypothetical method "SetRotation(float yaw, float pitch)"
-        }
-        */
+        // Example direct approach:
         var cameraController = player.FreeLookCameraController;
-        
+
+        Vector3 doorPos = door.DoorCenterPosition;
         Vector3 directionToDoor = (doorPos - player.transform.position).normalized;
+
         cameraController.StartCoroutine(cameraController.ShiftCamera(directionToDoor, 0.3f));
     }
 }

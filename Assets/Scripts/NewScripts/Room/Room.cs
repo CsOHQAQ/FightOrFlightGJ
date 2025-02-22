@@ -5,7 +5,6 @@ using System;
 
 public class Room : MonoBehaviour
 {
-    // Start is called before the first frame update
     [SerializeField]
     public List<Door> doors;
     [SerializeField]
@@ -15,9 +14,9 @@ public class Room : MonoBehaviour
     private List<ArtifactSO> rewardList;
 
     private int remainingEnemyNum;
-    //public List<Enemy> deadEnemies;
     public event Action<Room> OnCombatStartedInRoom;
     public event Action<Room> OnCombatEndedInRoom;
+
     private bool hasCombatEncounter = true;
     private bool isCombatActive = false;
 
@@ -30,12 +29,13 @@ public class Room : MonoBehaviour
     
     public void StartCombat()
     {
-        if (isCombatActive||!hasCombatEncounter) return;
+        if (isCombatActive || !hasCombatEncounter) return;
         isCombatActive = true;
         
         OnCombatStartedInRoom?.Invoke(this);
 
-        // do more logic
+        // Additional logic for starting combat
+        Debug.Log("Combat has started!");
     }
 
     public void InitializeDoors()
@@ -43,49 +43,56 @@ public class Room : MonoBehaviour
         foreach (Door door in doors)
         {
             door.Room = this;
-            OnCombatStartedInRoom+=door.OnCombatStartedInRoom;
-            door.OnDoorFullyOpened+= OnDoorFullyOpened;
-            OnCombatEndedInRoom+=door.OnCombatEndedInRoom;
+            OnCombatStartedInRoom += door.OnCombatStartedInRoom;
+            door.OnDoorFullyOpened += OnDoorFullyOpened;
+            OnCombatEndedInRoom   += door.OnCombatEndedInRoom;
         }
         foreach (Enemy enemy in enemies)
         {
-            OnCombatStartedInRoom+=enemy.OnCombatStartedInRoom;
-            OnCombatEndedInRoom+=enemy.OnCombatEndedInRoom;
-            enemy.OnCharacterDied+=OnEnemyInRoomDied;
-            roomClearingScore+=enemy.ScoreOnKill;
+            OnCombatStartedInRoom += enemy.OnCombatStartedInRoom;
+            OnCombatEndedInRoom   += enemy.OnCombatEndedInRoom;
+            enemy.OnCharacterDied += OnEnemyInRoomDied;
+            roomClearingScore     += enemy.ScoreOnKill;
         }
         remainingEnemyNum = enemies.Count;
     }
+
     private void OnDoorFullyOpened()
     {
+        // Instead of calling StartCombat() directly, we do a small delay
+        StartCoroutine(DelayedStartCombat());
+    }
+
+    private IEnumerator DelayedStartCombat()
+    {
+        // Wait 1 second before actually starting combat
+        yield return new WaitForSeconds(1f);
         StartCombat();
     }
-    // Update is called once per frame
+
     void Update()
     {
-        
+        // ...
     }
 
     private void OnEnemyInRoomDied(ICharacter enemyCharacter)
     {
-        // Unsubscribe from the OnCharacterDied event
         enemyCharacter.OnCharacterDied -= OnEnemyInRoomDied;
         
-        // Attempt to cast the enemyCharacter to Enemy
-        var Enemy = enemyCharacter as Enemy;
-        if (Enemy != null)
+        var deadEnemy = enemyCharacter as Enemy;
+        if (deadEnemy != null)
         {
-            //enemies.Remove(Enemy);
             remainingEnemyNum--;
-            Debug.Log($"{Enemy} has been removed from the enemies list.");
+            Debug.Log($"{deadEnemy} has died. Enemies left: {remainingEnemyNum}");
         }
         else
         {
             Debug.LogWarning("Attempted to remove a non-monster character from the enemies list.");
         }
-        if(remainingEnemyNum==0)
+
+        if (remainingEnemyNum == 0)
         {
-            Debug.Log("Room is Cleared");
+            Debug.Log("Room is Cleared!");
             OnCombatEndedInRoom?.Invoke(this);
             GameManager.Instance.AddScore(roomClearingScore);
         }
@@ -93,7 +100,7 @@ public class Room : MonoBehaviour
 
     public void AddEnemyToRoom(Enemy enemyCharacter)
     {
-        enemyCharacter.OnCharacterDied+=OnEnemyInRoomDied;
+        enemyCharacter.OnCharacterDied += OnEnemyInRoomDied;
         enemies.Add(enemyCharacter);
         remainingEnemyNum++;
     }

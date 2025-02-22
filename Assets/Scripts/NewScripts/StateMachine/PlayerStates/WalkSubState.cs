@@ -24,11 +24,11 @@ public class WalkSubState : BaseState
         var player = (PlayerCharacter)owner;
 
         // 如果按住Shift，则切到Sprint
-        if (/* 检测到Shift */ false)
-        {
-            parentState.SetSubState(parentState.SprintSubState);
-            return;
-        }
+        //if (/* 检测到Shift */ false)
+        //{
+        //    parentState.SetSubState(parentState.SprintSubState);
+        //    return;
+        //}
 
         // 如果想把“向后走速度更慢”也细化成一个子状态，也可以 parentState.SetSubState(backwardState)
         // 否则只需在此子状态中根据移动方向y<0时调低速度
