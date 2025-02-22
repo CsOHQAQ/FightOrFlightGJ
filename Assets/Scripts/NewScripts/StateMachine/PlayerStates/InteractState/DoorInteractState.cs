@@ -93,10 +93,9 @@ public class DoorInteractSubState : BaseState
         if (!Mathf.Approximately(scrollY, 0f))
         {
             door.SetTargetOpenness(door.TargetOpenness + scrollY * doorScrollRate);
+            player.FreeLookCameraController.DoorOffset = door.CurrentOpenness;
         }
         
-        // Example: Also set camera offset based on door's CurrentOpenness if you want
-        // player.FreeLookCameraController.DoorOffset = door.CurrentOpenness;
     }
 
     private void HandleDoorOpened()
