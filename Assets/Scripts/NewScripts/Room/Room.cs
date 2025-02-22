@@ -44,6 +44,7 @@ public class Room : MonoBehaviour
         {
             door.Room = this;
             OnCombatStartedInRoom+=door.OnCombatStartedInRoom;
+            door.OnDoorFullyOpened+= OnDoorFullyOpened;
             OnCombatEndedInRoom+=door.OnCombatEndedInRoom;
         }
         foreach (Enemy enemy in enemies)
@@ -55,7 +56,10 @@ public class Room : MonoBehaviour
         }
         remainingEnemyNum = enemies.Count;
     }
-
+    private void OnDoorFullyOpened()
+    {
+        StartCombat();
+    }
     // Update is called once per frame
     void Update()
     {

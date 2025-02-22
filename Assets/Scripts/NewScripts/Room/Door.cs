@@ -145,7 +145,7 @@ public class Door : MonoBehaviour, IInteractable, IRoomObject
                 {
                     doorCollider.enabled = false; // door is effectively open
                     OnDoorFullyOpened?.Invoke();
-                    Debug.LogWarning("Door Fully Opened");
+                    //Debug.LogWarning("Door Fully Opened");
                     isFullyOpen = true;
                 }
                 else if (!isClosed && tempOpenness <= 0.02f)

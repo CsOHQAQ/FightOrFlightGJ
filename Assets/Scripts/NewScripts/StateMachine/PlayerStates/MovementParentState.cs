@@ -84,10 +84,16 @@ public class MovementParentState : BaseState
 
         if (info.Interactable is Door door)
         {
-            var doorSub = new DoorInteractSubState(player, stateMachine, door);
-            player.CurrentDoor = door;
-            door.Interact(info);
-            stateMachine.ChangeState(doorSub);
+            if(door.CanInteract)
+            {
+                var doorSub = new DoorInteractSubState(player, stateMachine, door);
+                player.CurrentDoor = door;
+                door.Interact(info);
+                stateMachine.ChangeState(doorSub);
+            }
+            else{
+                Debug.Log("Door can not be opened. Add effect and readability here. ");
+            }
         }
         else if (info.Interactable != null)
         {
