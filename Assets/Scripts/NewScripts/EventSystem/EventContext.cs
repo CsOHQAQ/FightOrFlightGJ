@@ -34,6 +34,10 @@ public class AttackData
 
     public GameObject ProjectilePrefab;
     // ... Extend with other fields as needed
+    [Tooltip("0: Not a push. 1: Light push. 2: Heavy Push")]
+    public int PushType = 0;
+    public float PushStagger = 0f;      // How much stagger or knockback
+    public Vector3 PushDirection;       // If you want to store a direction
 }
 
 /// <summary>

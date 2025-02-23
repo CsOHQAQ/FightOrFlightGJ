@@ -228,4 +228,15 @@ public class PlayerHandsComponent : SerializedMonoBehaviour
         leftHand.SetActive(isVisible);
         rightHand.SetActive(isVisible);
     }
+
+    /// <summary>
+    /// Toggles or triggers a push check on the player.
+    /// </summary>
+    /// <param name="pushType">0 for light push, 1 for heavy, etc.</param>
+    public void PerformPushCheck(int pushType)
+    {
+        // If true, we do one check right now (or you can do repeated checks, up to you).
+        Debug.Log($"Performing push check with pushType={pushType}...");
+        ownerCharacter.PerformPushCapsuleCheck(pushType);
+    }
 }

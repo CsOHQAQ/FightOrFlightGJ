@@ -66,34 +66,38 @@ public class MovementParentState : BaseState
         InteractInfo info = player.InteractComponent
             .PerformInteractionCheck(player.gameObject, direction, scrollY);
 
-        // If the raycast found something
-        if (info.Interactable is Door door)
+        if(scrollY > 0f)
         {
-            if (door.CanInteract)
+            if (info.Interactable is Door door)
             {
-                // e.g. Door sub-state or a direct state
-                var doorSub = new DoorInteractSubState(player, stateMachine, door);
-                player.CurrentDoor = door;
-                door.Interact(info);
-                stateMachine.ChangeState(doorSub);
+                if (door.CanInteract)
+                {
+                    // e.g. Door sub-state or a direct state
+                    var doorSub = new DoorInteractSubState(player, stateMachine, door);
+                    player.CurrentDoor = door;
+                    door.Interact(info);
+                    stateMachine.ChangeState(doorSub);
+                }
+                else
+                {
+                    Debug.Log("Door is not interactable right now.");
+                }
+            }
+            else if (info.Interactable != null)
+            {
+                // Some other interactable (button, item, etc.)
+                info.Interactable.Interact(info);
             }
             else
             {
-                Debug.Log("Door is not interactable right now.");
+                
+                // No interactable found, but user scrolled forward => go to push sub-state
+                Debug.Log("No interactable found. Entering PushSubState for a quick push action.");
+                var pushSub = new PushSubState(player, stateMachine);
+                stateMachine.ChangeState(pushSub);
             }
         }
-        else if (info.Interactable != null)
-        {
-            // Some other interactable (button, item, etc.)
-            info.Interactable.Interact(info);
-        }
-        else
-        {
-            // No interactable found, but user scrolled forward => go to push sub-state
-            Debug.Log("No interactable found. Entering PushSubState for a quick push action.");
-            var pushSub = new PushSubState(player, stateMachine);
-            stateMachine.ChangeState(pushSub);
-        }
+
     }
 
     public override void OnLookInput(Vector2 lookInput)

@@ -66,6 +66,12 @@ public class PlayerCharacter : MonoBehaviour,
     private Door currentDoor;
     public Door CurrentDoor { get { return currentDoor; } set{currentDoor = value;} }
 
+    [Header("Push Settings")]
+    // Expose these in your class for easy tuning
+    [SerializeField] private float pushCapsuleDistance = 1.0f;   // Distance forward from player
+    [SerializeField] private float pushCapsuleHeight   = 2.0f;   // Height of the capsule
+    [SerializeField] private float pushCapsuleRadius   = 0.5f;   // Radius of the capsule
+
     // ----------------- 不再用 PlayerState 来驱动核心逻辑 -----------------
     // private PlayerState currentState;  // 移除或不用
 
@@ -517,5 +523,100 @@ public class PlayerCharacter : MonoBehaviour,
     {
         return currentActivatable;
     }
+
+    /// <summary>
+    /// Called by PlayerHandsComponent to actually do the push sphere check
+    /// and handle the closest IPushable found.
+    /// </summary>
+    public void PerformPushCapsuleCheck(int pushType)
+{
+    // 1) The bottom of the capsule is at the player's current position (player center).
+    Vector3 bottomPoint = transform.position;
+
+    // 2) The top is forward in the direction of the camera by pushCapsuleDistance.
+    Vector3 forwardDir = MainCameraTransform.forward;  // from your player’s camera
+    Vector3 topPoint   = bottomPoint + (forwardDir * pushCapsuleDistance);
+
+    // 3) Filter out the "Player" layer from the overlap
+    int layerMask = ~(1 << LayerMask.NameToLayer("Player"));
+
+    // 4) OverlapCapsule to find colliders
+    Collider[] hits = Physics.OverlapCapsule(bottomPoint, topPoint, pushCapsuleRadius, layerMask);
+
+
+    float closestDistSqr = float.MaxValue;
+    Collider closestCollider = null;
+
+    // 5) Find the closest IHitReceiver
+    foreach (Collider col in hits)
+    {
+        IHitReceiver hitReceiver = col.GetComponent<IHitReceiver>();
+        if (hitReceiver != null)
+        {
+            // We'll measure distance from the midpoint of the capsule
+            // A quick approach: just pick the average of bottomPoint & topPoint
+            Vector3 capsuleCenter = (bottomPoint + topPoint) * 0.5f;
+            float distSqr = (col.transform.position - capsuleCenter).sqrMagnitude;
+
+            if (distSqr < closestDistSqr)
+            {
+                closestDistSqr = distSqr;
+                closestCollider = col;
+            }
+        }
+    }
+
+    // 6) If we found something, build an EventContext to represent the push
+    if (closestCollider != null)
+    {
+        IHitReceiver closestReceiver = closestCollider.GetComponent<IHitReceiver>();
+
+        // Calculate push direction: from the capsule center to the collider
+        Vector3 capsuleCenter = (bottomPoint + topPoint) * 0.5f;
+        Vector3 pushDir       = (closestCollider.transform.position - capsuleCenter).normalized;
+        // If you only want horizontal push, do:
+        // pushDir.y = 0f; pushDir.Normalize();
+
+        // Find a contact point on the collider
+        Vector3 contactPoint = closestCollider.ClosestPoint(capsuleCenter);
+
+        // Normal is from the contact point back to capsuleCenter
+        Vector3 normal = (capsuleCenter - contactPoint).normalized;
+
+        // Build the event context
+        EventContext context = new EventContext
+        {
+            Source = this,  // The player pushing
+            Target = closestReceiver,
+            AttackInfo = new AttackData
+            {
+                PushType      = pushType,
+                BaseDamage    = 0f,   // No damage
+                PushStagger   = 5f,   // Some push "strength"
+                PushDirection = pushDir
+            },
+            HitData = new HitData
+            {
+                FinalDamage = 0f,  // No damage
+                HitInfo = new HitInfo
+                {
+                    HitPoint  = contactPoint,
+                    HitNormal = normal
+                }
+            }
+        };
+
+        // Optionally invoke your chain:
+        // EventChainManager.Instance.ExecuteAttackChain(ref context);
+
+        Debug.Log($"Pushed object: {closestReceiver} with pushType={pushType}, " +
+                  $"pushDir={pushDir}, contactPoint={contactPoint}");
+    }
+    else
+    {
+        Debug.Log("No pushable object found in capsule.");
+    }
+}
+
 
 }
