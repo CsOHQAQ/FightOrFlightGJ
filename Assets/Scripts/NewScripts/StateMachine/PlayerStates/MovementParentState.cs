@@ -1,52 +1,37 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class MovementParentState : BaseState
 {
     private PlayerCharacter player;
-    // 引用当前子状态
     private BaseState currentSubState;
 
-    // 可能的子状态
-    public WalkSubState WalkSubState   { get; private set; }
+    // Sub-states
+    public WalkSubState   WalkSubState   { get; private set; }
     public SprintSubState SprintSubState { get; private set; }
-
-    // 可扩展: 如果你想将“后退走路”拆成一个子状态，也行
-    // public BackwardWalkSubState BackwardWalkSubState { get; private set; }
+    public PushSubState   PushSubState   { get; private set; }  // <-- Add this
 
     public MovementParentState(IStateMachineEntity owner, StateMachine stateMachine)
         : base(owner, stateMachine)
     {
-        player = (PlayerCharacter)owner; 
-        // 初始化子状态
+        player = (PlayerCharacter)owner;
+        // Initialize sub-states
         WalkSubState   = new WalkSubState(owner, stateMachine, this);
         SprintSubState = new SprintSubState(owner, stateMachine, this);
+        //PushSubState   = new PushSubState(owner, stateMachine, this); // <-- Initialize
     }
 
     public override void Enter()
     {
         base.Enter();
         Debug.Log("Enter MovementParentState");
-        // 初始默认进入 Walk
+        // Default to walk
         SetSubState(WalkSubState);
     }
 
     public override void UpdateLogic()
     {
         base.UpdateLogic();
-        // 父状态统一处理对外部输入的检测，比如是否要切换到 受击、菜单、交互 等
-
-        // 访问 player 强转
-        var player = (PlayerCharacter)owner;
-
-        // 若检测到打开菜单
-        // if (某个键按下) => stateMachine.ChangeState(player.MenuState);
-
-        // 若检测到受击(示例)
-        // if (被打) => player.EnterTakeDamage(TakeDamageType.Light);
-
-        // 让子状态执行其逻辑
         currentSubState?.UpdateLogic();
     }
 
@@ -63,7 +48,6 @@ public class MovementParentState : BaseState
         currentSubState?.Exit();
     }
 
-    // 用于内部子状态切换
     public void SetSubState(BaseState newSub)
     {
         currentSubState?.Exit();
@@ -73,36 +57,48 @@ public class MovementParentState : BaseState
 
     public override void OnInteractInput(float scrollY)
     {
+        // If the user isn't actually scrolling, do nothing
         if (Mathf.Approximately(scrollY, 0f)) return;
 
-        bool isPush = (scrollY > 0f);
-        Vector3 direction = isPush ? player.MainCameraTransform.forward
-                                : -player.MainCameraTransform.forward;
-        
-        InteractInfo info = player.InteractComponent
-                        .PerformInteractionCheck(player.gameObject, direction, scrollY);
+        // Attempt a raycast for an interactable
+        Vector3 direction = player.MainCameraTransform.forward;
 
+        InteractInfo info = player.InteractComponent
+            .PerformInteractionCheck(player.gameObject, direction, scrollY);
+
+        // If the raycast found something
         if (info.Interactable is Door door)
         {
-            if(door.CanInteract)
+            if (door.CanInteract)
             {
+                // e.g. Door sub-state or a direct state
                 var doorSub = new DoorInteractSubState(player, stateMachine, door);
                 player.CurrentDoor = door;
                 door.Interact(info);
                 stateMachine.ChangeState(doorSub);
             }
-            else{
-                Debug.Log("Door can not be opened. Add effect and readability here. ");
+            else
+            {
+                Debug.Log("Door is not interactable right now.");
             }
         }
         else if (info.Interactable != null)
         {
+            // Some other interactable (button, item, etc.)
             info.Interactable.Interact(info);
+        }
+        else
+        {
+            // No interactable found, but user scrolled forward => go to push sub-state
+            Debug.Log("No interactable found. Entering PushSubState for a quick push action.");
+            var pushSub = new PushSubState(player, stateMachine);
+            stateMachine.ChangeState(pushSub);
         }
     }
 
-    public override void OnLookInput (Vector2 lookInput)
+    public override void OnLookInput(Vector2 lookInput)
     {
+        // Pass the look input to your camera controller
         player.FreeLookCameraController.LookInput = lookInput;
     }
 }

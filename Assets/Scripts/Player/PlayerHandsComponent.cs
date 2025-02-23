@@ -41,10 +41,13 @@ public class PlayerHandsComponent : SerializedMonoBehaviour
 
     private HandState currentState;
     public HandState lastState;
+    private Animator animator;
+    public Animator Animator{get{return animator;}}
 
     public void Initialize(PlayerCharacter ownerCharacter)
     {
         this.ownerCharacter = ownerCharacter;
+        animator = GetComponentInChildren<Animator>();
     }
 
     void Start()

@@ -5,6 +5,7 @@ using UnityEngine;
 public class InteractState : BaseState
 {
     private DoorInteractSubState doorInteractSubState;
+    private PushSubState pushSubState;
     private BaseState currentSubState;
 
     public InteractState(IStateMachineEntity owner, StateMachine stateMachine)
