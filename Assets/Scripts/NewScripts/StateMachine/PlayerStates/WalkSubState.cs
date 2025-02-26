@@ -4,19 +4,29 @@ using UnityEngine;
 
 public class WalkSubState : BaseState
 {
+    
+    PlayerCharacter player;
     private MovementParentState parentState;
+
+    private GameplayEffectSpecHandle walkDebuffHandle;
     public WalkSubState(IStateMachineEntity owner, StateMachine stateMachine, MovementParentState parent)
         : base(owner, stateMachine)
     {
         parentState = parent;
+        player = owner as PlayerCharacter;
     }
 
     public override void Enter()
     {
         base.Enter();
-        var player = owner as PlayerCharacter;
+        
         player.CanActivate = true;
         Debug.Log("Enter WalkSubState");
+        //RemoveEffectSpec(GameplayEffectSpecHandle handle)
+        //walkDebuffHandle = new GameplayEffectSpecHandle();
+        
+        
+        
     }
 
     public override void UpdateLogic()
@@ -39,7 +49,6 @@ public class WalkSubState : BaseState
     public override void UpdatePhysics()
     {
         base.UpdatePhysics();
-        var player = (PlayerCharacter)owner;
 
         // If pressing backward, maybe reduce speed
         float finalSpeed = player.MoveSpeed;
@@ -51,18 +60,30 @@ public class WalkSubState : BaseState
         Vector3 right   = player.GetCameraYawRight()   * player.MoveInput.x;
         Vector3 movementDir = (forward + right).normalized * finalSpeed;
 
-        if (player.characterController)
+        if (player.characterController&&movementDir.magnitude > 0f)
         {
             player.characterController.Move(movementDir * Time.fixedDeltaTime);
+            if(walkDebuffHandle.HandleID == 0)
+            {
+                walkDebuffHandle = player.AbilitySystemComponent.ApplyEffectToSelf(StateSetting.Instance.WalkDebuffEffect,1);
+            }
+        }else{
+            if(walkDebuffHandle.HandleID != 0)
+            {
+                player.AbilitySystemComponent.RemoveEffectSpec(walkDebuffHandle);
+                walkDebuffHandle = new GameplayEffectSpecHandle();
+            }
         }
     }
 
     public override void Exit()
     {
         base.Exit();
-        var player = owner as PlayerCharacter;
         player.CanActivate = false;
         Debug.Log("Exit WalkSubState");
+
+        
+        
     }
     // ----------------------------------------------------------------------
     // LEFT-CLICK OVERRIDES

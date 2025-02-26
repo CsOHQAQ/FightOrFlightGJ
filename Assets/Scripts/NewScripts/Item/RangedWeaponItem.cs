@@ -412,6 +412,10 @@ private void PerformHitscanShot(EventContext context)
 
         autoRecoverCoroutine = null;
     }
-
+    
+    public void OnSpreadAngleChanged(float oldValue, float newValue) 
+    {
+        BaseSpreadAngle = newValue;
+    }
 
 }

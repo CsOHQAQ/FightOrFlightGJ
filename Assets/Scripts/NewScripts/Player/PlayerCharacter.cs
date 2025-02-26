@@ -15,6 +15,7 @@ public class PlayerCharacter : MonoBehaviour,
 
     [SerializeField] ArtifactSO[] artifactsOnStart;
     private AbilitySystemComponent abilitySystemComponent;
+    public AbilitySystemComponent AbilitySystemComponent{get{return abilitySystemComponent;}}
     private WeaponComponent weaponComponent;
 
     /// <summary>
@@ -193,7 +194,7 @@ public class PlayerCharacter : MonoBehaviour,
         // 装备
         EquipItem(testWeapon);
         weaponComponent?.Initialize(this, testWeapon);
-
+        playerCharacterAttributeSet.BaseSpreadAngle.OnValueChanged+=testWeapon.OnSpreadAngleChanged;
         // 装备一些artifact
         foreach (ArtifactSO artifact in artifactsOnStart)
         {

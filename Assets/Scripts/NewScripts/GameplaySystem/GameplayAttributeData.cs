@@ -8,10 +8,22 @@ public class GameplayAttribute
     [SerializeField] private float baseValue = 0f;
     private readonly List<AttributeModifier> modifiers = new List<AttributeModifier>();
 
+    public event Action<float, float> OnValueChanged;
+
     public float BaseValue
     {
         get => baseValue;
-        set => baseValue = value;
+        set
+        {
+            if (baseValue == value) return;
+            float oldValue = CurrentValue;
+            baseValue = value;
+            float newValue = CurrentValue;
+            if (oldValue != newValue)
+            {
+                OnValueChanged?.Invoke(oldValue, newValue);
+            }
+        }
     }
     
     public float CurrentValue
@@ -32,13 +44,13 @@ public class GameplayAttribute
                         additiveSum += modifier.Value;
                         break;
                     case ModifierType.MultiplyAdditive:
-                        multiplyAdditive += modifier.Value; // Additive multiplier
+                        multiplyAdditive += modifier.Value;
                         break;
                     case ModifierType.DivideAdditive:
-                        divideAdditive *= 1 + modifier.Value; // Treat as a percentage
+                        divideAdditive *= 1 + modifier.Value;
                         break;
                     case ModifierType.MultiplyCompound:
-                        multiplyCompound *= 1 + modifier.Value; // Compound multiplier
+                        multiplyCompound *= 1 + modifier.Value;
                         break;
                     case ModifierType.AddFinal:
                         finalAdd += modifier.Value;
@@ -53,16 +65,37 @@ public class GameplayAttribute
 
     public void AddModifier(AttributeModifier modifier)
     {
+        float oldValue = CurrentValue;
         modifiers.Add(modifier);
+        float newValue = CurrentValue;
+        if (oldValue != newValue)
+        {
+            OnValueChanged?.Invoke(oldValue, newValue);
+        }
     }
 
     public void RemoveModifier(AttributeModifier modifier)
     {
-        modifiers.Remove(modifier);
+        float oldValue = CurrentValue;
+        bool removed = modifiers.Remove(modifier);
+        if (removed)
+        {
+            float newValue = CurrentValue;
+            if (oldValue != newValue)
+            {
+                OnValueChanged?.Invoke(oldValue, newValue);
+            }
+        }
     }
 
     public void ClearModifiersFromSource(object source)
     {
+        float oldValue = CurrentValue;
         modifiers.RemoveAll(modifier => modifier.Source == source);
+        float newValue = CurrentValue;
+        if (oldValue != newValue)
+        {
+            OnValueChanged?.Invoke(oldValue, newValue);
+        }
     }
 }
