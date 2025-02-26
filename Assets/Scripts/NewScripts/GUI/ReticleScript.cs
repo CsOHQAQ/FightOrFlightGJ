@@ -21,7 +21,9 @@ public class ReticleScript : MonoBehaviour
 
     // The additional offset from firing "kick"
     private float fireKickOffset = 0f;
+    [SerializeField]
     private float fireKickMaxValue = 10f;    // how big the reticle "jumps" 
+    [SerializeField]
     private float fireKickDuration = 0.2f;   // total time for the effect
     private bool isKicking = false;
 
