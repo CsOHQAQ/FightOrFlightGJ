@@ -4,6 +4,13 @@ using System.Collections;
 
 public class ReticleScript : MonoBehaviour
 {
+    [Header("Camera Settings")]
+    public Camera viewCamera;
+    public bool useVerticalFOV = true; // Horizontal FOV for ultrawide support
+    [SerializeField] private float referenceScreenHeight = 1080f;
+
+    private float fovTan;
+
     [Header("Reticle Lines")]
     public RectTransform topLine;
     public RectTransform bottomLine;
@@ -36,7 +43,8 @@ public class ReticleScript : MonoBehaviour
         {
             playerCharacter = GameManager.Instance.PlayerCharacter;
         }
-
+        CacheFOV();
+        if (!viewCamera) viewCamera = Camera.main;
         // (A) Subscribe to a "WeaponFired" event (option 1: do it via PlayerCharacter)
         // E.g. if PlayerCharacter re-raises an event:
         // playerCharacter.OnWeaponFired += OnWeaponFired;
@@ -129,17 +137,23 @@ public class ReticleScript : MonoBehaviour
 
     float CalculateGap(float spreadAngleDegrees)
     {
-        if (useLinearMapping)
+        if (!viewCamera || fovTan <= Mathf.Epsilon)
         {
-            // linear
-            return baseGap + (spreadAngleDegrees * gapScale);
+            CacheFOV();
+            if (!viewCamera) return 0f;
         }
-        else
-        {
-            // trig
-            float halfRad = (spreadAngleDegrees * 0.5f) * Mathf.Deg2Rad;
-            return gapScale * Mathf.Tan(halfRad);
-        }
+
+        // Convert spread angle to screen space
+        float spreadTan = Mathf.Tan(spreadAngleDegrees * Mathf.Deg2Rad / 2);
+        float screenRatio = spreadTan / fovTan;
+        
+        // Convert to pixel space
+        float screenGap = screenRatio * referenceScreenHeight / 2f;
+        
+        // Apply non-linear perception curve
+        screenGap = Mathf.Pow(screenGap, 0.9f);
+        
+        return Mathf.Clamp(baseGap + screenGap * gapScale, 0f, maxGap);
     }
 
     void ApplyReticlePositions(float gap)
@@ -148,5 +162,17 @@ public class ReticleScript : MonoBehaviour
         if (bottomLine != null) bottomLine.anchoredPosition = new Vector2(0f, -gap);
         if (leftLine   != null) leftLine.anchoredPosition   = new Vector2(-gap, 0f);
         if (rightLine  != null) rightLine.anchoredPosition  = new Vector2(+gap, 0f);
+    }
+
+    void CacheFOV()
+    {
+        if (!viewCamera) return;
+        
+        float fov = useVerticalFOV ? 
+            viewCamera.fieldOfView :
+            2 * Mathf.Atan(Mathf.Tan(viewCamera.fieldOfView * Mathf.Deg2Rad / 2) * 
+            viewCamera.aspect) * Mathf.Rad2Deg;
+
+        fovTan = Mathf.Tan(fov * Mathf.Deg2Rad / 2);
     }
 }

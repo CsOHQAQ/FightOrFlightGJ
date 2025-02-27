@@ -306,43 +306,34 @@ private void PerformHitscanShot(EventContext context)
     /// </summary>
     private Vector3 ApplyAccuracySpread(Vector3 forwardDir, float accuracyValue)
     {
-        
-
-        // Example formula: finalSpreadAngle = baseAngle / (1 + accuracyValue)
-        // So if accuracy=1, finalSpread=2.5°, if accuracy=4, finalSpread=1°.
+        // Calculate final spread angle using accuracy
         float finalSpreadAngle = BaseSpreadAngle / (1f + accuracyValue);
-
-        // We randomize yaw & pitch in [-finalSpreadAngle/2, +finalSpreadAngle/2]
-        float yaw   = UnityEngine.Random.Range(-finalSpreadAngle * 0.5f, finalSpreadAngle * 0.5f);
-        float pitch = UnityEngine.Random.Range(-finalSpreadAngle * 0.5f, finalSpreadAngle * 0.5f);
-
-        // Construct a rotation from these angles
-        Quaternion spreadRotation = Quaternion.Euler(pitch, yaw, 0f);
-        Debug.Log("Pitch: "+pitch+", Yaw: "+ yaw);
-        // Apply it to the forward direction
-        Vector3 spreadDirection = spreadRotation * forwardDir.normalized;
-        Debug.Log($"Spawned projectile spreadDirection = {spreadDirection}");
-
-        // 1) Normalize forward vector
-        Vector3 fwd = forwardDir.normalized;
-
-        // 2) Choose a random angle up to 'finalSpreadAngle' and a random rotation around that axis
-        float spreadRad = Mathf.Deg2Rad * finalSpreadAngle; // finalSpreadAngle in degrees
-        float u = UnityEngine.Random.value;  // for radius
-        float r = Mathf.Sin(spreadRad) * Mathf.Sqrt(u);  
-        float theta = UnityEngine.Random.Range(0f, 2f * Mathf.PI);
-
-        // Build an orthonormal basis around fwd
-        Vector3 up = (Mathf.Abs(Vector3.Dot(fwd, Vector3.up)) > 0.9999f) ? Vector3.forward : Vector3.up;
-        Vector3 right = Vector3.Cross(fwd, up).normalized;
-        up = Vector3.Cross(fwd, right).normalized;
-
-        // Offsets in plane
-        Vector3 offset = (Mathf.Cos(theta) * right + Mathf.Sin(theta) * up) * r;
-        // Combine with forward
-        Vector3 finalDir = (fwd * Mathf.Sqrt(1f - r*r)) + offset;  // For uniform distribution
         
-        return finalDir.normalized;
+        // Edge case: No spread
+        if(finalSpreadAngle <= Mathf.Epsilon) 
+            return forwardDir.normalized;
+
+        // Implement cone spread directly
+        Vector3 direction = forwardDir.normalized;
+        float coneAngleRadians = finalSpreadAngle * Mathf.Deg2Rad;
+        float cosThetaMax = Mathf.Cos(coneAngleRadians);
+
+        // Random spherical coordinates
+        float u = UnityEngine.Random.value;
+        float cosTheta = (1 - u) + u * cosThetaMax;
+        float sinTheta = Mathf.Sqrt(1 - cosTheta * cosTheta);
+        float phi = UnityEngine.Random.Range(0f, 2f * Mathf.PI);
+
+        // Create local direction in rotated space
+        Vector3 localDirection = new Vector3(
+            sinTheta * Mathf.Cos(phi),
+            sinTheta * Mathf.Sin(phi),
+            cosTheta
+        );
+
+        // Align with weapon direction
+        Quaternion rotation = Quaternion.FromToRotation(Vector3.forward, direction);
+        return rotation * localDirection;
     }
 
 
