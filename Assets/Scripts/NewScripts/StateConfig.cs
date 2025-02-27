@@ -2,10 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class StateSetting : MonoBehaviour
+public class StateConfig : MonoBehaviour
 {
-    private static StateSetting instance;
-    public static StateSetting Instance => instance;
+    private static StateConfig instance;
+    public static StateConfig Instance => instance;
 
     public GameplayEffect WalkDebuffEffect;
 

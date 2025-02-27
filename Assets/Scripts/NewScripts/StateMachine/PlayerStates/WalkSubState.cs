@@ -65,7 +65,7 @@ public class WalkSubState : BaseState
             player.characterController.Move(movementDir * Time.fixedDeltaTime);
             if(walkDebuffHandle.HandleID == 0)
             {
-                walkDebuffHandle = player.AbilitySystemComponent.ApplyEffectToSelf(StateSetting.Instance.WalkDebuffEffect,1);
+                walkDebuffHandle = player.AbilitySystemComponent.ApplyEffectToSelf(StateConfig.Instance.WalkDebuffEffect,1);
             }
         }else{
             if(walkDebuffHandle.HandleID != 0)
