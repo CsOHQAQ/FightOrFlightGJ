@@ -313,6 +313,9 @@ MonoBehaviour:
   bumpDistance: 0.3
   bumpDuration: 0.15
   bodyTransform: {fileID: 5601706960039789189}
+  pushCapsuleDistance: 1
+  pushCapsuleHeight: 2
+  pushCapsuleRadius: 0.5
 --- !u!114 &7033916318951973429
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -407,12 +410,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3456895501349425507}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1, y: -1.5, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -1, y: -1.5, z: 0.49999988}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
-  m_Father: {fileID: 1789037831011757501}
+  m_Father: {fileID: 2082362056165530588}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &5568715163947238188
 SpriteRenderer:
@@ -575,12 +578,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5518671458311577358}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1, y: -1.5, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 1, y: -1.5, z: 0.5000002}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
-  m_Father: {fileID: 1789037831011757501}
+  m_Father: {fileID: 2082362056165530588}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &2352598040862111617
 SpriteRenderer:
@@ -1201,6 +1204,8 @@ Transform:
   m_Children:
   - {fileID: 308872190390774961}
   - {fileID: 8508645924880001632}
+  - {fileID: 8415524343822777777}
+  - {fileID: 4829194837601111830}
   m_Father: {fileID: 5601706960039789189}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!20 &6909736791738395702
@@ -1338,8 +1343,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 8415524343822777777}
-  - {fileID: 4829194837601111830}
   - {fileID: 9183020246949472428}
   - {fileID: 5185242490041967651}
   m_Father: {fileID: 5601706960039789189}
