@@ -101,6 +101,7 @@ public class PlayerCharacter : MonoBehaviour,
     public event Action<bool> OnCanActivateChanged;
 
     private PlayerInput playerInputAction;
+    public PlayerInput PlayerInputAction{get{return playerInputAction;}}
 
     // ICharacter properties and fields
     private float health = 100f; // Default health
@@ -208,11 +209,11 @@ public class PlayerCharacter : MonoBehaviour,
     private void Update()
     {
         // 如果玩家按下Confirm并能交互
-        var confirmAction = playerInputAction.actions["Confirm"];
-        if (confirmAction != null && confirmAction.phase == InputActionPhase.Performed && canActivate)
-        {
-            HoldUseItem(currentActivatable, ActivationTrigger.LeftMouse);
-        }
+        //var confirmAction = playerInputAction.actions["Confirm"];
+        //if (confirmAction != null && confirmAction.phase == InputActionPhase.Performed && canActivate)
+        //{
+        //    HoldUseItem(currentActivatable, ActivationTrigger.LeftMouse);
+        //}
 
         // 让状态机自身Update
         BaseStateMachine.Update();

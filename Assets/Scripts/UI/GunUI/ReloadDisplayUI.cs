@@ -31,7 +31,7 @@ public class ReloadDisplayUI : MonoBehaviour
     /// </summary>
     public void UpdateStateColors(OverloadState state, bool failedThisReload)
     {
-        // If we just failed overload, do a quick flash to failedColor
+        // If we just failed, do a quick flash
         if (failedThisReload && failedFlashCoroutine == null)
         {
             failedFlashCoroutine = StartCoroutine(HandleFailedFlash());
@@ -50,6 +50,12 @@ public class ReloadDisplayUI : MonoBehaviour
             case OverloadState.AfterWindow:
                 currentMainColor = afterWindowColor;
                 currentOverloadColor = afterWindowColor;
+                break;
+
+            case OverloadState.Failed:  // <-- new
+                // Immediately set both to red
+                currentMainColor = failedColor;
+                currentOverloadColor = failedColor;
                 break;
         }
 

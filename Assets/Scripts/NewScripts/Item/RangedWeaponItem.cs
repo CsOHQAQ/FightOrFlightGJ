@@ -83,7 +83,7 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment {
 
 
     public override void HoldUse(IPlayerCharacter user, ActivationTrigger trigger) {
-        //Debug.LogError("???????????????????????");
+        
         if (IsReloading) return;
         if (Time.time < nextFireTime) return;
 
@@ -155,16 +155,19 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment {
         overloadFailedThisReload = false;
         while (reloadTimer < ReloadTime) {
             reloadTimer += Time.deltaTime;
-            
-            if (reloadTimer < OverloadWindowStart) {
+            if (!overloadFailedThisReload)
+            {
+                if (reloadTimer < OverloadWindowStart) {
                 CurrentOverloadState = OverloadState.BeforeWindow;
+                }
+                else if (reloadTimer <= OverloadWindowEnd) {
+                    CurrentOverloadState = OverloadState.InWindow;
+                }
+                else {
+                    CurrentOverloadState = OverloadState.AfterWindow;
+                }
             }
-            else if (reloadTimer <= OverloadWindowEnd) {
-                CurrentOverloadState = OverloadState.InWindow;
-            }
-            else {
-                CurrentOverloadState = OverloadState.AfterWindow;
-            }
+
             
             if (reloadTimer > OverloadWindowEnd) {
                 canOverload = false;
@@ -196,7 +199,7 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment {
             FinishReload(normalReload: false);
         } else {
             canOverload = false;
-            CurrentOverloadState = OverloadState.Failed;
+            CurrentOverloadState = OverloadState.Failed;      // <---- the new line
             overloadFailedThisReload = true;
             Debug.Log("Overload Failed: Pressed outside the window.");
         }

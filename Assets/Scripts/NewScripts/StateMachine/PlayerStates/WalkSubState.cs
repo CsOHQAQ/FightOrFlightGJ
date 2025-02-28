@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class WalkSubState : BaseState
 {
@@ -33,42 +34,53 @@ public class WalkSubState : BaseState
     {
         base.UpdateLogic();
 
-        var player = (PlayerCharacter)owner;
+        // 1) Check if left click input is "Performed" 
+        //    (meaning it's actively held down)
+        var leftClickAction = player.PlayerInputAction.actions["Confirm"]; 
+        // We'll define a helper below to get the action by name
 
-        // 如果按住Shift，则切到Sprint
-        //if (/* 检测到Shift */ false)
-        //{
-        //    parentState.SetSubState(parentState.SprintSubState);
-        //    return;
-        //}
+        if (leftClickAction != null && leftClickAction.phase == InputActionPhase.Performed)
+        {
+            // 2) If we have an activatable item, call HoldUse each frame
+            IActivatable item = player.GetCurrentActivatable();
+            if (item != null && player.CanActivate)
+            {
+                item.HoldUse(player, ActivationTrigger.LeftMouse);
+            }
+        }
 
-        // 如果想把“向后走速度更慢”也细化成一个子状态，也可以 parentState.SetSubState(backwardState)
-        // 否则只需在此子状态中根据移动方向y<0时调低速度
+        // [Optionally] do other logic for sub‐state...
+        // e.g. handle shift -> sprint, etc.
     }
 
     public override void UpdatePhysics()
     {
         base.UpdatePhysics();
 
-        // If pressing backward, maybe reduce speed
+        // The usual movement logic
         float finalSpeed = player.MoveSpeed;
         if (player.MoveInput.y < 0f)
             finalSpeed *= 0.5f;
 
-        // Use the camera-based yaw forward/right
         Vector3 forward = player.GetCameraYawForward() * player.MoveInput.y;
         Vector3 right   = player.GetCameraYawRight()   * player.MoveInput.x;
         Vector3 movementDir = (forward + right).normalized * finalSpeed;
 
-        if (player.characterController&&movementDir.magnitude > 0f)
+        if (player.characterController && movementDir.magnitude > 0f)
         {
             player.characterController.Move(movementDir * Time.fixedDeltaTime);
-            if(walkDebuffHandle.HandleID == 0)
+
+            // Possibly apply your walkDebuff if moving...
+            if (walkDebuffHandle.HandleID == 0)
             {
-                walkDebuffHandle = player.AbilitySystemComponent.ApplyEffectToSelf(StateConfig.Instance.WalkDebuffEffect,1);
+                walkDebuffHandle = player.AbilitySystemComponent
+                    .ApplyEffectToSelf(StateConfig.Instance.WalkDebuffEffect, 1f);
             }
-        }else{
-            if(walkDebuffHandle.HandleID != 0)
+        }
+        else
+        {
+            // If not moving, remove the effect
+            if (walkDebuffHandle.HandleID != 0)
             {
                 player.AbilitySystemComponent.RemoveEffectSpec(walkDebuffHandle);
                 walkDebuffHandle = new GameplayEffectSpecHandle();
@@ -82,25 +94,25 @@ public class WalkSubState : BaseState
         player.CanActivate = false;
         Debug.Log("Exit WalkSubState");
 
-        
-        
+        // If we want to remove the walkDebuff on exit:
+        if (walkDebuffHandle.HandleID != 0)
+        {
+            player.AbilitySystemComponent.RemoveEffectSpec(walkDebuffHandle);
+            walkDebuffHandle = new GameplayEffectSpecHandle();
+        }
     }
+
     // ----------------------------------------------------------------------
     // LEFT-CLICK OVERRIDES
     // ----------------------------------------------------------------------
     public override void OnLeftClickStarted()
     {
         base.OnLeftClickStarted();
-        
-        var player = (PlayerCharacter)owner;
 
-        // Example logic: If the player has a currentActivatable (like a gun), shoot
         IActivatable item = player.GetCurrentActivatable(); 
-        if (item != null)
+        if (item != null && player.CanActivate)
         {
-            // Or check player.CanActivate, etc.
             item.BeginUse(player, ActivationTrigger.LeftMouse);
-            //Debug.LogError("???????????????????????");
         }
         else
         {
@@ -111,8 +123,7 @@ public class WalkSubState : BaseState
     public override void OnLeftClickCanceled()
     {
         base.OnLeftClickCanceled();
-        
-        var player = (PlayerCharacter)owner;
+
         IActivatable item = player.GetCurrentActivatable();
         if (item != null)
         {
