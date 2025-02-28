@@ -8,6 +8,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 740760162987298157, guid: 63096c840e257d4419d191f5afc0941d,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 861679888675832359, guid: 63096c840e257d4419d191f5afc0941d,
         type: 3}
       propertyPath: m_Sprite
@@ -66,11 +71,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Center.y
       value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4589879833095782853, guid: 63096c840e257d4419d191f5afc0941d,
-        type: 3}
-      propertyPath: m_Radius
-      value: 0.6
       objectReference: {fileID: 0}
     - target: {fileID: 5264413024997153595, guid: 63096c840e257d4419d191f5afc0941d,
         type: 3}

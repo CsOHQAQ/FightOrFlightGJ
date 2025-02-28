@@ -64,11 +64,12 @@ public class WalkSubState : BaseState
 
         Vector3 forward = player.GetCameraYawForward() * player.MoveInput.y;
         Vector3 right   = player.GetCameraYawRight()   * player.MoveInput.x;
-        Vector3 movementDir = (forward + right).normalized * finalSpeed;
-
+        Vector3 movementDir = (forward + right).normalized * finalSpeed* Time.fixedDeltaTime;
+        Vector3 finalMovement =  player.ApplyGravity(movementDir);
         if (player.characterController && movementDir.magnitude > 0f)
         {
-            player.characterController.Move(movementDir * Time.fixedDeltaTime);
+            
+            player.characterController.Move(finalMovement);
 
             // Possibly apply your walkDebuff if moving...
             if (walkDebuffHandle.HandleID == 0)

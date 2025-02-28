@@ -33,6 +33,8 @@ public class PlayerCharacter : MonoBehaviour,
     private PlayerHandsComponent hand;
     public PlayerHandsComponent Hand { get { return hand; } }
     [Header("First-Person Movement Settings (CharacterController)")]
+    [SerializeField] private float gravity = 9.81f;
+    private float verticalSpeed = 0f;
     [SerializeField] private float moveSpeed = 4.0f;    // 玩家移动速度
     public float MoveSpeed { get { return moveSpeed; } }
 
@@ -217,12 +219,35 @@ public class PlayerCharacter : MonoBehaviour,
 
         // 让状态机自身Update
         BaseStateMachine.Update();
+
+    }
+    /// <summary>
+    /// Example helper that merges your sub-state’s XZ movement with our verticalSpeed.
+    /// You might store the sub-state’s movement in a field or return it from somewhere.
+    /// This is just an example of how to unify them.
+    /// </summary>
+    public Vector3 ApplyGravity(Vector3 movementVector)
+    {
+        if (!characterController.isGrounded)
+        {
+            // We’re in mid-air, so accelerate downward.
+            verticalSpeed -= gravity * Time.fixedDeltaTime;
+            
+        }
+        else
+        {
+            // We’re grounded. Prevent sinking or floating.
+            // Set a small negative if you want to "stick" to slopes.
+            verticalSpeed = -0.1f;
+        }
+        movementVector.y = verticalSpeed;
+        return movementVector;
     }
 
     private void FixedUpdate()
     {
-        // 不再在此直接处理移动, 而由 MovementParentState 或其子状态管理
         BaseStateMachine.FixedUpdate();
+
     }
     #endregion
 

@@ -189,6 +189,7 @@ MonoBehaviour:
   hurtFeedback: {fileID: 5901202208799518208}
   windUpFeedback: {fileID: 8795285031760399873}
   attackFeedback: {fileID: 3081846848056303681}
+  scoreOnKill: 100
   <MaxHealth>k__BackingField: 100
   speed: 1
   <RotationSpeed>k__BackingField: 5
