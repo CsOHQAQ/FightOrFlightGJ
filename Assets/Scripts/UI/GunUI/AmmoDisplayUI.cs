@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-
+public enum OverloadState { BeforeWindow, InWindow, AfterWindow, Failed }
 public class AmmoDisplayUI : MonoBehaviour
 {
     private PlayerCharacter playerCharacter;
@@ -87,14 +87,16 @@ public class AmmoDisplayUI : MonoBehaviour
             // Show/hide reload UI
             bool reloading = item.IsReloading;
             reloadDisplayUI.gameObject.SetActive(reloading);
-            if (reloading)
-            {
-                reloadDisplayUI.UpdateReloadProgress(item.CurrentLoadingPercentage);
-                reloadDisplayUI.InitializeOverloadWindowUI(item.OverloadWindowRatio);
+            if (reloading) {
+            reloadDisplayUI.UpdateReloadProgress(item.CurrentLoadingPercentage);
+            reloadDisplayUI.InitializeOverloadWindowUI(item.OverloadWindowRatio);
+            reloadDisplayUI.UpdateStateColors(
+                item.CurrentOverloadState, 
+                item.OverloadFailedThisReload
+                );
             }
         }
     }
-
     private void OnPlayerEquipped(IEquipable equipable)
     {
         // Only handle if it's a weapon

@@ -12,4 +12,6 @@ public interface IAmmoDisplayEquipment
     bool IsReloading { get; }
     float CurrentLoadingPercentage{get;}
     float OverloadWindowRatio{get;}
+    OverloadState CurrentOverloadState { get; }
+    bool OverloadFailedThisReload { get; }
 }

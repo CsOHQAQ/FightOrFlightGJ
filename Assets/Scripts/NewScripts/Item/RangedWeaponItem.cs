@@ -3,6 +3,12 @@ using UnityEngine;
 using System;
 
 public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment {
+
+    // Add to RangedWeaponItem class
+    
+    public OverloadState CurrentOverloadState { get; private set; }
+    public bool OverloadFailedThisReload => overloadFailedThisReload;
+    private bool overloadFailedThisReload;
     public string AmmoType { get; private set; }
     public int MaxMagazineAmmo { get; private set; }
     public int CurrentMagazineAmmo { get; private set; }
@@ -73,6 +79,7 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment {
         }
     }
 
+
     public override void HoldUse(IPlayerCharacter user, ActivationTrigger trigger) {
         if (IsReloading) return;
         if (Time.time < nextFireTime) return;
@@ -132,6 +139,7 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment {
     }
 
     private void StartReload() {
+        overloadFailedThisReload = false;
         if (IsReloading) return;
         IsReloading = true;
         reloadTimer = 0f;
@@ -141,8 +149,20 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment {
     }
 
     private IEnumerator ReloadCoroutine() {
+        overloadFailedThisReload = false;
         while (reloadTimer < ReloadTime) {
             reloadTimer += Time.deltaTime;
+            
+            if (reloadTimer < OverloadWindowStart) {
+                CurrentOverloadState = OverloadState.BeforeWindow;
+            }
+            else if (reloadTimer <= OverloadWindowEnd) {
+                CurrentOverloadState = OverloadState.InWindow;
+            }
+            else {
+                CurrentOverloadState = OverloadState.AfterWindow;
+            }
+            
             if (reloadTimer > OverloadWindowEnd) {
                 canOverload = false;
             }
@@ -173,6 +193,8 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment {
             FinishReload(normalReload: false);
         } else {
             canOverload = false;
+            CurrentOverloadState = OverloadState.Failed;
+            overloadFailedThisReload = true;
             Debug.Log("Overload Failed: Pressed outside the window.");
         }
     }
