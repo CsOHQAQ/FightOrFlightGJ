@@ -105,4 +105,16 @@ public class MovementParentState : BaseState
         // Pass the look input to your camera controller
         player.FreeLookCameraController.LookInput = lookInput;
     }
+
+    public override void OnLeftClickStarted()
+    {
+        base.OnLeftClickStarted();
+        currentSubState?.OnLeftClickStarted();
+    }
+
+    public override void OnLeftClickCanceled()
+    {
+        base.OnLeftClickCanceled();
+        currentSubState?.OnLeftClickCanceled();
+    }
 }

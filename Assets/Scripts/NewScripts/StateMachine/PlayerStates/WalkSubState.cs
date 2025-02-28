@@ -100,6 +100,7 @@ public class WalkSubState : BaseState
         {
             // Or check player.CanActivate, etc.
             item.BeginUse(player, ActivationTrigger.LeftMouse);
+            //Debug.LogError("???????????????????????");
         }
         else
         {

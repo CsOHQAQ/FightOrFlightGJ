@@ -68,7 +68,9 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment {
     }
 
     public override void BeginUse(IPlayerCharacter user, ActivationTrigger trigger) {
+        
         if (IsReloading) {
+            
             if (canOverload) TryOverload();
             return;
         } 
@@ -81,6 +83,7 @@ public class RangedWeaponItem : WeaponItem, IAmmoDisplayEquipment {
 
 
     public override void HoldUse(IPlayerCharacter user, ActivationTrigger trigger) {
+        //Debug.LogError("???????????????????????");
         if (IsReloading) return;
         if (Time.time < nextFireTime) return;
 
