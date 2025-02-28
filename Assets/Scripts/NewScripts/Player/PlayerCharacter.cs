@@ -609,7 +609,8 @@ public class PlayerCharacter : MonoBehaviour,
         };
 
         // Optionally invoke your chain:
-        // EventChainManager.Instance.ExecuteAttackChain(ref context);
+        EventChainManager.Instance.ExecuteAttackChain(ref context);
+        EventChainManager.Instance.ExecuteHitChain(ref context);
 
         Debug.Log($"Pushed object: {closestReceiver} with pushType={pushType}, " +
                   $"pushDir={pushDir}, contactPoint={contactPoint}");

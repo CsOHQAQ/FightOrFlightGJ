@@ -17,7 +17,7 @@ MonoBehaviour:
     ModifierOperation: 1
     ModifierMagnitude:
       magnitudeCalculationType: 0
-      flatMagnitude: 10
+      flatMagnitude: 5
       attributeBased:
         coefficient: 1
         preMultiplyAdditiveValue: 0
